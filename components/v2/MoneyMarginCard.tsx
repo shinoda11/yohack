@@ -110,7 +110,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
               key={metric.label}
               className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
             >
-              <div className={`rounded-full p-2 ${metric.highlight ? 'bg-[#E8F5E9] text-[#00C853] dark:bg-[#00C853]/10 dark:text-[#00E676]' : 'bg-muted text-muted-foreground'}`}>
+              <div className={`rounded-full p-2 ${metric.highlight ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400' : 'bg-muted text-muted-foreground'}`}>
                 <metric.icon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">

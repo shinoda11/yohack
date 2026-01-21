@@ -232,15 +232,15 @@ export default function TimelinePage() {
               </div>
               {/* 反映ボタンとステータス */}
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                {/* Dirty状態の表示 - Premium fintech semantic colors */}
+                {/* Dirty状態の表示 */}
                 {!isSynced && (
-                  <Badge variant="outline" className="text-[#B45309] border-[#F59E0B]/40 bg-[#FFF8E1]">
+                  <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:bg-amber-950/30">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     未反映
                   </Badge>
                 )}
                 {isSynced && lifeEvents.length > 0 && (
-                  <Badge variant="outline" className="text-[#1B5E20] border-[#00C853]/40 bg-[#E8F5E9]">
+                  <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:text-emerald-300 dark:border-emerald-700 dark:bg-emerald-950/30">
                     <Check className="h-3 w-3 mr-1" />
                     反映済み
                   </Badge>
@@ -254,7 +254,7 @@ export default function TimelinePage() {
                   size="sm"
                   className={cn(
                     'transition-all bg-transparent',
-                    !isSynced && 'border-[#F59E0B]/50 hover:bg-[#FFF8E1] text-[#B45309]'
+                    !isSynced && 'border-amber-400 hover:bg-amber-50 text-amber-700 dark:border-amber-600 dark:hover:bg-amber-950/30 dark:text-amber-300'
                   )}
                 >
                   {isLoading ? (

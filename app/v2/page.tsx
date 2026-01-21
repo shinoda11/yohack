@@ -423,7 +423,7 @@ export default function V2DashboardPage() {
                         <div className="rounded-lg border p-4 text-center">
                           <div className={cn(
                             "text-2xl font-bold tabular-nums",
-                            comparison.fireAgeDiff < 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.fireAgeDiff > 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                            comparison.fireAgeDiff < 0 ? "text-emerald-700 dark:text-emerald-400" : comparison.fireAgeDiff > 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                           )}>
                             {comparison.fireAgeDiff > 0 ? '+' : ''}{comparison.fireAgeDiff}年
                           </div>
@@ -432,7 +432,7 @@ export default function V2DashboardPage() {
                         <div className="rounded-lg border p-4 text-center">
                           <div className={cn(
                             "text-2xl font-bold tabular-nums",
-                            comparison.survivalRateDiff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.survivalRateDiff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                            comparison.survivalRateDiff > 0 ? "text-emerald-700 dark:text-emerald-400" : comparison.survivalRateDiff < 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                           )}>
                             {comparison.survivalRateDiff > 0 ? '+' : ''}{comparison.survivalRateDiff.toFixed(1)}%
                           </div>
@@ -441,7 +441,7 @@ export default function V2DashboardPage() {
                         <div className="rounded-lg border p-4 text-center">
                           <div className={cn(
                             "text-2xl font-bold tabular-nums",
-                            comparison.assetsAt60Diff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.assetsAt60Diff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                            comparison.assetsAt60Diff > 0 ? "text-emerald-700 dark:text-emerald-400" : comparison.assetsAt60Diff < 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                           )}>
                             {comparison.assetsAt60Diff > 0 ? '+' : ''}{(comparison.assetsAt60Diff / 10000).toFixed(1)}億
                           </div>
@@ -450,7 +450,7 @@ export default function V2DashboardPage() {
                         <div className="rounded-lg border p-4 text-center">
                           <div className={cn(
                             "text-2xl font-bold tabular-nums",
-                            comparison.midlifeSurplusDiff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.midlifeSurplusDiff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                            comparison.midlifeSurplusDiff > 0 ? "text-emerald-700 dark:text-emerald-400" : comparison.midlifeSurplusDiff < 0 ? "text-amber-700 dark:text-amber-400" : "text-muted-foreground"
                           )}>
                             {comparison.midlifeSurplusDiff > 0 ? '+' : ''}{comparison.midlifeSurplusDiff.toFixed(0)}万
                           </div>
