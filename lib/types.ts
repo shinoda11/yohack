@@ -4,7 +4,7 @@
 export type HouseholdMode = 'solo' | 'couple';
 
 // Home ownership status
-export type HomeStatus = 'renter' | 'owner' | 'planning';
+export type HomeStatus = 'renter' | 'owner' | 'planning' | 'relocating';
 
 // Exit score level
 export type ScoreLevel = 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Home, Building2, Calculator, Loader2, Info } from 'lucide-react';
+import { Home, Building2, Calculator, Loader2, Info, ArrowRightLeft } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { SliderInput } from '@/components/slider-input';
 import { Label } from '@/components/ui/label';
@@ -33,7 +33,7 @@ import {
 } from 'recharts';
 import type { Profile, HomeStatus } from '@/lib/types';
 import { useHousingScenarios } from '@/hooks/useHousingScenarios';
-import { computeMonthlyPaymentManYen, type BuyNowParams } from '@/lib/housing-sim';
+import { computeMonthlyPaymentManYen, type BuyNowParams, type RelocateParams } from '@/lib/housing-sim';
 import { cn } from '@/lib/utils';
 
 interface HousingScenarioCardProps {
@@ -54,6 +54,18 @@ export function HousingScenarioCard({
   const [ownerAnnualCost, setOwnerAnnualCost] = useState(30);
   const [buyAfterYears, setBuyAfterYears] = useState<0 | 3 | 10>(0);
 
+  // Local state for relocate parameters (for existing homeowners)
+  const [currentPropertyValue, setCurrentPropertyValue] = useState(profile.homeMarketValue || 5000);
+  const [currentMortgageRemaining, setCurrentMortgageRemaining] = useState(profile.mortgagePrincipal || 3000);
+  const [sellingCostRate, setSellingCostRate] = useState(3.5);
+  const [relocateAfterYears, setRelocateAfterYears] = useState<0 | 3 | 5>(0);
+  const [newPropertyPrice, setNewPropertyPrice] = useState(7000);
+  const [newDownPayment, setNewDownPayment] = useState(0);
+  const [newPurchaseCostRate, setNewPurchaseCostRate] = useState(5.0);
+  const [newMortgageYears, setNewMortgageYears] = useState(30);
+  const [newInterestRate, setNewInterestRate] = useState(1.2);
+  const [newOwnerAnnualCost, setNewOwnerAnnualCost] = useState(35);
+
   const { results, isRunning, error, runComparison } = useHousingScenarios(profile);
 
   // Calculate derived values
@@ -64,6 +76,16 @@ export function HousingScenarioCard({
 
   const purchaseCosts = propertyPrice * (purchaseCostRate / 100);
   const totalUpfront = downPayment + purchaseCosts;
+
+  // Calculate relocate derived values
+  const sellingCosts = currentPropertyValue * (sellingCostRate / 100);
+  const saleProceeds = currentPropertyValue - currentMortgageRemaining - sellingCosts;
+  const newLoanPrincipal = newPropertyPrice - newDownPayment;
+  const newMonthlyPayment = useMemo(() => {
+    return computeMonthlyPaymentManYen(newLoanPrincipal, newInterestRate, newMortgageYears);
+  }, [newLoanPrincipal, newInterestRate, newMortgageYears]);
+  const newPurchaseCosts = newPropertyPrice * (newPurchaseCostRate / 100);
+  const netTransactionCash = saleProceeds - newDownPayment - newPurchaseCosts;
 
   // Handle comparison
   const handleCompare = () => {
@@ -77,6 +99,23 @@ export function HousingScenarioCard({
       buyAfterYears,
     };
     runComparison(params);
+  };
+
+  // Handle relocate comparison
+  const handleRelocateCompare = () => {
+    const relocateParams: RelocateParams = {
+      currentPropertyValue,
+      currentMortgageRemaining,
+      sellingCostRate,
+      relocateAfterYears,
+      newPropertyPrice,
+      newDownPayment,
+      newPurchaseCostRate,
+      newMortgageYears,
+      newInterestRate,
+      newOwnerAnnualCost,
+    };
+    runComparison(null, relocateParams);
   };
 
   // Extract results for display

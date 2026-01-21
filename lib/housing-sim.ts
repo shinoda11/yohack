@@ -2,7 +2,7 @@
 import type { Profile, AssetPoint, ExitScoreDetail, SimulationPath, KeyMetrics } from './types';
 import { getScoreLevel } from './types';
 
-export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW';
+export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW' | 'RELOCATE';
 
 export interface BuyNowParams {
   propertyPrice: number;        // 物件価格（万円）
@@ -12,6 +12,21 @@ export interface BuyNowParams {
   interestRate: number;         // 金利（%）
   ownerAnnualCost: number;      // 管理費・固定資産税（万円/年）
   buyAfterYears: 0 | 3 | 10;    // 購入タイミング
+}
+
+export interface RelocateParams {
+  // 現在の物件
+  currentPropertyValue: number;  // 現在の物件評価額（万円）
+  currentMortgageRemaining: number; // 残債（万円）
+  sellingCostRate: number;       // 売却諸費用率（%）
+  relocateAfterYears: 0 | 3 | 5; // 住み替えタイミング
+  // 新しい物件
+  newPropertyPrice: number;      // 新物件価格（万円）
+  newDownPayment: number;        // 新物件頭金（万円）
+  newPurchaseCostRate: number;   // 新物件諸費用率（%）
+  newMortgageYears: number;      // 新ローン年数（年）
+  newInterestRate: number;       // 新ローン金利（%）
+  newOwnerAnnualCost: number;    // 新物件の管理費・固定資産税（万円/年）
 }
 
 export interface HousingSimulationResult {
@@ -284,10 +299,113 @@ function applyPurchaseOutflow(profile: Profile, purchaseOutflow: number): Profil
   return result;
 }
 
+// Run relocate scenario for existing homeowners
+export function runRelocateScenario(
+  baseProfile: Profile,
+  relocateParams: RelocateParams
+): HousingScenarioResult {
+  const {
+    currentPropertyValue,
+    currentMortgageRemaining,
+    sellingCostRate,
+    relocateAfterYears,
+    newPropertyPrice,
+    newDownPayment,
+    newPurchaseCostRate,
+    newMortgageYears,
+    newInterestRate,
+    newOwnerAnnualCost,
+  } = relocateParams;
+
+  // Calculate sale proceeds
+  const sellingCosts = currentPropertyValue * (sellingCostRate / 100);
+  const saleProceeds = currentPropertyValue - currentMortgageRemaining - sellingCosts;
+
+  // Calculate new purchase costs
+  const newPurchaseCosts = newPropertyPrice * (newPurchaseCostRate / 100);
+  const newLoanPrincipal = newPropertyPrice - newDownPayment;
+  const newMonthlyPayment = computeMonthlyPaymentManYen(newLoanPrincipal, newInterestRate, newMortgageYears);
+  const newMortgageAnnual = newMonthlyPayment * 12;
+
+  // Net cash flow from transaction (can be positive if downsizing, negative if upgrading)
+  const netTransactionCash = saleProceeds - newDownPayment - newPurchaseCosts;
+
+  // Create profile for relocate scenario
+  let relocateProfile: Profile;
+
+  if (relocateAfterYears === 0) {
+    // Immediate relocation
+    relocateProfile = {
+      ...baseProfile,
+      homeStatus: 'owner',
+      homeMarketValue: newPropertyPrice,
+      mortgagePrincipal: newLoanPrincipal,
+      mortgageInterestRate: newInterestRate,
+      mortgageYearsRemaining: newMortgageYears,
+      mortgageMonthlyPayment: newMonthlyPayment,
+      housingCostAnnual: newMortgageAnnual + newOwnerAnnualCost,
+      // Adjust assets based on transaction
+      assetCash: Math.max(0, baseProfile.assetCash + netTransactionCash),
+      assetInvest: netTransactionCash < 0 && baseProfile.assetCash + netTransactionCash < 0
+        ? baseProfile.assetInvest + (baseProfile.assetCash + netTransactionCash)
+        : baseProfile.assetInvest,
+    };
+  } else {
+    // Future relocation as life event
+    relocateProfile = {
+      ...baseProfile,
+      homeStatus: 'relocating',
+      lifeEvents: [
+        ...baseProfile.lifeEvents,
+        {
+          id: `relocation-sale-${Date.now()}`,
+          name: '住み替え（売却・購入）',
+          type: 'asset_purchase',
+          age: baseProfile.currentAge + relocateAfterYears,
+          amount: -netTransactionCash, // Negative if receiving money, positive if paying
+          isRecurring: false,
+          duration: 1,
+        },
+        {
+          id: `relocation-housing-cost-${Date.now()}`,
+          name: '住み替え後住居費',
+          type: 'expense_increase',
+          age: baseProfile.currentAge + relocateAfterYears,
+          amount: newMortgageAnnual + newOwnerAnnualCost - baseProfile.housingCostAnnual,
+          isRecurring: true,
+          duration: newMortgageYears,
+        },
+      ],
+    };
+  }
+
+  const relocateSim = runSimulationWithSeed(relocateProfile, BASE_SEED);
+  const relocateSafeAge = computeSafeFireAge(relocateProfile, BASE_SEED);
+
+  // Calculate total costs over 40 years
+  const totalMortgagePayments = newMonthlyPayment * 12 * newMortgageYears;
+  const totalOwnerCosts = newOwnerAnnualCost * 40;
+  const relocateTotal40 = newDownPayment + newPurchaseCosts - saleProceeds + totalMortgagePayments + totalOwnerCosts;
+
+  const age60Index = Math.max(0, 60 - baseProfile.currentAge);
+  const relocateAssetsAt60 = relocateSim.paths.yearlyData[age60Index]?.assets ?? 0;
+
+  return {
+    type: 'RELOCATE',
+    scenarioProfile: relocateProfile,
+    simulation: relocateSim,
+    safeFireAge: relocateSafeAge,
+    monthlyPayment: newMonthlyPayment + newOwnerAnnualCost / 12,
+    totalCost40Years: relocateTotal40,
+    assetsAt60: relocateAssetsAt60,
+  };
+}
+
 // Main function: Run both rent and buy scenarios
 export function runHousingScenarios(
   baseProfile: Profile,
-  buyNowParams: BuyNowParams | null
+  buyNowParams: BuyNowParams | null,
+  relocateParams?: RelocateParams | null
 ): HousingScenarioResult[] {
   const results: HousingScenarioResult[] = [];
   
@@ -387,6 +505,12 @@ export function runHousingScenarios(
       totalCost40Years: buyTotal40,
       assetsAt60: buyAssetsAt60,
     });
+  }
+  
+  // === 3. Relocate Scenario (for existing homeowners) ===
+  if (relocateParams) {
+    const relocateResult = runRelocateScenario(baseProfile, relocateParams);
+    results.push(relocateResult);
   }
   
   return results;
