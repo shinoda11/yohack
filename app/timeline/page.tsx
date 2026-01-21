@@ -22,6 +22,8 @@ import {
   Info,
   RefreshCw,
   Check,
+  Save,
+  AlertCircle,
 } from 'lucide-react';
 import {
   Dialog,
@@ -96,17 +98,23 @@ const presetEvents: PresetEvent[] = [
   { id: 'expense_cut', label: '支出見直し', description: '節約で年間-60万円', icon: <Heart className="h-4 w-4" />, type: 'expense_decrease', ageOffset: 1, amount: 60, duration: 20, isRecurring: true, category: 'lifestyle' },
 ];
 
+// 未対応イベント（v0.1では計算に反映されないが追加は可能）
+const unsupportedEventTypes: LifeEventType[] = ['retirement_partial'];
+
 export default function TimelinePage() {
-  const { profile, updateProfile, runSimulationAsync, isLoading } = useProfileStore();
+  const { profile, updateProfile, runSimulationAsync, isLoading, saveScenario, scenarios } = useProfileStore();
   const [isPresetDialogOpen, setIsPresetDialogOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetEvent | null>(null);
   const [customAge, setCustomAge] = useState<number>(profile.currentAge + 5);
   const [customAmount, setCustomAmount] = useState<number>(100);
   
   // dirty state: イベントが変更されたがまだシミュレーションに反映されていない
-  const [pendingEvents, setPendingEvents] = useState<LifeEvent[]>([]);
   const [isSynced, setIsSynced] = useState(true);
   const [lastSyncedEventIds, setLastSyncedEventIds] = useState<string>('');
+  
+  // シナリオ保存ダイアログ
+  const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
+  const [scenarioName, setScenarioName] = useState('');
 
   const lifeEvents = profile.lifeEvents || [];
   const sortedEvents = [...lifeEvents].sort((a, b) => a.age - b.age);
@@ -128,6 +136,29 @@ export default function TimelinePage() {
     setLastSyncedEventIds(currentEventIds);
     setIsSynced(true);
   };
+  
+  // 「シナリオとして保存」の処理
+  const handleSaveScenario = () => {
+    if (!scenarioName.trim()) return;
+    
+    // 反映されていない場合は先に反映
+    if (!isSynced) {
+      runSimulationAsync().then(() => {
+        saveScenario(scenarioName.trim());
+        setLastSyncedEventIds(currentEventIds);
+        setIsSynced(true);
+        setIsSaveDialogOpen(false);
+        setScenarioName('');
+      });
+    } else {
+      saveScenario(scenarioName.trim());
+      setIsSaveDialogOpen(false);
+      setScenarioName('');
+    }
+  };
+  
+  // イベントタイプが未対応かチェック
+  const isUnsupportedEvent = (type: LifeEventType) => unsupportedEventTypes.includes(type);
 
   // カテゴリ別にプリセットをグループ化
   const familyPresets = presetEvents.filter((p) => p.category === 'family');
@@ -200,39 +231,54 @@ export default function TimelinePage() {
                 </p>
               </div>
               {/* 反映ボタンとステータス */}
-              <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                {/* Dirty状態の表示 - Premium fintech semantic colors */}
                 {!isSynced && (
-                  <span className="text-sm text-gray-600 font-medium animate-pulse">
-                    反映が必要
-                  </span>
+                  <Badge variant="outline" className="text-[#B45309] border-[#F59E0B]/40 bg-[#FFF8E1]">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    未反映
+                  </Badge>
                 )}
                 {isSynced && lifeEvents.length > 0 && (
-                  <span className="text-sm text-gray-500 flex items-center gap-1">
-                    <Check className="h-4 w-4" />
+                  <Badge variant="outline" className="text-[#1B5E20] border-[#00C853]/40 bg-[#E8F5E9]">
+                    <Check className="h-3 w-3 mr-1" />
                     反映済み
-                  </span>
+                  </Badge>
                 )}
+                
+                {/* ダッシュボードに反映ボタン */}
                 <Button
                   onClick={handleSync}
                   disabled={isSynced || isLoading}
+                  variant="outline"
+                  size="sm"
                   className={cn(
-                    'transition-all',
-                    !isSynced 
-                      ? 'bg-gray-800 hover:bg-gray-900 text-white' 
-                      : 'bg-gray-100 text-gray-400'
+                    'transition-all bg-transparent',
+                    !isSynced && 'border-[#F59E0B]/50 hover:bg-[#FFF8E1] text-[#B45309]'
                   )}
                 >
                   {isLoading ? (
                     <>
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      計算中...
+                      <RefreshCw className="mr-1.5 h-4 w-4 animate-spin" />
+                      計算中
                     </>
                   ) : (
                     <>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      ダッシュボードに反映
+                      <RefreshCw className="mr-1.5 h-4 w-4" />
+                      反映
                     </>
                   )}
+                </Button>
+                
+                {/* シナリオとして保存ボタン */}
+                <Button
+                  onClick={() => setIsSaveDialogOpen(true)}
+                  disabled={lifeEvents.length === 0}
+                  size="sm"
+                  className="bg-slate-800 hover:bg-slate-900 text-white"
+                >
+                  <Save className="mr-1.5 h-4 w-4" />
+                  シナリオ保存
                 </Button>
               </div>
             </div>
@@ -282,26 +328,42 @@ export default function TimelinePage() {
                   キャリア・収入
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {careerPresets.map((preset) => (
-                    <TooltipProvider key={preset.id}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-auto py-2 px-3 bg-transparent"
-                            onClick={() => addPresetEvent(preset)}
-                          >
-                            {preset.icon}
-                            <span className="ml-1.5">{preset.label}</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{preset.description}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  ))}
+                  {careerPresets.map((preset) => {
+                    const unsupported = isUnsupportedEvent(preset.type);
+                    return (
+                      <TooltipProvider key={preset.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className={cn(
+                                "h-auto py-2 px-3 bg-transparent",
+                                unsupported && "opacity-60 border-dashed"
+                              )}
+                              onClick={() => addPresetEvent(preset)}
+                            >
+                              {preset.icon}
+                              <span className="ml-1.5">{preset.label}</span>
+                              {unsupported && (
+                                <Badge variant="outline" className="ml-1.5 text-[10px] px-1 py-0">
+                                  準備中
+                                </Badge>
+                              )}
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{preset.description}</p>
+                            {unsupported && (
+                              <p className="text-amber-600 text-xs mt-1">
+                                このイベントは現在計算に反映されません
+                              </p>
+                            )}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -436,10 +498,10 @@ export default function TimelinePage() {
               <div className="text-sm text-slate-600 dark:text-slate-400">
                 <p className="font-medium mb-1">ライフイベントの使い方</p>
                 <ul className="space-y-1 text-xs">
-                  <li>- イベントを追加・削除したら「ダッシュボードに反映」ボタンを押してください</li>
-                  <li>- 反映するとダッシュボードと世界線比較の計算結果が更新されます</li>
+                  <li>1. イベントを追加・削除したら「反映」ボタンを押してダッシュボードに反映</li>
+                  <li>2. 「シナリオ保存」で現在の設定を保存（世界線比較タブで使用可能）</li>
+                  <li>3. 世界線比較タブで保存したシナリオと現状を比較できます</li>
                   <li>- 収入増加イベントは資産形成にプラス、支出増加イベントはマイナスとして計算されます</li>
-                  <li>- 年齢と金額は追加時に自由に調整できます</li>
                 </ul>
               </div>
             </div>
@@ -534,6 +596,87 @@ export default function TimelinePage() {
             </DialogFooter>
           </DialogContent>
         )}
+      </Dialog>
+      
+      {/* Save Scenario Dialog */}
+      <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Save className="h-5 w-5" />
+              シナリオとして保存
+            </DialogTitle>
+            <DialogDescription>
+              現在のライフイベント設定をシナリオとして保存します。
+              保存したシナリオは「世界線比較」タブで比較できます。
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="scenario-name">シナリオ名</Label>
+              <Input
+                id="scenario-name"
+                placeholder="例: 子供2人＋転職プラン"
+                value={scenarioName}
+                onChange={(e) => setScenarioName(e.target.value)}
+              />
+            </div>
+            
+            {/* 現在のイベント一覧 */}
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-3">
+              <p className="text-xs font-medium text-muted-foreground mb-2">
+                保存されるイベント ({lifeEvents.length}件)
+              </p>
+              {lifeEvents.length > 0 ? (
+                <ul className="text-sm space-y-1">
+                  {sortedEvents.slice(0, 5).map(event => (
+                    <li key={event.id} className="flex items-center gap-2">
+                      <span className="text-muted-foreground">{event.age}歳:</span>
+                      <span>{event.name}</span>
+                    </li>
+                  ))}
+                  {lifeEvents.length > 5 && (
+                    <li className="text-muted-foreground">
+                      ...他 {lifeEvents.length - 5} 件
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">イベントがありません</p>
+              )}
+            </div>
+            
+            {/* 未反映の警告 */}
+            {!isSynced && (
+              <div className="flex items-start gap-2 text-amber-600 bg-amber-50 rounded-lg p-3">
+                <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <p className="text-sm">
+                  未反映のイベントがあります。保存時に自動的にダッシュボードに反映されます。
+                </p>
+              </div>
+            )}
+            
+            {/* 保存済みシナリオ数 */}
+            {scenarios.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                現在 {scenarios.length} 件のシナリオが保存されています
+              </p>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsSaveDialogOpen(false)}>
+              キャンセル
+            </Button>
+            <Button 
+              onClick={handleSaveScenario}
+              disabled={!scenarioName.trim() || isLoading}
+            >
+              {isLoading ? '保存中...' : '保存する'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </div>
   );

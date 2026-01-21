@@ -71,10 +71,7 @@ export default function DashboardPage() {
     // In a real app, you'd want to integrate these with the simulation
   };
 
-  // Handle volatility change from simulator
-  const handleVolatilityChange = (volatility: number) => {
-    updateProfile({ volatility });
-  };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -172,11 +169,11 @@ export default function DashboardPage() {
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="summary" className="text-xs sm:text-sm">サマリー</TabsTrigger>
-                  <TabsTrigger value="simulator" className="text-xs sm:text-sm">確率分布</TabsTrigger>
-                  <TabsTrigger value="scenarios" className="text-xs sm:text-sm">シナリオ</TabsTrigger>
-                </TabsList>
+  <TabsList className="grid w-full grid-cols-3">
+  <TabsTrigger value="summary" className="text-xs sm:text-sm">サマリー</TabsTrigger>
+  <TabsTrigger value="simulator" className="text-xs sm:text-sm">確率分布</TabsTrigger>
+  <TabsTrigger value="scenarios" className="text-xs sm:text-sm">シナリオ</TabsTrigger>
+  </TabsList>
 
                 {/* Summary Tab */}
                 <TabsContent value="summary" className="mt-6 space-y-6">
@@ -224,7 +221,7 @@ export default function DashboardPage() {
                     profile={profile}
                     paths={simResult?.paths ?? null}
                     isLoading={isLoading && !simResult}
-                    onVolatilityChange={handleVolatilityChange}
+                    onVolatilityChange={(volatility) => updateProfile({ volatility })}
                   />
                 </TabsContent>
 

@@ -186,7 +186,7 @@ export function AssetProjectionChart({
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            margin={{ top: 24, right: 16, left: 0, bottom: 0 }}
           >
             <defs>
               <linearGradient id="colorMedian" x1="0" y1="0" x2="0" y2="1">
@@ -270,11 +270,12 @@ export function AssetProjectionChart({
               strokeWidth={2}
               strokeDasharray="5 5"
               label={{
-                value: `Exit (${targetRetireAge}歳)`,
-                position: 'top',
+                value: `Exit ${targetRetireAge}歳`,
+                position: 'insideTopLeft',
                 fill: 'hsl(var(--primary))',
                 fontSize: 11,
                 fontWeight: 'bold',
+                offset: 8,
               }}
             />
             

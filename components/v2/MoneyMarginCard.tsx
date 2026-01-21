@@ -41,19 +41,21 @@ const safeDisplayNumber = (value: number | null | undefined, decimals: number = 
 
 export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginCardProps) {
   // データの有無を厳密にチェック（NaNも欠損として扱う）
-  const hasData = moneyMargin !== null && 
+  const hasValidData = moneyMargin !== null && 
     !isLoading && 
     !isNaN(moneyMargin.monthlyNetSavings) && 
-    !isNaN(moneyMargin.annualDisposableIncome);
+    !isNaN(moneyMargin.annualDisposableIncome) &&
+    isFinite(moneyMargin.monthlyNetSavings) &&
+    isFinite(moneyMargin.annualDisposableIncome);
   
-  // 欠損理由を明確に表示
-  const missingReason = !moneyMargin 
-    ? 'プロファイルデータが不足しています' 
-    : isNaN(moneyMargin.monthlyNetSavings) 
-      ? 'シミュレーションを実行してください（ダッシュボードで計算されます）' 
-      : null;
-
-  const hasValidData = hasData; // Declare hasValidData variable
+  // 欠損理由を明確に表示（0埋め禁止）
+  const missingReason = isLoading
+    ? null // ローディング中は理由を表示しない
+    : !moneyMargin 
+      ? 'プロファイルデータが不足しています' 
+      : (isNaN(moneyMargin.monthlyNetSavings) || !isFinite(moneyMargin.monthlyNetSavings))
+        ? 'ダッシュボードでシミュレーション結果を確認してください' 
+        : null;
 
   const metrics = [
     {
@@ -108,7 +110,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
               key={metric.label}
               className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
             >
-              <div className={`rounded-full p-2 ${metric.highlight ? 'bg-emerald-100 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
+              <div className={`rounded-full p-2 ${metric.highlight ? 'bg-[#E8F5E9] text-[#00C853] dark:bg-[#00C853]/10 dark:text-[#00E676]' : 'bg-muted text-muted-foreground'}`}>
                 <metric.icon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">

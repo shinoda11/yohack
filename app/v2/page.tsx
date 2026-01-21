@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useProfileStore } from '@/lib/store';
 import { useMargin } from '@/hooks/useMargin';
 import { useStrategy } from '@/hooks/useStrategy';
@@ -8,8 +7,6 @@ import { useWorldLines } from '@/hooks/useWorldLines';
 import { Sidebar } from '@/components/layout/sidebar';
 import { MoneyMarginCard } from '@/components/v2/MoneyMarginCard';
 import { DecisionHost } from '@/components/v2/DecisionHost';
-import { WorldLineLens } from '@/components/v2/WorldLineLens';
-import { EventLayer } from '@/components/v2/EventLayer';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -38,25 +35,29 @@ const readinessConfig = {
 };
 
 export default function V2DashboardPage() {
-  const { profile, simResult, isLoading, runSimulationAsync } = useProfileStore();
+  // v2タブはダッシュボードのSoT（profile/simResult）を参照するだけ
+  // 独自のrunSimulationは呼ばない（ストア二重化防止）
+  const { profile, simResult, isLoading } = useProfileStore();
   
   // Calculate margins
   const margins = useMargin({ profile, simResult });
   
-  // Get world lines
+  // Get world lines (SoTを参照、独自計算なし)
   const { 
-    worldLines, 
-    activeWorldLine,
+    baselineWorldLine,
     comparisonWorldLine,
-    addEvent,
-    removeEvent,
-    setActive,
-    setComparison,
+    savedScenarios,
+    selectedScenarioId,
+    selectScenario,
+    deleteScenario,
+    loadScenario,
     comparison,
-    createWorldLine,
-    needsSync,
-    syncToMainProfile,
   } = useWorldLines();
+  
+  // 互換性のための変換（既存コンポーネント用）
+  // 互換性のための変換（既存コンポーネント用）
+  const worldLines = [baselineWorldLine, comparisonWorldLine].filter((w): w is NonNullable<typeof w> => w !== null);
+  const activeWorldLine = baselineWorldLine;
   
   // Get strategy evaluation
   const strategy = useStrategy({
@@ -70,10 +71,9 @@ export default function V2DashboardPage() {
     worldLines,
   });
   
-  // Run initial simulation
-  useEffect(() => {
-    runSimulationAsync();
-  }, []);
+  // v2タブは独自計算しない
+  // ダッシュボードのsimResultを参照するだけ
+  // runSimulationAsyncは呼ばない（ストア二重化防止）
   
   const readiness = readinessConfig[strategy.overallAssessment.readinessLevel];
   
@@ -324,76 +324,155 @@ export default function V2DashboardPage() {
             
             {/* World Lines Tab */}
             <TabsContent value="worldlines" className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <EventLayer
-                  events={activeWorldLine?.events ?? []}
-                  onAddEvent={(type, startYear, overrides) => {
-                    if (activeWorldLine) {
-                      addEvent(activeWorldLine.id, type, startYear, overrides);
-                    }
-                  }}
-                  onRemoveEvent={(eventId) => {
-                    if (activeWorldLine) {
-                      removeEvent(activeWorldLine.id, eventId);
-                    }
-                  }}
-                  currentAge={profile.currentAge}
-                  needsSync={needsSync}
-                  onSync={syncToMainProfile}
-                />
-                {/* World Line Creator */}
+              <div className="space-y-6">
+                {/* 保存済みシナリオ選択 */}
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">世界線の追加</CardTitle>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Target className="h-4 w-4" />
+                      シナリオ選択
+                    </CardTitle>
                     <CardDescription>
-                      異なるシナリオを比較するために新しい世界線を作成できます
+                      タイムラインで保存したシナリオを選択して現状と比較します
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => createWorldLine('支出削減プラン', '月5万円の支出削減を想定')}
-                      >
-                        支出削減プラン
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => createWorldLine('収入増加プラン', '年収100万円アップを想定')}
-                      >
-                        収入増加プラン
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => createWorldLine('早期退職プラン', '5年早くリタイアを目指す')}
-                      >
-                        早期退職プラン
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => createWorldLine('保守的プラン', 'リスクを抑えた堅実な計画')}
-                      >
-                        保守的プラン
-                      </Button>
-                    </div>
-                    <p className="mt-3 text-xs text-muted-foreground">
-                      現在の世界線: {worldLines.length}件
-                    </p>
+                    {savedScenarios.length > 0 ? (
+                      <div className="space-y-3">
+                        {savedScenarios.map((scenario) => (
+                          <div 
+                            key={scenario.id}
+                            className={cn(
+                              "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
+                              selectedScenarioId === scenario.id
+                                ? "border-primary bg-primary/5"
+                                : "hover:bg-muted/50"
+                            )}
+                            onClick={() => selectScenario(
+                              selectedScenarioId === scenario.id ? null : scenario.id
+                            )}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                selectScenario(selectedScenarioId === scenario.id ? null : scenario.id);
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <div>
+                              <p className="font-medium">{scenario.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(scenario.createdAt).toLocaleString('ja-JP')}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {selectedScenarioId === scenario.id && (
+                                <Badge variant="default" className="bg-primary">
+                                  比較中
+                                </Badge>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  loadScenario(scenario.id);
+                                }}
+                              >
+                                読込
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  deleteScenario(scenario.id);
+                                }}
+                              >
+                                削除
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Info className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>保存済みシナリオがありません</p>
+                        <p className="text-sm mt-1">
+                          タイムラインタブでライフイベントを追加し、
+                          「シナリオ保存」ボタンで保存してください
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
-                <WorldLineLens
-                  worldLines={worldLines}
-                  activeWorldLineId={activeWorldLine?.id ?? null}
-                  comparisonWorldLineId={comparisonWorldLine?.id ?? null}
-                  comparison={comparison}
-                  onSelectActive={setActive}
-                  onSelectComparison={setComparison}
-                />
+                {/* 比較結果 */}
+                {comparison && comparisonWorldLine && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">比較結果</CardTitle>
+                      <CardDescription>
+                        現状と「{comparisonWorldLine.name}」の比較
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="rounded-lg border p-4 text-center">
+                          <div className={cn(
+                            "text-2xl font-bold tabular-nums",
+                            comparison.fireAgeDiff < 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.fireAgeDiff > 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                          )}>
+                            {comparison.fireAgeDiff > 0 ? '+' : ''}{comparison.fireAgeDiff}年
+                          </div>
+                          <div className="text-sm text-muted-foreground">FIRE年齢差</div>
+                        </div>
+                        <div className="rounded-lg border p-4 text-center">
+                          <div className={cn(
+                            "text-2xl font-bold tabular-nums",
+                            comparison.survivalRateDiff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.survivalRateDiff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                          )}>
+                            {comparison.survivalRateDiff > 0 ? '+' : ''}{comparison.survivalRateDiff.toFixed(1)}%
+                          </div>
+                          <div className="text-sm text-muted-foreground">生存率差</div>
+                        </div>
+                        <div className="rounded-lg border p-4 text-center">
+                          <div className={cn(
+                            "text-2xl font-bold tabular-nums",
+                            comparison.assetsAt60Diff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.assetsAt60Diff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                          )}>
+                            {comparison.assetsAt60Diff > 0 ? '+' : ''}{(comparison.assetsAt60Diff / 10000).toFixed(1)}億
+                          </div>
+                          <div className="text-sm text-muted-foreground">60歳資産差</div>
+                        </div>
+                        <div className="rounded-lg border p-4 text-center">
+                          <div className={cn(
+                            "text-2xl font-bold tabular-nums",
+                            comparison.midlifeSurplusDiff > 0 ? "text-[#1B5E20] dark:text-[#00E676]" : comparison.midlifeSurplusDiff < 0 ? "text-[#B45309] dark:text-[#FBBF24]" : "text-muted-foreground"
+                          )}>
+                            {comparison.midlifeSurplusDiff > 0 ? '+' : ''}{comparison.midlifeSurplusDiff.toFixed(0)}万
+                          </div>
+                          <div className="text-sm text-muted-foreground">年間余剰差</div>
+                        </div>
+                      </div>
+                      <div className="mt-4 p-3 rounded-lg bg-muted/50">
+                        <p className="text-sm font-medium">{comparison.recommendation}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {/* 比較結果がない場合のガイド */}
+                {!comparison && savedScenarios.length > 0 && (
+                  <Card className="border-dashed">
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      <p>上のリストからシナリオを選択すると</p>
+                      <p>現状との比較結果が表示されます</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </TabsContent>
             

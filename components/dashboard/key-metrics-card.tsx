@@ -23,24 +23,57 @@ interface MetricItemProps {
   highlight?: 'success' | 'warning' | 'danger' | 'neutral';
 }
 
+// Semantic colors using Tailwind standard classes
+function getHighlightStyles(highlight?: 'success' | 'warning' | 'danger' | 'neutral') {
+  switch (highlight) {
+    case 'success':
+      return {
+        icon: 'text-emerald-600 dark:text-emerald-400',
+        value: 'text-emerald-700 dark:text-emerald-300',
+        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+      };
+    case 'warning':
+      return {
+        icon: 'text-amber-600 dark:text-amber-400',
+        value: 'text-amber-700 dark:text-amber-300',
+        bg: 'bg-amber-50 dark:bg-amber-950/20',
+      };
+    case 'danger':
+      return {
+        icon: 'text-red-600 dark:text-red-400',
+        value: 'text-red-700 dark:text-red-300',
+        bg: 'bg-red-50 dark:bg-red-950/20',
+      };
+    default:
+      return {
+        icon: 'text-muted-foreground',
+        value: 'text-foreground',
+        bg: '',
+      };
+  }
+}
+
 function MetricItem({
   icon,
   label,
   value,
   subValue,
+  highlight,
 }: MetricItemProps) {
+  const styles = getHighlightStyles(highlight);
+  
   return (
-    <div className="flex items-center gap-3 py-3">
-      <div className="flex h-8 w-8 items-center justify-center text-gray-400">
+    <div className={cn("flex items-center gap-3 py-3 px-2 rounded-lg", styles.bg)}>
+      <div className={cn("flex h-8 w-8 items-center justify-center", styles.icon)}>
         {icon}
       </div>
       <div className="flex-1">
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+        <p className={cn("text-lg font-semibold tabular-nums", styles.value)}>
           {value}
         </p>
         {subValue && (
-          <p className="text-xs text-gray-400">{subValue}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500">{subValue}</p>
         )}
       </div>
     </div>
@@ -109,30 +142,34 @@ export function KeyMetricsCard({
       description="シミュレーション結果のサマリー"
       action={isLoading && <span className="text-xs text-gray-400">更新中...</span>}
     >
-      <div className={cn("grid gap-2 md:grid-cols-2 divide-y md:divide-y-0", isLoading && "opacity-60")}>
+      <div className={cn("grid gap-2 md:grid-cols-2", isLoading && "opacity-60")}>
         <MetricItem
           icon={<Calendar className="h-5 w-5" />}
           label="目標達成可能年齢"
           value={goalAgeText}
           subValue={yearsToGoalText}
+          highlight={goalHighlight}
         />
         <MetricItem
           icon={<ShieldCheck className="h-5 w-5" />}
           label="サバイバル率"
           value={`${metrics.survivalRate.toFixed(1)}%`}
           subValue="資産が尽きない確率"
+          highlight={survivalHighlight}
         />
         <MetricItem
           icon={<PiggyBank className="h-5 w-5" />}
           label="100歳時点の資産"
           value={assetAt100Text}
           subValue="中央値シナリオ"
+          highlight={assetHighlight}
         />
         <MetricItem
           icon={<Gauge className="h-5 w-5" />}
           label="目標まで"
           value={`${yearsUntilTarget}年`}
           subValue={`${targetRetireAge}歳で達成目標`}
+          highlight="neutral"
         />
       </div>
     </SectionCard>

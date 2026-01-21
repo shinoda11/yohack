@@ -69,7 +69,7 @@ export function Sidebar() {
       {/* Mobile Header Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b bg-slate-900 px-4 lg:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white text-sm">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 font-bold text-white text-sm">
             E
           </div>
           <span className="font-semibold text-white">Exit Readiness</span>
@@ -102,7 +102,7 @@ export function Sidebar() {
       )}>
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-slate-700 px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 font-bold text-white shadow-lg">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 font-bold text-white shadow-lg">
           E
         </div>
         <div>
@@ -122,7 +122,7 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-blue-500/20 text-blue-400'
+                  ? 'bg-emerald-600/20 text-emerald-400'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
               )}
             >
@@ -147,7 +147,7 @@ export function Sidebar() {
         {/* User profile */}
         <div className="border-t border-slate-700 p-4">
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-700">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800">
               <User className="h-5 w-5 text-slate-400" />
             </div>
             <div>

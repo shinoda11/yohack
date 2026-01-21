@@ -181,7 +181,18 @@ export function evaluateKpiHealth(kpis: KeyPerformanceIndicators): 'excellent' |
 }
 
 /**
+ * 安全な数値取得（NaN/undefined対応）
+ */
+function safeNumber(value: number | null | undefined, fallback: number = 0): number {
+  if (value === null || value === undefined || isNaN(value) || !isFinite(value)) {
+    return fallback;
+  }
+  return value;
+}
+
+/**
  * 2つの世界線を比較
+ * NaN/undefined値は安全にフォールバック
  */
 export function compareWorldLines(
   worldLineA: WorldLine,
@@ -192,16 +203,18 @@ export function compareWorldLines(
   const marginA = worldLineA.result.margin;
   const marginB = worldLineB.result.margin;
   
+  // KPIまたはマージンがない場合はnullを返す
   if (!kpisA || !kpisB || !marginA || !marginB) {
     return null;
   }
   
+  // 差分を計算（NaN安全）
   const differences = {
-    safeFireAge: (kpisB.safeFireAge ?? 100) - (kpisA.safeFireAge ?? 100),
-    assetsAt60: kpisB.assetsAt60 - kpisA.assetsAt60,
-    survivalRate: kpisB.survivalRate - kpisA.survivalRate,
-    monthlyNetSavings: marginB.money.monthlyNetSavings - marginA.money.monthlyNetSavings,
-    emergencyFundCoverage: marginB.money.emergencyFundCoverage - marginA.money.emergencyFundCoverage,
+    safeFireAge: safeNumber(kpisB.safeFireAge, 100) - safeNumber(kpisA.safeFireAge, 100),
+    assetsAt60: safeNumber(kpisB.assetsAt60) - safeNumber(kpisA.assetsAt60),
+    survivalRate: safeNumber(kpisB.survivalRate) - safeNumber(kpisA.survivalRate),
+    monthlyNetSavings: safeNumber(marginB.money.monthlyNetSavings) - safeNumber(marginA.money.monthlyNetSavings),
+    emergencyFundCoverage: safeNumber(marginB.money.emergencyFundCoverage) - safeNumber(marginA.money.emergencyFundCoverage),
   };
   
   // 推奨判定
@@ -209,8 +222,8 @@ export function compareWorldLines(
   let recommendationReason = '両方の選択肢に一長一短があります。';
   
   // FIRE年齢が早く、生存率も高いほうを推奨
-  const scoreA = (kpisA.safeFireAge ? 100 - kpisA.safeFireAge : 0) + kpisA.survivalRate;
-  const scoreB = (kpisB.safeFireAge ? 100 - kpisB.safeFireAge : 0) + kpisB.survivalRate;
+  const scoreA = (kpisA.safeFireAge ? 100 - kpisA.safeFireAge : 0) + safeNumber(kpisA.survivalRate);
+  const scoreB = (kpisB.safeFireAge ? 100 - kpisB.safeFireAge : 0) + safeNumber(kpisB.survivalRate);
   
   if (scoreB > scoreA + 10) {
     recommendation = 'B';

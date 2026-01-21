@@ -76,15 +76,28 @@ export function extractKpisFromSimulation(
 /**
  * v1のProfileとSimulationResultからv2のMoneyMarginを計算
  * ダッシュボードのSoT（simResult.cashFlow）から参照する
+ * 
+ * 重要: NaNは「未計算」を意味する。0埋めは禁止。
+ * UI側でNaNをチェックし「—」表示 + 理由を表示すること。
  */
 export function calculateMoneyMargin(
   profile: Profile,
   result: SimulationResult | null
 ): MoneyMargin {
-  // SoTがない場合は空データを返す（0埋め禁止）
-  if (!result?.cashFlow) {
+  // SoTがない場合は未計算を明示（0埋め禁止）
+  if (!result) {
     return {
-      monthlyDisposableIncome: NaN, // 未計算を明示
+      monthlyDisposableIncome: NaN,
+      monthlyNetSavings: NaN,
+      emergencyFundCoverage: NaN,
+      annualDisposableIncome: NaN,
+    };
+  }
+  
+  // cashFlowがない場合も未計算
+  if (!result.cashFlow) {
+    return {
+      monthlyDisposableIncome: NaN,
       monthlyNetSavings: NaN,
       emergencyFundCoverage: NaN,
       annualDisposableIncome: NaN,
@@ -102,7 +115,7 @@ export function calculateMoneyMargin(
   // 年間純収支（SoTのnetCashFlow）
   const annualNetCashFlow = cashFlow.netCashFlow ?? (annualIncome - annualExpense);
   
-  // 月次換算（端数は切り捨て）
+  // 月次換算（万円単位、端数は切り捨て）
   const monthlyDisposableIncome = Math.floor(annualIncome / 12);
   const monthlyNetSavings = Math.floor(annualNetCashFlow / 12);
   
@@ -110,9 +123,10 @@ export function calculateMoneyMargin(
   const monthlyExpense = annualExpense / 12;
   
   // 緊急資金カバー月数（現金資産 / 月次支出）
+  // 支出が0の場合は無限大ではなく、現金資産を表示（12ヶ月分と仮定）
   const emergencyFundCoverage = monthlyExpense > 0 
     ? profile.assetCash / monthlyExpense 
-    : 0;
+    : (profile.assetCash > 0 ? 12 : 0);
   
   return {
     monthlyDisposableIncome,

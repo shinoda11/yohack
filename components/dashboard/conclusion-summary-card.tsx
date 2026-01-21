@@ -26,24 +26,41 @@ function getStatus(score: ExitScoreDetail | null): Status {
 }
 
 function getStatusConfig(status: Status) {
-  // 完全ニュートラル - 状態による色分けなし、タイポで区別
-  const baseConfig = {
-    bgColor: 'bg-white dark:bg-gray-950',
-    borderColor: 'border-gray-200 dark:border-gray-800',
-    iconColor: 'text-gray-400 dark:text-gray-500',
-    textColor: 'text-gray-900 dark:text-gray-100',
-  };
-  
+  // Semantic colors using Tailwind standard classes
   switch (status) {
     case 'GREEN':
-      return { ...baseConfig, icon: CheckCircle2 };
+      return {
+        bgColor: 'bg-emerald-50 dark:bg-emerald-950/30',
+        borderColor: 'border-emerald-300 dark:border-emerald-800',
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+        textColor: 'text-emerald-800 dark:text-emerald-200',
+        icon: CheckCircle2,
+      };
     case 'YELLOW':
-      return { ...baseConfig, icon: AlertTriangle };
+      return {
+        bgColor: 'bg-amber-50 dark:bg-amber-950/30',
+        borderColor: 'border-amber-300 dark:border-amber-800',
+        iconColor: 'text-amber-600 dark:text-amber-400',
+        textColor: 'text-amber-800 dark:text-amber-200',
+        icon: AlertTriangle,
+      };
     case 'RED':
-      return { ...baseConfig, icon: XCircle };
+      return {
+        bgColor: 'bg-red-50 dark:bg-red-950/30',
+        borderColor: 'border-red-300 dark:border-red-800',
+        iconColor: 'text-red-600 dark:text-red-400',
+        textColor: 'text-red-800 dark:text-red-200',
+        icon: XCircle,
+      };
     case 'CALCULATING':
     default:
-      return { ...baseConfig, icon: Loader2, textColor: 'text-gray-500' };
+      return {
+        bgColor: 'bg-secondary',
+        borderColor: 'border-border',
+        iconColor: 'text-muted-foreground',
+        textColor: 'text-muted-foreground',
+        icon: Loader2,
+      };
   }
 }
 

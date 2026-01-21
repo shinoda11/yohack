@@ -84,23 +84,47 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
       description="目標達成度の総合評価"
     >
       <div className="flex flex-col items-center">
-        {/* Main score - typography emphasis instead of color */}
+        {/* Main score - Semantic colors using Tailwind */}
         <div className="relative">
           <div
-            className="flex h-36 w-36 flex-col items-center justify-center rounded-full border-2 border-gray-200 bg-gray-50"
+            className={cn(
+              "flex h-36 w-36 flex-col items-center justify-center rounded-full border-2",
+              score.level === 'GREEN' && "border-emerald-300 bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-950/30",
+              score.level === 'YELLOW' && "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30",
+              score.level === 'ORANGE' && "border-amber-400 bg-amber-100 dark:border-amber-600 dark:bg-amber-950/40",
+              score.level === 'RED' && "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/30",
+            )}
           >
-            <span className="text-5xl font-bold text-gray-800 tabular-nums">{score.overall}</span>
-            <span className="text-sm text-gray-400">/100</span>
+            <span className={cn(
+              "text-5xl font-bold tabular-nums",
+              score.level === 'GREEN' && "text-emerald-700 dark:text-emerald-300",
+              score.level === 'YELLOW' && "text-amber-700 dark:text-amber-300",
+              score.level === 'ORANGE' && "text-amber-800 dark:text-amber-300",
+              score.level === 'RED' && "text-red-700 dark:text-red-300",
+            )}>{score.overall}</span>
+            <span className="text-sm text-muted-foreground">/100</span>
           </div>
           <div
-            className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200"
+            className={cn(
+              "absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold border",
+              score.level === 'GREEN' && "bg-emerald-600 text-white border-emerald-600",
+              score.level === 'YELLOW' && "bg-amber-500 text-white border-amber-500",
+              score.level === 'ORANGE' && "bg-amber-600 text-white border-amber-600",
+              score.level === 'RED' && "bg-red-600 text-white border-red-600",
+            )}
           >
             {levelText[score.level]}
           </div>
         </div>
 
         {/* Level description */}
-        <p className="mt-6 text-sm text-gray-600">
+        <p className={cn(
+          "mt-6 text-sm font-medium",
+          score.level === 'GREEN' && "text-emerald-700 dark:text-emerald-400",
+          score.level === 'YELLOW' && "text-amber-700 dark:text-amber-400",
+          score.level === 'ORANGE' && "text-amber-800 dark:text-amber-400",
+          score.level === 'RED' && "text-red-700 dark:text-red-400",
+        )}>
           {score.level === 'GREEN' && '目標達成の可能性が非常に高いです'}
           {score.level === 'YELLOW' && '目標達成の見込みは良好です'}
           {score.level === 'ORANGE' && '改善の余地があります'}
