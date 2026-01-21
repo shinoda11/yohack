@@ -1,4 +1,22 @@
-// Exit Readiness OS - Zustand State Management Store
+/**
+ * Exit Readiness OS - Zustand State Management Store
+ * 
+ * ============================================================
+ * SINGLE SOURCE OF TRUTH (SoT) - 状態管理の唯一の場所
+ * ============================================================
+ * 
+ * このファイルがアプリ全体の状態管理の唯一の場所です。
+ * 
+ * ルール:
+ * 1. 保存・計算結果（profile, simResult, scenarios）は useProfileStore にのみ存在する
+ * 2. 他の場所（app/v2/store.ts 等）に第二のストアを作成しない
+ * 3. 各ページ/コンポーネントは useProfileStore から参照のみ行う
+ * 4. 新しいストアが必要な場合は、このファイルを拡張する
+ * 
+ * 違反チェック: npm run check:store (scripts/check-store-sot.js)
+ * ============================================================
+ */
+
 // 「試行錯誤」体験を保証: 入力変更 → 即座に結果更新
 
 import { create } from 'zustand';
@@ -62,7 +80,7 @@ interface ProfileStore {
   initializeFromStorage: () => void;
   
   // Scenario actions
-  saveScenario: (name: string) => void;
+  saveScenario: (name: string) => { success: boolean; error?: string; scenario?: SavedScenario };
   loadScenario: (id: string) => void;
   deleteScenario: (id: string) => void;
   toggleComparison: (id: string) => void;
@@ -166,14 +184,30 @@ export const useProfileStore = create<ProfileStore>()(
         
         // Save current profile as a scenario
         saveScenario: (name) => {
-          const { profile, simResult, scenarios } = get();
+          const { profile, simResult, scenarios, isLoading } = get();
+          
+          // バリデーション: 計算中は保存しない
+          if (isLoading) {
+            return { success: false, error: '計算中です。完了後に再度お試しください。' };
+          }
+          
+          // バリデーション: simResultがない場合は保存しない
+          if (!simResult) {
+            return { success: false, error: 'シミュレーション結果がありません。' };
+          }
+          
+          // バリデーション: 名前が空の場合
+          if (!name.trim()) {
+            return { success: false, error: 'シナリオ名を入力してください。' };
+          }
+          
           const id = `scenario-${Date.now()}`;
           
           const newScenario: SavedScenario = {
             id,
-            name,
+            name: name.trim(),
             profile: { ...profile },
-            result: simResult ? { ...simResult } : null,
+            result: { ...simResult },
             createdAt: new Date().toISOString(),
           };
           
@@ -182,7 +216,15 @@ export const useProfileStore = create<ProfileStore>()(
             scenarios: updatedScenarios,
             activeScenarioId: id
           });
-          saveScenariosToStorage(updatedScenarios);
+          
+          try {
+            saveScenariosToStorage(updatedScenarios);
+            return { success: true, scenario: newScenario };
+          } catch (e) {
+            // ストレージ保存失敗時もメモリには保存済み
+            console.error('Failed to persist scenario to storage', e);
+            return { success: true, scenario: newScenario, error: '保存は成功しましたが、永続化に失敗しました。' };
+          }
         },
         
         // Load a saved scenario

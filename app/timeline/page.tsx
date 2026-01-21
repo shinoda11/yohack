@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useProfileStore } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
 import { Sidebar } from '@/components/layout/sidebar';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
@@ -114,6 +115,7 @@ const unsupportedEventTypes: LifeEventType[] = ['retirement_partial'];
 
 export default function TimelinePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { profile, updateProfile, runSimulationAsync, isLoading, saveScenario, scenarios, deleteScenario, loadScenario } = useProfileStore();
   const [isPresetDialogOpen, setIsPresetDialogOpen] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetEvent | null>(null);
@@ -161,19 +163,44 @@ export default function TimelinePage() {
   
   // 「シナリオとして保存」の処理
   const handleSaveScenario = () => {
-    if (!scenarioName.trim()) return;
+    if (!scenarioName.trim()) {
+      toast({
+        title: '保存エラー',
+        description: 'シナリオ名を入力してください。',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     const doSave = () => {
-      saveScenario(scenarioName.trim());
-      // 保存後、最新のシナリオIDを取得（scenarios配列の最後）
-      // saveScenario実行後にstateが更新されるので、少し待ってからIDを取得
-      setTimeout(() => {
-        const latestScenarios = useProfileStore.getState().scenarios;
-        const latestScenario = latestScenarios[latestScenarios.length - 1];
-        if (latestScenario) {
-          setJustSavedScenarioId(latestScenario.id);
-        }
-      }, 100);
+      const result = saveScenario(scenarioName.trim());
+      
+      if (!result.success) {
+        toast({
+          title: '保存に失敗しました',
+          description: result.error || '不明なエラーが発生しました。',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // 成功: トースト通知
+      const savedScenario = result.scenario;
+      const savedTime = savedScenario 
+        ? new Date(savedScenario.createdAt).toLocaleString('ja-JP', { 
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+          })
+        : '';
+      
+      toast({
+        title: 'シナリオを保存しました',
+        description: `「${savedScenario?.name}」${savedTime ? ` (${savedTime})` : ''}`,
+      });
+      
+      if (savedScenario) {
+        setJustSavedScenarioId(savedScenario.id);
+      }
+      
       setIsSaveDialogOpen(false);
       setScenarioName('');
     };

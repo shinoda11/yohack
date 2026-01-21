@@ -173,7 +173,7 @@ export default function V2DashboardPage() {
           </Card>
           
           {/* Main Content Tabs */}
-          <Tabs defaultValue="margins" className="space-y-6">
+          <Tabs defaultValue="worldlines" className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="margins" className="text-xs sm:text-sm">余白</TabsTrigger>
               <TabsTrigger value="decision" className="text-xs sm:text-sm">意思決定</TabsTrigger>
@@ -406,7 +406,7 @@ export default function V2DashboardPage() {
                           <td className="text-center py-3 px-2 tabular-nums font-semibold">
                             {(() => {
                               if (!simResult?.paths.yearlyData) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
-                              if (profile.currentAge > 60) return <span className="text-muted-foreground text-xs">該当なし</span>;
+                              if (profile.currentAge > 60) return <span className="text-muted-foreground text-xs">なし</span>;
                               const idx = Math.min(60 - profile.currentAge, simResult.paths.yearlyData.length - 1);
                               const assets = simResult.paths.yearlyData[idx]?.assets;
                               if (assets == null || Number.isNaN(assets)) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
@@ -428,7 +428,7 @@ export default function V2DashboardPage() {
                                 <td key={scenario.id} className={cn(
                                   "text-center py-3 px-2 text-muted-foreground text-xs",
                                   selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
-                                )}>該当なし</td>
+                                )}>なし</td>
                               );
                             }
                             const idx = Math.min(60 - scenario.profile.currentAge, data.length - 1);
