@@ -40,9 +40,9 @@ const incomeTrajectoryOptions = [
 ];
 
 const workStyleOptions = [
-  { value: 'full_fire', label: 'Full FIRE', description: '完全な経済的自立' },
-  { value: 'coast_fire', label: 'Coast FIRE', description: '資産を増やさず維持' },
-  { value: 'barista_fire', label: 'Barista FIRE', description: 'パートタイムで補填' },
+  { value: 'full_fire', label: '完全な余白', description: '働かなくても余白を維持' },
+  { value: 'coast_fire', label: '維持モード', description: '資産を増やさず余白を保つ' },
+  { value: 'barista_fire', label: '半分ワーク', description: 'パートタイムで余白を補填' },
 ];
 
 const legacyOptions = [

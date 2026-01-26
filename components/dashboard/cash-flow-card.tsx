@@ -156,7 +156,7 @@ export function CashFlowCard({ cashFlow, isLoading }: CashFlowCardProps) {
           {!netCashFlowPositive && (
             <p className="mt-2 text-sm text-gray-600">
               年間{Math.abs(cashFlow.netCashFlow).toLocaleString()}万円の
-              資産取り崩しが必要です
+              余白を使う必要があります
             </p>
           )}
         </div>

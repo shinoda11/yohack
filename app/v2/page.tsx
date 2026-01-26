@@ -110,7 +110,7 @@ export default function V2DashboardPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">YOHACK v2</h1>
               <p className="text-muted-foreground mt-1">
-                意思決定を支援する次世代ダッシュボード
+                余白で比較し、次の一手を決める
               </p>
             </div>
             <Badge variant="outline" className="text-sm">
@@ -1628,7 +1628,7 @@ export default function V2DashboardPage() {
                       <div className="text-2xl font-bold text-gray-800">
                         {strategy.primaryStrategy.expectedOutcome.timeToFire ?? '--'}年
                       </div>
-                      <div className="text-sm text-muted-foreground">目標達成予測</div>
+                      <div className="text-sm text-muted-foreground">安心ラインまで</div>
                     </div>
                     <div className="rounded-lg border p-4 text-center">
                       <div className="text-2xl font-bold text-gray-800">

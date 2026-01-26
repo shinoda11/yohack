@@ -145,30 +145,30 @@ export function KeyMetricsCard({
       <div className={cn("grid gap-2 md:grid-cols-2", isLoading && "opacity-60")}>
         <MetricItem
           icon={<Calendar className="h-5 w-5" />}
-          label="目標達成可能年齢"
+          label="安心ライン到達年齢"
           value={goalAgeText}
           subValue={yearsToGoalText}
           highlight={goalHighlight}
         />
         <MetricItem
           icon={<ShieldCheck className="h-5 w-5" />}
-          label="サバイバル率"
+          label="余白維持率"
           value={`${metrics.survivalRate.toFixed(1)}%`}
-          subValue="資産が尽きない確率"
+          subValue="100歳まで余白が続く確率"
           highlight={survivalHighlight}
         />
         <MetricItem
           icon={<PiggyBank className="h-5 w-5" />}
-          label="100歳時点の資産"
+          label="100歳時点の余白"
           value={assetAt100Text}
           subValue="中央値シナリオ"
           highlight={assetHighlight}
         />
         <MetricItem
           icon={<Gauge className="h-5 w-5" />}
-          label="目標まで"
+          label="安心ラインまで"
           value={`${yearsUntilTarget}年`}
-          subValue={`${targetRetireAge}歳で達成目標`}
+          subValue={`${targetRetireAge}歳が目標`}
           highlight="neutral"
         />
       </div>

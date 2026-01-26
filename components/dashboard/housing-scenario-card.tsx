@@ -654,7 +654,7 @@ export function HousingScenarioCard({
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    <TableCell className="font-medium">Exit目安年齢（90%確率）</TableCell>
+                    <TableCell className="font-medium">安心ライン到達年齢（90%確率）</TableCell>
                     <TableCell className="text-center">
                       {rentResult.safeFireAge ? `${rentResult.safeFireAge}歳` : '-'}
                     </TableCell>
@@ -671,7 +671,7 @@ export function HousingScenarioCard({
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className="font-medium">Exit Readiness Score</TableCell>
+                    <TableCell className="font-medium">余白スコア</TableCell>
                     <TableCell className="text-center">
                       {rentResult.simulation.score.overall.toFixed(0)}点
                     </TableCell>
@@ -744,7 +744,7 @@ export function HousingScenarioCard({
                   <p className="text-2xl font-bold">
                     {rentResult.safeFireAge ?? '-'}歳
                   </p>
-                  <p className="text-xs text-muted-foreground">目標達成可能年齢</p>
+                  <p className="text-xs text-muted-foreground">安心ライン到達年齢</p>
                 </CardContent>
               </Card>
               <Card>
@@ -756,7 +756,7 @@ export function HousingScenarioCard({
                   <p className="text-2xl font-bold">
                     {buyResult.safeFireAge ?? '-'}歳
                   </p>
-                  <p className="text-xs text-muted-foreground">目標達成可能年齢</p>
+                  <p className="text-xs text-muted-foreground">安心ライン到達年齢</p>
                 </CardContent>
               </Card>
             </div>

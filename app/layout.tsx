@@ -9,8 +9,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'YOHACK - 人生の選択を比較して決められるOS',
-  description: '安心ラインと余白で意思決定する。住宅・キャリア・家族イベントを同時に抱えたまま止まっていませんか？破綻しにくさ、取り崩し開始、40〜50代の余裕を「説明できる形」で出します。',
+  title: 'YOHACK - 人生に、余白を。',
+  description: '余白（お金・時間・体力）で人生の選択を比較する。安心ラインと世界線比較で、住宅・キャリア・家族の意思決定を「次の一手」まで導きます。',
   generator: 'v0.app',
   icons: {
     icon: [

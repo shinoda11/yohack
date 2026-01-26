@@ -294,7 +294,7 @@ export function NextBestActionsCard({
                   <div className="flex flex-wrap gap-2 pl-11">
                     <ImpactBadge 
                       value={impact.fireAge} 
-                      label="FIRE年齢" 
+                      label="安心ライン" 
                       unit="年" 
                       isPositive={false}
                     />

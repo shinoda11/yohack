@@ -30,8 +30,8 @@ export function ConclusionCard({ kpis, goalLens = 'balance', isLoading }: Conclu
   
   // 結論テキストを生成
   const conclusionText = hasGoal
-    ? `現在のプランでは、${kpis.safeFireAge}歳で安心してリタイアできます。`
-    : '現在のプランでは、目標達成は難しいようです。プランの見直しを検討しましょう。';
+    ? `現在のプランでは、${kpis.safeFireAge}歳で安心ラインに届きます。`
+    : '現在のプランでは安心ラインに届きにくい状況です。次の一手を検討しましょう。';
   
   // ゴールレンズのラベル
   const lensLabels = {

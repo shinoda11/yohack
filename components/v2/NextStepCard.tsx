@@ -122,7 +122,7 @@ export function NextStepCard({ levers, isLoading, onApplyStrategy }: NextStepCar
                     </p>
                     <div className="mt-2 flex items-center gap-4 text-sm">
                       <span className="font-semibold text-gray-800">
-                        FIRE年齢 {topLevers[0].impact.fireAgeChange > 0 ? '+' : ''}{topLevers[0].impact.fireAgeChange}年
+                        安心ライン {topLevers[0].impact.fireAgeChange > 0 ? '+' : ''}{topLevers[0].impact.fireAgeChange}年
                       </span>
                       <span className="font-medium text-gray-700">
                         生存率 +{topLevers[0].impact.survivalRateChange.toFixed(0)}%
@@ -165,7 +165,7 @@ export function NextStepCard({ levers, isLoading, onApplyStrategy }: NextStepCar
                       </div>
                       <p className="font-medium">{lever.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        FIRE年齢 {lever.impact.fireAgeChange > 0 ? '+' : ''}{lever.impact.fireAgeChange}年
+                        安心ライン {lever.impact.fireAgeChange > 0 ? '+' : ''}{lever.impact.fireAgeChange}年
                       </p>
                     </div>
                   </div>

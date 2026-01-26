@@ -56,8 +56,8 @@ export function BasicInfoCard({ profile, onUpdate }: BasicInfoCardProps) {
 
         {/* Target retirement age */}
         <SliderInput
-          label="Exit目標年齢"
-          description="リタイア目標年齢"
+          label="目標年齢"
+          description="安心ラインに届きたい年齢"
           value={profile.targetRetireAge}
           onChange={(value) => onUpdate({ targetRetireAge: value })}
           min={Math.max(profile.currentAge + 1, 30)}

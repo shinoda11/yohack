@@ -107,7 +107,7 @@ export function Sidebar() {
         </div>
         <div>
           <h1 className="font-semibold tracking-tight">YOHACK</h1>
-          <p className="text-xs text-muted-foreground">人生の選択を比較するOS</p>
+          <p className="text-xs text-muted-foreground">人生に、余白を。</p>
         </div>
       </div>
 
