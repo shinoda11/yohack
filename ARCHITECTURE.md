@@ -6,12 +6,12 @@
 
 このアプリケーションでは、状態管理を **`lib/store.ts`** に統一しています。
 
-```
+\`\`\`
 lib/
   store.ts      <- 唯一のZustandストア（SoT）
   engine.ts     <- シミュレーション計算ロジック
   types.ts      <- 型定義
-```
+\`\`\`
 
 ### ルール
 
@@ -30,9 +30,9 @@ lib/
 
 ### チェック方法
 
-```bash
+\`\`\`bash
 npm run check:store
-```
+\`\`\`
 
 このスクリプトは以下をチェックします:
 - 禁止パス（`app/`, `components/`等）にストアファイルがないか
@@ -46,7 +46,7 @@ npm run check:store
 
 ## ディレクトリ構成
 
-```
+\`\`\`
 app/
   page.tsx          <- プロファイル入力（メインページ）
   dashboard/        <- ダッシュボード（シミュレーション結果表示）
@@ -67,4 +67,4 @@ lib/
 
 scripts/
   check-store-sot.js <- SoTガードレールチェック
-```
+\`\`\`

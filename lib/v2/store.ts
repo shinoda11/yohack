@@ -44,6 +44,9 @@ interface V2State {
     housing: 'rent' | 'buy' | 'buy_later' | null;
     children: 0 | 1 | 2 | null;
   };
+  
+  // 出口ターゲット（将来の買い手像）- 解釈レイヤー、計算には影響しない
+  exitTarget: 'young_single' | 'elite_single' | 'family_practical' | 'semi_investor' | 'high_end' | null;
 }
 
 /**
@@ -76,6 +79,9 @@ interface V2Actions {
   setHousingBridge: (value: 'rent' | 'buy' | 'buy_later' | null) => void;
   setChildrenBridge: (value: 0 | 1 | 2 | null) => void;
   resetBridges: () => void;
+  
+  // 出口ターゲット
+  setExitTarget: (value: V2State['exitTarget']) => void;
 }
 
 export type V2Store = V2State & V2Actions;
@@ -93,6 +99,7 @@ export const useV2Store = create<V2Store>()((set, get) => ({
   allocationDirty: false,
   allocationBase: { travel: 40, invest: 40, freeTime: 20 },
   bridges: { housing: null, children: null },
+  exitTarget: null,
 
   // アクション
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -190,4 +197,7 @@ export const useV2Store = create<V2Store>()((set, get) => ({
   resetBridges: () => {
     set({ bridges: { housing: null, children: null } });
   },
+  
+  // 出口ターゲット
+  setExitTarget: (value) => set({ exitTarget: value }),
 }));

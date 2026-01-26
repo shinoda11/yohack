@@ -60,11 +60,12 @@ export default function V2DashboardPage() {
   const [isAllocationSaveDialogOpen, setIsAllocationSaveDialogOpen] = useState(false);
   const [allocationScenarioName, setAllocationScenarioName] = useState('');
   
-  // UI状態（比較対象選択・配分・ブリッジ）のみv2で管理
+  // UI状態（比較対象選択・配分・ブリッジ・出口ターゲット）のみv2で管理
   const { 
     selectedComparisonIds, toggleComparisonId, clearComparisonIds, setSelectedComparisonIds, 
     allocation, setAllocation, allocationDirty, resetAllocation, markAllocationSaved,
-    bridges, setHousingBridge, setChildrenBridge, setActiveTab, activeTab
+    bridges, setHousingBridge, setChildrenBridge, setActiveTab, activeTab,
+    exitTarget, setExitTarget
   } = useV2Store();
   
   // Calculate margins
@@ -1133,6 +1134,71 @@ export default function V2DashboardPage() {
                         </tr>
                       </tbody>
                     </table>
+                  </div>
+                  
+                  {/* 出口ターゲット（将来の買い手像）- 解釈レイヤー */}
+                  <div className="mt-6 pt-6 border-t">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Home className="h-4 w-4 text-muted-foreground" />
+                      <h4 className="font-medium text-sm">出口ターゲット（将来の買い手像）</h4>
+                      <Badge variant="outline" className="text-xs">解釈のみ</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      住宅購入時の出口戦略として、将来誰に売れるかをイメージします。数値は変わりません。
+                    </p>
+                    
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {[
+                        { value: 'young_single' as const, label: '若手単身イケイケ層', range: '5,000万〜8,000万', desc: '都心1LDK〜2LDK、駅近重視' },
+                        { value: 'elite_single' as const, label: 'エリート単身/若手カップル', range: '8,000万〜1.2億', desc: '広め1LDK〜2LDK、設備重視' },
+                        { value: 'family_practical' as const, label: '実需重視カップル', range: '8,000万〜1.3億', desc: '3LDK、学区・環境重視' },
+                        { value: 'semi_investor' as const, label: '半住半投目線カップル', range: '1.2億〜2.0億', desc: '資産性・立地重視' },
+                        { value: 'high_end' as const, label: 'つよつよカップル/士業/経営者', range: '2.0億〜', desc: 'プレミアム物件' },
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setExitTarget(exitTarget === option.value ? null : option.value)}
+                          className={cn(
+                            "p-3 rounded-lg border text-left transition-all",
+                            exitTarget === option.value
+                              ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                              : "border-border hover:border-muted-foreground/30 hover:bg-muted/30"
+                          )}
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={cn(
+                              "w-3 h-3 rounded-full border-2 flex items-center justify-center",
+                              exitTarget === option.value ? "border-primary" : "border-muted-foreground/40"
+                            )}>
+                              {exitTarget === option.value && (
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                              )}
+                            </div>
+                            <span className="font-medium text-sm">{option.label}</span>
+                          </div>
+                          <div className="ml-5 space-y-0.5">
+                            <div className="text-xs font-medium text-primary/80">{option.range}</div>
+                            <div className="text-xs text-muted-foreground">{option.desc}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* 選択状態の表示 */}
+                    <div className="mt-3 text-xs text-muted-foreground">
+                      {exitTarget ? (
+                        <span>選択中: <span className="font-medium text-foreground">{
+                          exitTarget === 'young_single' ? '若手単身イケイケ層' :
+                          exitTarget === 'elite_single' ? 'エリート単身/若手カップル' :
+                          exitTarget === 'family_practical' ? '実需重視カップル' :
+                          exitTarget === 'semi_investor' ? '半住半投目線カップル' :
+                          'つよつよカップル/士業/経営者'
+                        }</span></span>
+                      ) : (
+                        <span>未指定（タップして選択）</span>
+                      )}
+                    </div>
                   </div>
                   
                   {/* アクション行 */}
