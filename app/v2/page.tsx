@@ -65,7 +65,8 @@ export default function V2DashboardPage() {
     selectedComparisonIds, toggleComparisonId, clearComparisonIds, setSelectedComparisonIds, 
     allocation, setAllocation, allocationDirty, resetAllocation, markAllocationSaved,
     bridges, setHousingBridge, setChildrenBridge, setActiveTab, activeTab,
-    exitTarget, setExitTarget
+    exitTarget, setExitTarget, exitTargetCompatibility, setExitTargetCompatibility,
+    consensusPriorities, togglePartnerPriority
   } = useV2Store();
   
   // Calculate margins
@@ -1150,13 +1151,7 @@ export default function V2DashboardPage() {
                           const homeValue = profile.homeMarketValue;
                           const hasHomeData = profile.homeStatus === 'owner' || profile.homeStatus === 'planning';
                           
-                          if (!hasHomeData || homeValue === 0) {
-                            return (
-                              <Badge variant="secondary" className="text-xs">判定保留</Badge>
-                            );
-                          }
-                          
-                          // 価格帯による簡易マッチング
+                          // 適合度計算（共通ロジック）
                           const priceRanges: Record<string, [number, number]> = {
                             young_single: [5000, 8000],
                             elite_single: [8000, 12000],
@@ -1166,10 +1161,34 @@ export default function V2DashboardPage() {
                           };
                           const [minPrice, maxPrice] = priceRanges[exitTarget] || [0, 0];
                           
-                          if (homeValue >= minPrice && homeValue <= maxPrice) {
+                          // 適合度を計算してstoreに保持（将来TRI反映用）
+                          let compatibility: 'high' | 'medium' | 'low' | 'hold' = 'hold';
+                          if (!hasHomeData || homeValue === 0) {
+                            compatibility = 'hold';
+                          } else if (homeValue >= minPrice && homeValue <= maxPrice) {
+                            compatibility = 'high';
+                          } else if (homeValue >= minPrice * 0.8 && homeValue <= maxPrice * 1.2) {
+                            compatibility = 'medium';
+                          } else {
+                            compatibility = 'low';
+                          }
+                          
+                          // v0.1: storeに保持のみ、TRI計算には反映しない
+                          // TODO(v0.2+): この値を基にTRI計算に重み付けを行う
+                          // - 'high' → お金の余白に安心感補正
+                          // - 'low' → 時間/体力コストとして売却リスク懸念を加算
+                          if (exitTargetCompatibility !== compatibility) {
+                            setExitTargetCompatibility(compatibility);
+                          }
+                          
+                          // 表示
+                          if (compatibility === 'hold') {
+                            return <Badge variant="secondary" className="text-xs">判定保留</Badge>;
+                          }
+                          if (compatibility === 'high') {
                             return <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">適合: 高</Badge>;
                           }
-                          if (homeValue >= minPrice * 0.8 && homeValue <= maxPrice * 1.2) {
+                          if (compatibility === 'medium') {
                             return <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">適合: 中</Badge>;
                           }
                           return <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">適合: 低</Badge>;
@@ -1248,9 +1267,12 @@ export default function V2DashboardPage() {
                       <h4 className="font-medium text-sm">出口ターゲット（将来の買い手像）</h4>
                       <Badge variant="outline" className="text-xs">解釈のみ</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground mb-4">
-                      住宅購入時の出口戦略として、将来誰に売れるかをイメージします。数値は変わりません。
-                    </p>
+                    
+                    {/* 誤読防止コピー - 常時表示 */}
+                    <div className="mb-4 p-3 rounded-lg border-l-2 border-blue-400 bg-blue-50/50 dark:bg-blue-950/20 space-y-1">
+                      <p className="text-xs text-foreground">これは将来の売却先を想定して「読み方」を揃えるためのレンズです。</p>
+                      <p className="text-xs text-muted-foreground">シミュレーション数値は変えません。比較の観点だけを整理します。</p>
+                    </div>
                     
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {[
@@ -1392,6 +1414,107 @@ export default function V2DashboardPage() {
                             </>
                           )}
                         </ul>
+                      </div>
+                    )}
+                    
+                    {/* 合意形成の型（③④選択時のみ） */}
+                    {(exitTarget === 'family_practical' || exitTarget === 'semi_investor') && (
+                      <div className="mt-4 p-4 rounded-lg border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Users className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                          <h5 className="font-medium text-sm">合意形成の型</h5>
+                          <Badge variant="outline" className="text-xs">2人で意思決定</Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mb-4">
+                          各自が重視する観点を3つ選び、一致点と相違点を確認します。数値には影響しません。
+                        </p>
+                        
+                        {/* 優先順位チェック */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {(['partner1', 'partner2'] as const).map((partner, idx) => (
+                            <div key={partner} className="space-y-2">
+                              <div className="text-xs font-medium text-muted-foreground">
+                                {idx === 0 ? 'パートナー1' : 'パートナー2'}（{consensusPriorities[partner].length}/3）
+                              </div>
+                              <div className="grid grid-cols-2 gap-1.5">
+                                {[
+                                  { id: 'location', label: '立地' },
+                                  { id: 'space', label: '広さ' },
+                                  { id: 'sunlight', label: '採光' },
+                                  { id: 'resale', label: '将来売却' },
+                                  { id: 'education', label: '教育環境' },
+                                  { id: 'commute', label: '通勤' },
+                                ].map((item) => {
+                                  const isSelected = consensusPriorities[partner].includes(item.id);
+                                  const isDisabled = !isSelected && consensusPriorities[partner].length >= 3;
+                                  return (
+                                    <button
+                                      key={item.id}
+                                      type="button"
+                                      onClick={() => togglePartnerPriority(partner, item.id)}
+                                      disabled={isDisabled}
+                                      className={cn(
+                                        "px-2 py-1.5 rounded text-xs border transition-all",
+                                        isSelected
+                                          ? "bg-amber-100 dark:bg-amber-900/40 border-amber-400 text-amber-800 dark:text-amber-200"
+                                          : isDisabled
+                                          ? "bg-muted/30 border-transparent text-muted-foreground/50 cursor-not-allowed"
+                                          : "bg-background border-border hover:border-amber-300"
+                                      )}
+                                    >
+                                      {item.label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* 一致/不一致の表示 */}
+                        {(consensusPriorities.partner1.length > 0 || consensusPriorities.partner2.length > 0) && (
+                          <div className="mt-4 pt-3 border-t border-amber-200 dark:border-amber-800">
+                            {(() => {
+                              const matched = consensusPriorities.partner1.filter(p => 
+                                consensusPriorities.partner2.includes(p)
+                              );
+                              const only1 = consensusPriorities.partner1.filter(p => 
+                                !consensusPriorities.partner2.includes(p)
+                              );
+                              const only2 = consensusPriorities.partner2.filter(p => 
+                                !consensusPriorities.partner1.includes(p)
+                              );
+                              const labels: Record<string, string> = {
+                                location: '立地', space: '広さ', sunlight: '採光',
+                                resale: '将来売却', education: '教育環境', commute: '通勤'
+                              };
+                              
+                              return (
+                                <div className="space-y-1.5 text-xs">
+                                  {matched.length > 0 && (
+                                    <div className="flex items-center gap-2">
+                                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                      <span className="text-green-700 dark:text-green-300">
+                                        一致: {matched.map(m => labels[m]).join('、')}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {(only1.length > 0 || only2.length > 0) && (
+                                    <div className="flex items-center gap-2">
+                                      <AlertTriangle className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                      <span className="text-amber-700 dark:text-amber-300">
+                                        要相談: {[...only1, ...only2].map(m => labels[m]).join('、')}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {matched.length === 0 && only1.length === 0 && only2.length === 0 && (
+                                    <span className="text-muted-foreground">各自3つ選ぶと一致点が表示されます</span>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

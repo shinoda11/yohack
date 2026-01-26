@@ -47,6 +47,21 @@ interface V2State {
   
   // 出口ターゲット（将来の買い手像）- 解釈レイヤー、計算には影響しない
   exitTarget: 'young_single' | 'elite_single' | 'family_practical' | 'semi_investor' | 'high_end' | null;
+  
+  /**
+   * 出口ターゲット適合度
+   * - v0.1: 表示のみ、TRI（お金/時間/体力）への反映なし
+   * - 将来拡張: この値を基にTRI計算に重み付けを行う予定
+   *   - 例: 適合度lowの場合、売却リスクを時間/体力コストとして反映
+   *   - 例: 適合度highの場合、出口戦略の安心感をお金の余白に微加算
+   */
+  exitTargetCompatibility: 'high' | 'medium' | 'low' | 'hold' | null;
+  
+  // 合意形成の型（③④選択時のみ使用）- パートナー各自の優先順位
+  consensusPriorities: {
+    partner1: string[];  // 最大3つ
+    partner2: string[];  // 最大3つ
+  };
 }
 
 /**
@@ -82,6 +97,17 @@ interface V2Actions {
   
   // 出口ターゲット
   setExitTarget: (value: V2State['exitTarget']) => void;
+  
+  /**
+   * 出口ターゲット適合度を設定
+   * - v0.1: UI状態として保持のみ
+   * - 将来拡張: TRI計算への反映を予定
+   */
+  setExitTargetCompatibility: (value: V2State['exitTargetCompatibility']) => void;
+  
+  // 合意形成の型
+  togglePartnerPriority: (partner: 'partner1' | 'partner2', priority: string) => void;
+  resetConsensusPriorities: () => void;
 }
 
 export type V2Store = V2State & V2Actions;
@@ -100,6 +126,8 @@ export const useV2Store = create<V2Store>()((set, get) => ({
   allocationBase: { travel: 40, invest: 40, freeTime: 20 },
   bridges: { housing: null, children: null },
   exitTarget: null,
+  exitTargetCompatibility: null, // v0.1: TRI反映なし、将来拡張用
+  consensusPriorities: { partner1: [], partner2: [] },
 
   // アクション
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -200,4 +228,42 @@ export const useV2Store = create<V2Store>()((set, get) => ({
   
   // 出口ターゲット
   setExitTarget: (value) => set({ exitTarget: value }),
+  
+  /**
+   * 出口ターゲット適合度を設定
+   * v0.1: UI状態として保持のみ、TRI計算への反映なし
+   * 
+   * TODO(v0.2+): TRI反映時のロジック案
+   * - 'high' → お金の余白に +2〜5% の安心感補正
+   * - 'medium' → 変更なし
+   * - 'low' → 時間/体力コストとして売却リスク懸念を微加算
+   * - 'hold' → 判定保留、反映なし
+   */
+  setExitTargetCompatibility: (value) => set({ exitTargetCompatibility: value }),
+  
+  // 合意形成の型
+  togglePartnerPriority: (partner, priority) => {
+    const { consensusPriorities } = get();
+    const currentList = consensusPriorities[partner];
+    if (currentList.includes(priority)) {
+      // 削除
+      set({
+        consensusPriorities: {
+          ...consensusPriorities,
+          [partner]: currentList.filter(p => p !== priority),
+        },
+      });
+    } else if (currentList.length < 3) {
+      // 追加（最大3つ）
+      set({
+        consensusPriorities: {
+          ...consensusPriorities,
+          [partner]: [...currentList, priority],
+        },
+      });
+    }
+  },
+  resetConsensusPriorities: () => {
+    set({ consensusPriorities: { partner1: [], partner2: [] } });
+  },
 }));
