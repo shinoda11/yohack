@@ -108,7 +108,7 @@ export default function V2DashboardPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Exit Readiness v2</h1>
+              <h1 className="text-3xl font-bold tracking-tight">YOHACK v2</h1>
               <p className="text-muted-foreground mt-1">
                 意思決定を支援する次世代ダッシュボード
               </p>

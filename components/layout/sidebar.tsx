@@ -70,9 +70,9 @@ export function Sidebar() {
       <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-bold text-accent-foreground text-sm">
-            E
+            Y
           </div>
-          <span className="font-semibold text-sidebar-foreground">Exit Readiness</span>
+          <span className="font-semibold text-sidebar-foreground">YOHACK</span>
         </div>
         <Button
           variant="ghost"
@@ -103,10 +103,10 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-accent-foreground shadow-lg">
-          E
+          Y
         </div>
         <div>
-          <h1 className="font-semibold tracking-tight">Exit Readiness</h1>
+          <h1 className="font-semibold tracking-tight">YOHACK</h1>
           <p className="text-xs text-muted-foreground">人生の選択を比較するOS</p>
         </div>
       </div>

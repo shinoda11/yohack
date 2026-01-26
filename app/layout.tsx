@@ -9,7 +9,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Exit Readiness OS - 人生の選択を比較して決められるOS',
+  title: 'YOHACK - 人生の選択を比較して決められるOS',
   description: '安心ラインと余白で意思決定する。住宅・キャリア・家族イベントを同時に抱えたまま止まっていませんか？破綻しにくさ、取り崩し開始、40〜50代の余裕を「説明できる形」で出します。',
   generator: 'v0.app',
   icons: {
