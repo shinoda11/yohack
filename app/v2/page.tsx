@@ -1136,6 +1136,111 @@ export default function V2DashboardPage() {
                     </table>
                   </div>
                   
+                  {/* 出口ターゲット適合度（比較テーブル直下） */}
+                  {exitTarget && (
+                    <div className="mt-4 p-4 rounded-lg border bg-muted/20">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-medium text-sm">出口ターゲット適合度</h4>
+                          <Badge variant="outline" className="text-xs">目安</Badge>
+                        </div>
+                        {(() => {
+                          // 簡易適合度判定（v0.1）
+                          // 物件詳細（広さ/間取り/立地）が未入力のため、価格帯のみで暫定判定
+                          const homeValue = profile.homeMarketValue;
+                          const hasHomeData = profile.homeStatus === 'owner' || profile.homeStatus === 'planning';
+                          
+                          if (!hasHomeData || homeValue === 0) {
+                            return (
+                              <Badge variant="secondary" className="text-xs">判定保留</Badge>
+                            );
+                          }
+                          
+                          // 価格帯による簡易マッチング
+                          const priceRanges: Record<string, [number, number]> = {
+                            young_single: [5000, 8000],
+                            elite_single: [8000, 12000],
+                            family_practical: [8000, 13000],
+                            semi_investor: [12000, 20000],
+                            high_end: [20000, 100000],
+                          };
+                          const [minPrice, maxPrice] = priceRanges[exitTarget] || [0, 0];
+                          
+                          if (homeValue >= minPrice && homeValue <= maxPrice) {
+                            return <Badge className="text-xs bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">適合: 高</Badge>;
+                          }
+                          if (homeValue >= minPrice * 0.8 && homeValue <= maxPrice * 1.2) {
+                            return <Badge className="text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">適合: 中</Badge>;
+                          }
+                          return <Badge className="text-xs bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">適合: 低</Badge>;
+                        })()}
+                      </div>
+                      
+                      {/* 適合度理由 */}
+                      <ul className="text-xs text-muted-foreground space-y-1 pl-4 list-disc">
+                        {(() => {
+                          const homeValue = profile.homeMarketValue;
+                          const hasHomeData = profile.homeStatus === 'owner' || profile.homeStatus === 'planning';
+                          
+                          if (!hasHomeData || homeValue === 0) {
+                            return (
+                              <>
+                                <li>物件の広さ/間取り/立地条件が未入力のため判定を保留しています</li>
+                                <li>住居情報を入力すると、より正確な適合度を表示できます</li>
+                                <li>現時点では出口ターゲットの一般傾向のみ参照ください</li>
+                              </>
+                            );
+                          }
+                          
+                          const priceRanges: Record<string, [number, number]> = {
+                            young_single: [5000, 8000],
+                            elite_single: [8000, 12000],
+                            family_practical: [8000, 13000],
+                            semi_investor: [12000, 20000],
+                            high_end: [20000, 100000],
+                          };
+                          const [minPrice, maxPrice] = priceRanges[exitTarget] || [0, 0];
+                          const isInRange = homeValue >= minPrice && homeValue <= maxPrice;
+                          const isNearRange = homeValue >= minPrice * 0.8 && homeValue <= maxPrice * 1.2;
+                          
+                          const targetLabels: Record<string, string> = {
+                            young_single: '若手単身イケイケ層',
+                            elite_single: 'エリート単身/若手カップル',
+                            family_practical: '実需重視カップル',
+                            semi_investor: '半住半投目線カップル',
+                            high_end: 'つよつよカップル/士業/経営者',
+                          };
+                          
+                          if (isInRange) {
+                            return (
+                              <>
+                                <li>物件価格 {homeValue.toLocaleString()}万円 は {targetLabels[exitTarget]} の想定レンジ内にあります</li>
+                                <li>この価格帯は将来の買い手候補が比較的多い傾向があります</li>
+                                <li>広さ・間取り・立地の詳細が分かると、より精度が上がります（v0.1では未対応）</li>
+                              </>
+                            );
+                          }
+                          if (isNearRange) {
+                            return (
+                              <>
+                                <li>物件価格 {homeValue.toLocaleString()}万円 は {targetLabels[exitTarget]} のレンジにやや近いです</li>
+                                <li>ターゲット層の一部は検討対象にする可能性があります</li>
+                                <li>立地や設備次第では適合度が変わる傾向があります</li>
+                              </>
+                            );
+                          }
+                          return (
+                            <>
+                              <li>物件価格 {homeValue.toLocaleString()}万円 は {targetLabels[exitTarget]} の想定レンジから離れています</li>
+                              <li>この層をターゲットにする場合、価格調整や別ターゲットの検討が考えられます</li>
+                              <li>ただし立地・設備によっては例外もあり得ます（目安としてご参照ください）</li>
+                            </>
+                          );
+                        })()}
+                      </ul>
+                    </div>
+                  )}
+                  
                   {/* 出口ターゲット（将来の買い手像）- 解釈レイヤー */}
                   <div className="mt-6 pt-6 border-t">
                     <div className="flex items-center gap-2 mb-3">
