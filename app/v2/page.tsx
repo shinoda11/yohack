@@ -1199,6 +1199,96 @@ export default function V2DashboardPage() {
                         <span>未指定（タップして選択）</span>
                       )}
                     </div>
+                    
+                    {/* 重視軸と理由コメント */}
+                    {exitTarget && (
+                      <div className="mt-4 p-4 rounded-lg bg-muted/30 border space-y-3">
+                        {/* 重視軸タグ */}
+                        <div className="flex flex-wrap gap-2">
+                          {exitTarget === 'young_single' && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">立地重視</Badge>
+                              <Badge variant="secondary" className="text-xs">職住近接</Badge>
+                              <Badge variant="secondary" className="text-xs">築年許容</Badge>
+                              <Badge variant="secondary" className="text-xs">狭さ許容</Badge>
+                              <Badge variant="secondary" className="text-xs">値上がりエリア</Badge>
+                            </>
+                          )}
+                          {exitTarget === 'elite_single' && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">投資目線</Badge>
+                              <Badge variant="secondary" className="text-xs">ブランド重視</Badge>
+                              <Badge variant="secondary" className="text-xs">駅距離許容</Badge>
+                              <Badge variant="secondary" className="text-xs">出口意識</Badge>
+                            </>
+                          )}
+                          {exitTarget === 'family_practical' && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">広さ重視</Badge>
+                              <Badge variant="secondary" className="text-xs">採光・生活導線</Badge>
+                              <Badge variant="secondary" className="text-xs">周辺施設</Badge>
+                              <Badge variant="secondary" className="text-xs">学区</Badge>
+                              <Badge variant="secondary" className="text-xs">2人で意思決定</Badge>
+                            </>
+                          )}
+                          {exitTarget === 'semi_investor' && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">年収倍率高め</Badge>
+                              <Badge variant="secondary" className="text-xs">タワマン比率</Badge>
+                              <Badge variant="secondary" className="text-xs">間取り重視</Badge>
+                              <Badge variant="secondary" className="text-xs">与信限界</Badge>
+                            </>
+                          )}
+                          {exitTarget === 'high_end' && (
+                            <>
+                              <Badge variant="secondary" className="text-xs">眺望重視</Badge>
+                              <Badge variant="secondary" className="text-xs">駅徒歩</Badge>
+                              <Badge variant="secondary" className="text-xs">共用施設</Badge>
+                              <Badge variant="secondary" className="text-xs">プレミアム立地</Badge>
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* 理由コメント */}
+                        <ul className="text-xs text-muted-foreground space-y-1.5 pl-4 list-disc">
+                          {exitTarget === 'young_single' && (
+                            <>
+                              <li>通勤時間を削減したい傾向が強く、駅近・都心立地に価値を感じやすい</li>
+                              <li>広さより立地優先のため、コンパクトな間取りでも検討対象になりやすい</li>
+                              <li>将来の値上がりを期待するエリアを好む傾向がある</li>
+                            </>
+                          )}
+                          {exitTarget === 'elite_single' && (
+                            <>
+                              <li>資産形成の一環として不動産を捉え、売却時の流動性を重視する傾向</li>
+                              <li>ブランドマンションや大手デベロッパー物件を好みやすい</li>
+                              <li>多少駅から離れても、設備グレードを優先することがある</li>
+                            </>
+                          )}
+                          {exitTarget === 'family_practical' && (
+                            <>
+                              <li>子育て環境や生活利便性を最優先し、広さ・採光・収納を重視する傾向</li>
+                              <li>学区や公園・病院へのアクセスが意思決定に大きく影響しやすい</li>
+                              <li>夫婦での合意形成が必要なため、検討期間が長くなることがある</li>
+                            </>
+                          )}
+                          {exitTarget === 'semi_investor' && (
+                            <>
+                              <li>住みながら資産を増やす発想で、年収倍率を高めに設定する傾向</li>
+                              <li>タワーマンションや再開発エリアを好みやすい</li>
+                              <li>与信の限界まで借りる場合、金利上昇リスクへの備えが重要になりやすい</li>
+                            </>
+                          )}
+                          {exitTarget === 'high_end' && (
+                            <>
+                              <li>多忙なため内見・検討に時間が取りにくく、意思決定が進みにくいことがある</li>
+                              <li>眺望・共用施設・セキュリティなど、生活の質を重視する傾向</li>
+                              <li>価格よりも希少性やステータスを優先することがある</li>
+                            </>
+                          )}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   
                   {/* アクション行 */}
