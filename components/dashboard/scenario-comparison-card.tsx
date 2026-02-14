@@ -141,11 +141,11 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 dark:border-gray-800">
-                <th className="text-left py-2 pr-2 font-medium text-gray-500 text-xs">シナリオ</th>
-                <th className="text-right py-2 px-2 font-medium text-gray-500 text-xs">Exit目安</th>
+                <th className="text-left py-2 pr-2 font-medium text-gray-500 text-xs">世界線</th>
+                <th className="text-right py-2 px-2 font-medium text-gray-500 text-xs">安心ライン</th>
                 <th className="text-right py-2 px-2 font-medium text-gray-500 text-xs">成功確率</th>
                 <th className="text-right py-2 px-2 font-medium text-gray-500 text-xs">100歳資産</th>
-                <th className="text-right py-2 pl-2 font-medium text-gray-500 text-xs">取崩開始</th>
+                <th className="text-right py-2 pl-2 font-medium text-gray-500 text-xs">余白開始</th>
               </tr>
             </thead>
             <tbody>

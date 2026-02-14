@@ -84,10 +84,10 @@ export default function DashboardPage() {
           <div className="flex h-16 items-center justify-between px-6">
             <div>
               <h1 className="text-xl font-semibold text-foreground">
-                Exit Readiness OS
+                YOHACK
               </h1>
               <p className="text-sm text-muted-foreground">
-                安心ラインと余白で、人生の選択を比較する
+                人生に、余白を。
               </p>
             </div>
             <div className="flex items-center gap-3">

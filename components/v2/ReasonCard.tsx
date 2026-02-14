@@ -47,9 +47,9 @@ export function ReasonCard({ kpis, isLoading }: ReasonCardProps) {
   const metrics = [
     {
       icon: Calendar,
-      label: '90%サバイバル率でのFIRE年齢',
+      label: '安心ラインに届く年齢',
       value: kpis.safeFireAge ? `${kpis.safeFireAge}歳` : 'N/A',
-      description: '90%の確率で100歳まで資産が持つ、安全なリタイア年齢です。',
+      description: '90%の確率で100歳まで余白を維持できる年齢です。',
       progress: kpis.safeFireAge ? Math.max(0, 100 - (kpis.safeFireAge - 40) * 2) : 0,
       color: 'primary',
     },

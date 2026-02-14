@@ -272,7 +272,7 @@ export function WorldLineLens({
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="font-medium">90%達成年齢</TableCell>
+                  <TableCell className="font-medium">安心ライン到達年齢</TableCell>
                   <TableCell>
                     {safeDisplay(activeWorldLine.result.kpis?.safeFireAge, 0, '歳')}
                   </TableCell>
