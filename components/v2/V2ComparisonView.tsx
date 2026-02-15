@@ -57,7 +57,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                 <th className="text-center py-3 px-2 font-medium min-w-32">
                   <div className="flex flex-col items-center gap-1">
                     <Badge variant="default" className="bg-primary">現在</Badge>
-                    <span className="text-xs text-muted-foreground">Baseline</span>
+                    <span className="text-xs text-muted-foreground">ベースライン</span>
                   </div>
                 </th>
                 {scenarios.slice(0, 2).map((scenario) => (
@@ -89,9 +89,9 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
               </tr>
             </thead>
             <tbody>
-              {/* Safe Exit Age */}
+              {/* 安心ライン到達年齢 */}
               <tr className="border-b hover:bg-muted/30">
-                <td className="py-3 px-2 font-medium">Safe Exit Age</td>
+                <td className="py-3 px-2 font-medium">安心ライン到達年齢</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
                     if (!simResult) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
@@ -212,16 +212,16 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                 )}
               </tr>
 
-              {/* Drawdown開始年齢 */}
+              {/* 取り崩し開始年齢 */}
               <tr className="hover:bg-muted/30">
-                <td className="py-3 px-2 font-medium">Drawdown開始</td>
+                <td className="py-3 px-2 font-medium">取り崩し開始</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
                     if (!simResult?.paths.yearlyData) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
                     const ddIdx = simResult.paths.yearlyData.findIndex((y, i) =>
                       i > 0 && y.assets < simResult.paths.yearlyData[i - 1].assets
                     );
-                    // Drawdownがない = 資産が常に増加している
+                    // 取り崩しがない = 資産が常に増加している
                     return ddIdx > 0
                       ? `${profile.currentAge + ddIdx}歳`
                       : <span className="text-muted-foreground text-xs">なし</span>;
@@ -296,7 +296,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <Badge variant="outline" className="text-xs">Step 2</Badge>
+                <Badge variant="outline" className="text-xs">ステップ2</Badge>
                 <h4 className="font-medium text-sm">余白の使い道を決める</h4>
               </div>
               <p className="text-xs text-muted-foreground">

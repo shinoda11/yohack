@@ -137,6 +137,25 @@ export default function DashboardPage() {
     setOpenCards(prev => ({ ...prev, [key]: open }));
   }, []);
 
+  // Card refs for scroll-into-view
+  const cardRefs = {
+    basicInfo: useRef<HTMLDivElement>(null),
+    income: useRef<HTMLDivElement>(null),
+    expense: useRef<HTMLDivElement>(null),
+    asset: useRef<HTMLDivElement>(null),
+    investment: useRef<HTMLDivElement>(null),
+  };
+
+  const handleOpenCard = useCallback((cardId: string) => {
+    const key = cardId as CardKey;
+    if (!(key in cardRefs)) return;
+    manualToggles.current.add(key);
+    setOpenCards(prev => ({ ...prev, [key]: true }));
+    setTimeout(() => {
+      cardRefs[key].current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, []);
+
   const dismissWelcome = () => {
     setShowWelcome(false);
     if (typeof window !== 'undefined') {
@@ -207,7 +226,7 @@ export default function DashboardPage() {
           <OnboardingSteps profile={profile} />
 
           {/* Profile Completeness - shown after onboarding */}
-          <ProfileCompleteness profile={profile} />
+          <ProfileCompleteness profile={profile} onOpenCard={handleOpenCard} />
 
           {/* Conclusion Summary - Always visible at top */}
           <div className="mb-6">
@@ -227,41 +246,51 @@ export default function DashboardPage() {
             {/* Left column: Input cards with Progressive Disclosure */}
             <div className="space-y-4 lg:col-span-1">
               {/* Basic Inputs - Collapsible */}
-              <BasicInfoCard
-                profile={profile}
-                onUpdate={updateProfile}
-                getFieldError={getFieldError}
-                open={openCards.basicInfo}
-                onOpenChange={(o) => handleCardToggle('basicInfo', o)}
-              />
-              <IncomeCard
-                profile={profile}
-                onUpdate={updateProfile}
-                getFieldError={getFieldError}
-                open={openCards.income}
-                onOpenChange={(o) => handleCardToggle('income', o)}
-              />
-              <ExpenseCard
-                profile={profile}
-                onUpdate={updateProfile}
-                getFieldError={getFieldError}
-                open={openCards.expense}
-                onOpenChange={(o) => handleCardToggle('expense', o)}
-              />
-              <AssetCard
-                profile={profile}
-                onUpdate={updateProfile}
-                getFieldError={getFieldError}
-                open={openCards.asset}
-                onOpenChange={(o) => handleCardToggle('asset', o)}
-              />
-              <InvestmentCard
-                profile={profile}
-                onUpdate={updateProfile}
-                getFieldError={getFieldError}
-                open={openCards.investment}
-                onOpenChange={(o) => handleCardToggle('investment', o)}
-              />
+              <div ref={cardRefs.basicInfo}>
+                <BasicInfoCard
+                  profile={profile}
+                  onUpdate={updateProfile}
+                  getFieldError={getFieldError}
+                  open={openCards.basicInfo}
+                  onOpenChange={(o) => handleCardToggle('basicInfo', o)}
+                />
+              </div>
+              <div ref={cardRefs.income}>
+                <IncomeCard
+                  profile={profile}
+                  onUpdate={updateProfile}
+                  getFieldError={getFieldError}
+                  open={openCards.income}
+                  onOpenChange={(o) => handleCardToggle('income', o)}
+                />
+              </div>
+              <div ref={cardRefs.expense}>
+                <ExpenseCard
+                  profile={profile}
+                  onUpdate={updateProfile}
+                  getFieldError={getFieldError}
+                  open={openCards.expense}
+                  onOpenChange={(o) => handleCardToggle('expense', o)}
+                />
+              </div>
+              <div ref={cardRefs.asset}>
+                <AssetCard
+                  profile={profile}
+                  onUpdate={updateProfile}
+                  getFieldError={getFieldError}
+                  open={openCards.asset}
+                  onOpenChange={(o) => handleCardToggle('asset', o)}
+                />
+              </div>
+              <div ref={cardRefs.investment}>
+                <InvestmentCard
+                  profile={profile}
+                  onUpdate={updateProfile}
+                  getFieldError={getFieldError}
+                  open={openCards.investment}
+                  onOpenChange={(o) => handleCardToggle('investment', o)}
+                />
+              </div>
 
               {/* Advanced Settings - Progressive Disclosure (has its own toggle) */}
               <AdvancedInputPanel

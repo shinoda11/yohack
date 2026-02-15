@@ -11,10 +11,11 @@ const ONBOARDING_KEY = 'yohack-onboarding-complete';
 
 interface ProfileCompletenessProps {
   profile: Profile;
+  onOpenCard?: (cardId: string) => void;
 }
 
-export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
-  const { percentage, isComplete, incompleteFields } = useProfileCompleteness(profile);
+export function ProfileCompleteness({ profile, onOpenCard }: ProfileCompletenessProps) {
+  const { percentage, isComplete, incompleteFields, incompleteFieldDetails } = useProfileCompleteness(profile);
   const [visible, setVisible] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
 
@@ -73,10 +74,26 @@ export function ProfileCompleteness({ profile }: ProfileCompletenessProps) {
               style={{ width: `${percentage}%` }}
             />
           </div>
-          {displayFields.length > 0 && (
+          {incompleteFieldDetails.length > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">
-              未入力: {displayFields.join('、')}
-              {remaining > 0 && `、他${remaining}件`}
+              未入力:{' '}
+              {incompleteFieldDetails.slice(0, 3).map((f, i) => (
+                <span key={f.label}>
+                  {i > 0 && '、'}
+                  {onOpenCard ? (
+                    <button
+                      type="button"
+                      className="underline cursor-pointer hover:text-foreground transition-colors"
+                      onClick={() => onOpenCard(f.cardId)}
+                    >
+                      {f.label}
+                    </button>
+                  ) : (
+                    f.label
+                  )}
+                </span>
+              ))}
+              {incompleteFieldDetails.length > 3 && `、他${incompleteFieldDetails.length - 3}件`}
             </p>
           )}
         </>

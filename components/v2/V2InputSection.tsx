@@ -95,7 +95,7 @@ export function V2InputSection(props: V2InputSectionProps) {
             </CardTitle>
             <CardDescription className="space-y-1">
               <span className="block">条件を変えたときに増える/減る余白を、人生のアウトカムに翻訳しています。</span>
-              <span className="block">数値（ExitScore等）は変えず、意思決定の読み替えだけを行います。</span>
+              <span className="block">数値（余白スコア等）は変えず、意思決定の読み替えだけを行います。</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -130,7 +130,7 @@ export function V2InputSection(props: V2InputSectionProps) {
                   </div>
                 </div>
 
-                {/* 余白の内訳比較 - Baseline vs Selected */}
+                {/* 余白の内訳比較 - 現在 vs 選択中シナリオ */}
                 {(() => {
                   const selectedScenario = scenarios.find(s => selectedComparisonIds.includes(s.id));
                   const baselineCF = simResult?.cashFlow;
@@ -148,7 +148,7 @@ export function V2InputSection(props: V2InputSectionProps) {
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium text-sm">
                           {selectedScenario
-                            ? `現在（Baseline） → ${selectedScenario.name}`
+                            ? `現在 → ${selectedScenario.name}`
                             : 'シナリオを選択してください'}
                         </h4>
                       </div>
@@ -198,7 +198,7 @@ export function V2InputSection(props: V2InputSectionProps) {
                               allocationDirty={allocationDirty}
                               resetAllocation={resetAllocation}
                               onSave={() => {
-                                const baseName = selectedScenario?.name || 'Baseline';
+                                const baseName = selectedScenario?.name || '現在';
                                 setAllocationScenarioName(`${baseName} + 旅行配分`);
                                 setIsAllocationSaveDialogOpen(true);
                               }}
@@ -253,7 +253,7 @@ export function V2InputSection(props: V2InputSectionProps) {
                       allocationDirty={allocationDirty}
                       resetAllocation={resetAllocation}
                       onSave={() => {
-                        setAllocationScenarioName('Baseline + 旅行配分');
+                        setAllocationScenarioName('現在 + 旅行配分');
                         setIsAllocationSaveDialogOpen(true);
                       }}
                     />
@@ -290,7 +290,7 @@ export function V2InputSection(props: V2InputSectionProps) {
               <DialogTitle>配分を世界線として保存</DialogTitle>
               <DialogDescription>
                 旅・ライフスタイル配分を新しい世界線として保存します。
-                元のBaselineや選択中の世界線は変更されません。
+                元の世界線や選択中の世界線は変更されません。
               </DialogDescription>
             </DialogHeader>
 
@@ -491,7 +491,7 @@ export function V2InputSection(props: V2InputSectionProps) {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="outline" className="text-xs">Step 1</Badge>
+                  <Badge variant="outline" className="text-xs">ステップ1</Badge>
                   <h4 className="font-medium text-sm">世界線を比較する</h4>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -652,7 +652,7 @@ function AllocationSliders({
       {allocation.travel > 0 && (
         <div className="pt-4 border-t rounded-lg border-2 border-primary/20 bg-primary/5 p-4 mt-4">
           <div className="flex items-center gap-2 mb-2">
-            <Badge variant="outline" className="text-xs">Step 3</Badge>
+            <Badge variant="outline" className="text-xs">ステップ3</Badge>
             <h4 className="font-medium text-sm">世界線として保存</h4>
           </div>
           <p className="text-xs text-muted-foreground mb-3">

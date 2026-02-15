@@ -17,6 +17,7 @@ import {
   TrendingUp,
   TrendingDown,
   Trash2,
+  Pencil,
   Car,
   Sparkles,
   Heart,
@@ -132,6 +133,44 @@ export function TimelineContent() {
   const [scenarioName, setScenarioName] = useState('');
 
   const [justSavedScenarioId, setJustSavedScenarioId] = useState<string | null>(null);
+
+  // Edit dialog state
+  const [editingEvent, setEditingEvent] = useState<LifeEvent | null>(null);
+  const [editAgeInput, setEditAgeInput] = useState('');
+  const [editAmountInput, setEditAmountInput] = useState('');
+  const [editDurationInput, setEditDurationInput] = useState('');
+
+  const editAge = Number.parseInt(editAgeInput, 10) || profile.currentAge;
+  const editAmount = Number.parseInt(editAmountInput, 10) || 0;
+  const editDuration = Number.parseInt(editDurationInput, 10) || 1;
+
+  const openEditDialog = (event: LifeEvent) => {
+    setEditingEvent(event);
+    setEditAgeInput(String(event.age));
+    setEditAmountInput(String(event.amount));
+    setEditDurationInput(String(event.duration || 1));
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingEvent) return;
+    const updated: LifeEvent = {
+      ...editingEvent,
+      age: editAge,
+      amount: editAmount,
+      duration: editingEvent.isRecurring ? editDuration : 1,
+    };
+    updateProfile({
+      lifeEvents: lifeEvents.map((e) => (e.id === updated.id ? updated : e)),
+    });
+    setIsSynced(false);
+    setEditingEvent(null);
+  };
+
+  const handleDeleteFromEdit = () => {
+    if (!editingEvent) return;
+    handleRemoveEvent(editingEvent.id);
+    setEditingEvent(null);
+  };
 
   const lifeEvents = profile.lifeEvents || [];
   const sortedEvents = [...lifeEvents].sort((a, b) => a.age - b.age);
@@ -495,14 +534,24 @@ export function TimelineContent() {
                             )}
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                          onClick={() => handleRemoveEvent(event.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => openEditDialog(event)}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleRemoveEvent(event.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -790,6 +839,133 @@ export function TimelineContent() {
               <Button onClick={confirmPresetEvent}>
                 追加する
               </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Edit Event Dialog */}
+      <Dialog open={!!editingEvent} onOpenChange={(open) => { if (!open) setEditingEvent(null); }}>
+        {editingEvent && (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {eventTypeIcons[editingEvent.type]}
+                {editingEvent.name}
+              </DialogTitle>
+              <DialogDescription>
+                {eventTypeLabels[editingEvent.type] || editingEvent.type}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-age">開始年齢</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="edit-age"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={editAgeInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*$/.test(val)) setEditAgeInput(val);
+                    }}
+                    onBlur={() => {
+                      const num = Number.parseInt(editAgeInput, 10);
+                      if (Number.isNaN(num) || num < profile.currentAge) setEditAgeInput(String(profile.currentAge));
+                      else if (num > 100) setEditAgeInput('100');
+                      else setEditAgeInput(String(num));
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">歳</span>
+                </div>
+              </div>
+
+              {editingEvent.isRecurring && (
+                <div className="space-y-2">
+                  <Label htmlFor="edit-duration">期間</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="edit-duration"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={editDurationInput}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '' || /^\d*$/.test(val)) setEditDurationInput(val);
+                      }}
+                      onBlur={() => {
+                        const num = Number.parseInt(editDurationInput, 10);
+                        if (Number.isNaN(num) || num < 1) setEditDurationInput('1');
+                        else if (num > 50) setEditDurationInput('50');
+                        else setEditDurationInput(String(num));
+                      }}
+                      className="w-24"
+                    />
+                    <span className="text-sm text-muted-foreground">年間</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      （{editAge}歳 〜 {editAge + editDuration - 1}歳）
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-amount">
+                  {editingEvent.isRecurring ? '年間金額' : '金額（一括）'}
+                </Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="edit-amount"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={editAmountInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*$/.test(val)) setEditAmountInput(val);
+                    }}
+                    onBlur={() => {
+                      const num = Number.parseInt(editAmountInput, 10);
+                      if (Number.isNaN(num) || num < 0) setEditAmountInput('0');
+                      else if (num > 10000) setEditAmountInput('10000');
+                      else setEditAmountInput(String(num));
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {editingEvent.isRecurring ? '万円/年' : '万円'}
+                  </span>
+                </div>
+                {editingEvent.isRecurring && editDuration > 1 && (
+                  <p className="text-xs text-muted-foreground">
+                    総額: {(editAmount * editDuration).toLocaleString()}万円
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <DialogFooter className="flex justify-between sm:justify-between">
+              <Button
+                variant="ghost"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={handleDeleteFromEdit}
+              >
+                <Trash2 className="mr-1.5 h-4 w-4" />
+                削除
+              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setEditingEvent(null)}>
+                  キャンセル
+                </Button>
+                <Button onClick={handleSaveEdit}>
+                  保存
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         )}

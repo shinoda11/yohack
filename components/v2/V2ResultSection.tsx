@@ -148,7 +148,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
         {/* 現在の世界線表示 */}
         {(() => {
           const selectedScenario = scenarios.find(s => selectedComparisonIds.includes(s.id));
-          const displayName = selectedScenario?.name || 'Baseline（現在）';
+          const displayName = selectedScenario?.name || '現在';
           const displayDate = selectedScenario
             ? new Date(selectedScenario.createdAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })
             : '';
