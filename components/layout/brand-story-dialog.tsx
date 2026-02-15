@@ -154,7 +154,8 @@ export function BrandStoryDialog({ open, onOpenChange }: BrandStoryDialogProps) 
             <p>
               Y字の分岐は、あなたの選択。<br />
               ゴールドのノードは、決断の瞬間。<br />
-              薄く伸びるラインは、選ばなかった世界線。
+              薄く伸びるラインは、選ばなかった世界線。<br />
+              下に伸びるラインは、あなたをここまで導いた選択の記憶。
             </p>
             <p>
               すべての未来を見渡した上で、<br />
