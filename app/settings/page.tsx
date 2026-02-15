@@ -223,7 +223,29 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* 3. アプリ情報 */}
+          {/* 3. アカウント（将来用） */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Info className="h-5 w-5" />
+                アカウント
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                ログイン機能は近日公開予定です。
+              </p>
+              <a
+                href="/pricing"
+                className="inline-flex items-center gap-1.5 text-sm text-[#C8B89A] hover:underline"
+              >
+                Pro プランについて
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </CardContent>
+          </Card>
+
+          {/* 4. アプリ情報 */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
