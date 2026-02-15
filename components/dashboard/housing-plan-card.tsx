@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Home, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { Home, Plus, Trash2, Sparkles } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { SliderInput } from '@/components/slider-input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,13 @@ import {
 import { formatCurrency } from '@/lib/types';
 import type { Profile } from '@/lib/types';
 import { computeMonthlyPaymentManYen } from '@/lib/housing-sim';
+import { isPro } from '@/lib/plan';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 // --- 色定数 ---
@@ -84,6 +92,7 @@ interface HousingPlanCardProps {
 export function HousingPlanCard({ profile }: HousingPlanCardProps) {
   const [rentAnnual, setRentAnnual] = useState(profile.housingCostAnnual);
   const [plans, setPlans] = useState<HousingPlan[]>([createDefaultPlan(0)]);
+  const [showProDialog, setShowProDialog] = useState(false);
 
   // プロファイルの家賃変更を同期
   useEffect(() => {
@@ -93,6 +102,10 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
   // --- プラン操作 ---
   const addPlan = () => {
     if (plans.length >= 3) return;
+    if (!isPro()) {
+      setShowProDialog(true);
+      return;
+    }
     setPlans(prev => [...prev, createDefaultPlan(prev.length)]);
   };
 
@@ -522,6 +535,29 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
           実際の投資リターンは変動するため、目安としてご利用ください。
         </p>
       </div>
+
+      {/* Pro ゲートダイアログ */}
+      <Dialog open={showProDialog} onOpenChange={setShowProDialog}>
+        <DialogContent className="max-w-sm text-center">
+          <DialogHeader>
+            <div className="flex justify-center mb-2">
+              <Sparkles className="h-10 w-10 text-[#C8B89A]" />
+            </div>
+            <DialogTitle>複数プラン比較は Pro 機能です</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            最大3つの購入プランを同時に比較して、最適な住宅選択を見つけましょう。
+          </p>
+          <Link href="/pricing">
+            <Button className="w-full bg-[#C8B89A] text-[#1A1916] hover:bg-[#C8B89A]/90">
+              Pro を始める
+            </Button>
+          </Link>
+          <p className="text-xs text-muted-foreground">
+            月額 ¥2,980 から
+          </p>
+        </DialogContent>
+      </Dialog>
     </SectionCard>
   );
 }

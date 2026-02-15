@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useProfileStore } from '@/lib/store';
 import { validateProfile } from '@/lib/engine';
 import { useToast } from '@/hooks/use-toast';
+import { usePlan } from '@/hooks/usePlan';
 
 import { Sidebar } from '@/components/layout/sidebar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 import {
   Download,
   Upload,
@@ -23,6 +25,7 @@ import {
   Settings,
   Info,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 
 const APP_VERSION = '0.1.0';
@@ -32,6 +35,7 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const { isPro, upgrade, downgrade } = usePlan();
 
   // === エクスポート ===
   const handleExport = () => {
@@ -223,16 +227,37 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* 3. アカウント（将来用） */}
+          {/* 3. アカウント */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
+                <Sparkles className="h-5 w-5" />
                 アカウント
               </CardTitle>
+              <CardDescription>
+                プラン管理とアカウント設定
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium">Pro モードを有効にする</div>
+                  <div className="text-xs text-muted-foreground">開発用：Pro 機能のゲートを解除します</div>
+                </div>
+                <Switch
+                  checked={isPro}
+                  onCheckedChange={(checked) => checked ? upgrade() : downgrade()}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`text-xs px-2 py-0.5 rounded-full font-medium ${isPro ? 'bg-[#C8B89A]/20 text-[#C8B89A]' : 'bg-muted text-muted-foreground'}`}>
+                  {isPro ? 'Pro' : 'Free'}
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  現在のプラン
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground pt-2 border-t">
                 ログイン機能は近日公開予定です。
               </p>
               <a
