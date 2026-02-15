@@ -228,7 +228,7 @@ export default function RSUPage() {
             <div className="flex items-center gap-3">
               {/* 同期状態バッジ */}
               {justSynced ? (
-                <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:text-emerald-300 dark:border-emerald-700 dark:bg-emerald-950/30">
+                <Badge variant="outline" className="text-[#8A7A62] border-[#C8B89A]/40 bg-[#C8B89A]/10 dark:text-[#C8B89A] dark:border-[#C8B89A]/30 dark:bg-[#C8B89A]/5">
                   <Check className="h-3 w-3 mr-1" />
                   反映完了
                 </Badge>
@@ -261,16 +261,16 @@ export default function RSUPage() {
           
           {/* 反映完了メッセージ */}
           {justSynced && (
-            <div className="mb-6 rounded-lg border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+            <div className="mb-6 rounded-lg border-2 border-[#C8B89A]/40 bg-[#C8B89A]/10 p-4 dark:border-[#C8B89A]/30 dark:bg-[#C8B89A]/5">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
-                  <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C8B89A]/20 dark:bg-[#C8B89A]/10">
+                  <Check className="h-4 w-4 text-[#C8B89A]" />
                 </div>
                 <div>
-                  <p className="font-medium text-emerald-900 dark:text-emerald-100">
+                  <p className="font-medium text-[#8A7A62] dark:text-[#C8B89A]">
                     RSU収入をプロファイルに反映しました
                   </p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                  <p className="text-sm text-[#8A7A62]/80 dark:text-[#C8B89A]/80">
                     ダッシュボードのシミュレーション結果が更新されました
                   </p>
                 </div>
@@ -333,7 +333,7 @@ export default function RSUPage() {
                   <div className="text-sm text-muted-foreground mt-1">
                     <span>現在のプロファイル: {profile.rsuAnnual}万円</span>
                     {!isSynced && (
-                      <span className={`ml-2 font-medium ${calculatedRSUValue > profile.rsuAnnual ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                      <span className={`ml-2 font-medium ${calculatedRSUValue > profile.rsuAnnual ? 'text-[#8A7A62] dark:text-[#C8B89A]' : 'text-muted-foreground'}`}>
                         ({calculatedRSUValue > profile.rsuAnnual ? '+' : ''}{calculatedRSUValue - profile.rsuAnnual}万円)
                       </span>
                     )}
@@ -498,10 +498,10 @@ export default function RSUPage() {
                         <div className="flex items-center gap-3">
                           <div
                             className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                              isPast ? 'bg-muted' : 'bg-primary/10'
+                              isPast ? 'bg-[#C8B89A]/10' : 'bg-[#5A5550]/10'
                             }`}
                           >
-                            <Calendar className="h-5 w-5 text-primary" />
+                            <Calendar className={`h-5 w-5 ${isPast ? 'text-[#C8B89A]' : 'text-[#5A5550] dark:text-[#DDD0B8]'}`} />
                           </div>
                           <div>
                             <p className="font-medium">{event.date}</p>

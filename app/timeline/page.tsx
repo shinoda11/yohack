@@ -306,7 +306,7 @@ const confirmPresetEvent = () => {
                   </Badge>
                 )}
                 {isSynced && lifeEvents.length > 0 && (
-                  <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50 dark:text-emerald-300 dark:border-emerald-700 dark:bg-emerald-950/30">
+                  <Badge variant="outline" className="text-[#8A7A62] border-[#C8B89A]/40 bg-[#C8B89A]/10 dark:text-[#C8B89A] dark:border-[#C8B89A]/30 dark:bg-[#C8B89A]/5">
                     <Check className="h-3 w-3 mr-1" />
                     反映済み
                   </Badge>
@@ -341,7 +341,7 @@ const confirmPresetEvent = () => {
                   onClick={() => setIsSaveDialogOpen(true)}
                   disabled={lifeEvents.length === 0}
                   size="sm"
-                  className="bg-slate-800 hover:bg-slate-900 text-white"
+                  className="bg-[#C8B89A] hover:bg-[#8A7A62] text-white"
                 >
                   <Save className="mr-1.5 h-4 w-4" />
                   シナリオ保存
@@ -484,7 +484,7 @@ const confirmPresetEvent = () => {
                 </div>
 
                 {/* Timeline view */}
-                <div className="relative pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-4">
+                <div className="relative pl-4 border-l-2 border-border space-y-4">
                   {sortedEvents.map((event) => {
                     const isExpense =
                       event.type.includes('expense_increase') ||
@@ -498,17 +498,17 @@ const confirmPresetEvent = () => {
                         className="relative flex items-start gap-3 group"
                       >
                         {/* Timeline dot */}
-                        <div className="absolute -left-[21px] top-2 h-3 w-3 rounded-full border-2 border-background bg-slate-400 dark:bg-slate-500" />
+                        <div className="absolute -left-[21px] top-2 h-3 w-3 rounded-full border-2 border-background bg-muted-foreground" />
                         
                         <div className="flex-1 rounded-lg border bg-card p-4 shadow-sm">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
                                 {eventTypeIcons[event.type]}
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className="text-xs bg-slate-50 dark:bg-slate-800">
+                                  <Badge variant="outline" className="text-xs bg-muted">
                                     {event.age}歳
                                     {event.duration && event.duration > 1 && ` - ${event.age + event.duration - 1}歳`}
                                   </Badge>
@@ -517,7 +517,7 @@ const confirmPresetEvent = () => {
                                 {event.amount > 0 && (
                                   <p className={cn(
                                     'mt-1 text-sm font-medium',
-                                    isExpense ? 'text-slate-500' : 'text-slate-600'
+                                    isExpense ? 'text-muted-foreground' : 'text-foreground'
                                   )}>
                                     {isExpense ? '-' : '+'}{event.amount.toLocaleString()}万円/年
                                     {event.duration && event.duration > 1 && (
@@ -559,20 +559,20 @@ const confirmPresetEvent = () => {
 
           {/* 保存完了CTA */}
           {justSavedScenarioId && (
-            <div className="mt-6 rounded-lg border-2 border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+            <div className="mt-6 rounded-lg border-2 border-[#C8B89A]/40 bg-[#C8B89A]/10 p-4 dark:border-[#C8B89A]/30 dark:bg-[#C8B89A]/5">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
-                    <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#C8B89A]/20 dark:bg-[#C8B89A]/10">
+                    <Check className="h-5 w-5 text-[#C8B89A]" />
                   </div>
                   <div>
-                    <p className="font-medium text-emerald-900 dark:text-emerald-100">シナリオを保存しました</p>
-                    <p className="text-sm text-emerald-700 dark:text-emerald-300">世界線比較で現状と比較できます</p>
+                    <p className="font-medium text-[#8A7A62] dark:text-[#C8B89A]">シナリオを保存しました</p>
+                    <p className="text-sm text-[#8A7A62]/80 dark:text-[#C8B89A]/80">世界線比較で現状と比較できます</p>
                   </div>
                 </div>
                 <Button
                   onClick={handleGoToComparison}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="bg-[#C8B89A] hover:bg-[#8A7A62] text-white"
                 >
                   世界線比較へ
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -596,13 +596,13 @@ const confirmPresetEvent = () => {
                     className={cn(
                       "flex items-center justify-between rounded-lg border p-4 transition-colors",
                       justSavedScenarioId === scenario.id
-                        ? "border-emerald-300 bg-emerald-50/50 dark:border-emerald-700 dark:bg-emerald-950/20"
-                        : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                        ? "border-[#C8B89A]/40 bg-[#C8B89A]/5 dark:border-[#C8B89A]/30 dark:bg-[#C8B89A]/5"
+                        : "hover:bg-muted"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
-                        <GitBranch className="h-4 w-4 text-slate-500" />
+                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">
+                        <GitBranch className="h-4 w-4 text-muted-foreground" />
                       </div>
                       <div>
                         <p className="font-medium">{scenario.name}</p>
@@ -661,10 +661,10 @@ const confirmPresetEvent = () => {
           )}
 
           {/* Guide */}
-          <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/20">
+          <div className="mt-6 rounded-lg border border-border bg-muted/50 p-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-slate-400 mt-0.5" />
-              <div className="text-sm text-slate-600 dark:text-slate-400">
+              <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <div className="text-sm text-muted-foreground">
                 <p className="font-medium mb-1">ライフイベントの使い方</p>
                 <ul className="space-y-1 text-xs">
                   <li>1. イベントを追加・削除したら「反映」ボタンを押してダッシュボードに反映</li>
@@ -804,7 +804,7 @@ const confirmPresetEvent = () => {
               )}
 
               {/* Summary */}
-              <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-3">
+              <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-sm">
                   <span className="font-medium">{customAge}歳</span>
                   {selectedPreset.isRecurring && customDuration > 1 && (
@@ -814,8 +814,8 @@ const confirmPresetEvent = () => {
                   <span className={cn(
                     'font-medium',
                     selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease'
-                      ? 'text-emerald-700 dark:text-emerald-400'
-                      : 'text-amber-700 dark:text-amber-400'
+                      ? 'text-[#8A7A62] dark:text-[#C8B89A]'
+                      : 'text-muted-foreground'
                   )}>
                     {selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease'
                       ? `+${customAmount.toLocaleString()}万円`
@@ -864,7 +864,7 @@ const confirmPresetEvent = () => {
             </div>
             
             {/* 現在のイベント一覧 */}
-            <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 p-3">
+            <div className="rounded-lg bg-muted/50 p-3">
               <p className="text-xs font-medium text-muted-foreground mb-2">
                 保存されるイベント ({lifeEvents.length}件)
               </p>
