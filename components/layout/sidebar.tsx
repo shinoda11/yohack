@@ -10,6 +10,7 @@ import {
   Settings,
   User,
   Sparkles,
+  CreditCard,
   Menu,
   X,
 } from 'lucide-react';
@@ -177,11 +178,28 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Settings */}
-      <div className="border-t border-sidebar-border p-4">
+      {/* Pricing & Settings */}
+      <div className="border-t border-sidebar-border p-4 space-y-1">
+        <Link
+          href="/pricing"
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            pathname === '/pricing'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
+          )}
+        >
+          <CreditCard className="h-5 w-5" />
+          料金プラン
+        </Link>
         <Link
           href="/settings"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+          className={cn(
+            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            pathname === '/settings'
+              ? 'bg-sidebar-accent text-sidebar-primary'
+              : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
+          )}
         >
           <Settings className="h-5 w-5" />
           設定
