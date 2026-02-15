@@ -15,6 +15,83 @@ import { getScoreLevel } from './types';
 const SIMULATION_RUNS = 1000;
 const MAX_AGE = 100;
 
+// ============================================================
+// Validation
+// ============================================================
+
+export interface ValidationError {
+  field: string;
+  message: string;
+}
+
+/** プロファイルの入力値をバリデーションする */
+export function validateProfile(profile: Profile): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  // currentAge: 0〜99 の整数
+  if (!Number.isInteger(profile.currentAge) || profile.currentAge < 0 || profile.currentAge > 99) {
+    errors.push({ field: 'currentAge', message: '年齢は0〜99の整数で入力してください' });
+  }
+
+  // targetRetireAge: currentAge 以上、100 以下
+  if (profile.targetRetireAge < profile.currentAge || profile.targetRetireAge > 100) {
+    errors.push({ field: 'targetRetireAge', message: `目標退職年齢は${profile.currentAge}〜100の範囲で入力してください` });
+  }
+
+  // grossIncome: 0 以上
+  if (profile.grossIncome < 0) {
+    errors.push({ field: 'grossIncome', message: '年収は0以上で入力してください' });
+  }
+
+  // livingCostAnnual: 0 以上
+  if (profile.livingCostAnnual < 0) {
+    errors.push({ field: 'livingCostAnnual', message: '生活費は0以上で入力してください' });
+  }
+
+  // housingCostAnnual: 0 以上
+  if (profile.housingCostAnnual < 0) {
+    errors.push({ field: 'housingCostAnnual', message: '住居費は0以上で入力してください' });
+  }
+
+  // Assets: 0 以上
+  if (profile.assetCash < 0) {
+    errors.push({ field: 'assetCash', message: '現金資産は0以上で入力してください' });
+  }
+  if (profile.assetInvest < 0) {
+    errors.push({ field: 'assetInvest', message: '投資資産は0以上で入力してください' });
+  }
+  if (profile.assetDefinedContributionJP < 0) {
+    errors.push({ field: 'assetDefinedContributionJP', message: '確定拠出年金は0以上で入力してください' });
+  }
+
+  // expectedReturn: -50〜100
+  if (profile.expectedReturn < -50 || profile.expectedReturn > 100) {
+    errors.push({ field: 'expectedReturn', message: '期待リターンは-50〜100の範囲で入力してください' });
+  }
+
+  // inflationRate: -10〜30
+  if (profile.inflationRate < -10 || profile.inflationRate > 30) {
+    errors.push({ field: 'inflationRate', message: 'インフレ率は-10〜30の範囲で入力してください' });
+  }
+
+  // volatility: 0〜1
+  if (profile.volatility < 0 || profile.volatility > 1) {
+    errors.push({ field: 'volatility', message: 'ボラティリティは0〜1の範囲で入力してください' });
+  }
+
+  // effectiveTaxRate: 0〜100
+  if (profile.effectiveTaxRate < 0 || profile.effectiveTaxRate > 100) {
+    errors.push({ field: 'effectiveTaxRate', message: '実効税率は0〜100の範囲で入力してください' });
+  }
+
+  // retireSpendingMultiplier: 0〜2
+  if (profile.retireSpendingMultiplier < 0 || profile.retireSpendingMultiplier > 2) {
+    errors.push({ field: 'retireSpendingMultiplier', message: '退職後支出倍率は0〜2の範囲で入力してください' });
+  }
+
+  return errors;
+}
+
 // Generate random return using normal distribution (Box-Muller transform)
 function randomNormal(mean: number, stdDev: number): number {
   const u1 = Math.random();
@@ -181,35 +258,49 @@ function calculateCashFlow(profile: Profile): CashFlowBreakdown {
   };
 }
 
+// Safe number helper: replace NaN/Infinity with fallback
+function safeNum(value: number, fallback: number = 0): number {
+  if (!Number.isFinite(value)) return fallback;
+  return value;
+}
+
 // Calculate Exit Readiness Score
 export function computeExitScore(metrics: KeyMetrics, profile: Profile, paths: SimulationPath): ExitScoreDetail {
+  // Guard: if metrics or paths are missing/invalid, return safe defaults
+  if (!metrics || !paths || !paths.yearlyData || paths.yearlyData.length === 0) {
+    return {
+      overall: 0,
+      level: getScoreLevel(0),
+      survival: 0,
+      lifestyle: 0,
+      risk: 0,
+      liquidity: 0,
+    };
+  }
+
   // Survival score (0-100)
-  const survival = Math.min(100, metrics.survivalRate);
-  
+  const survival = Math.min(100, safeNum(metrics.survivalRate));
+
   // Lifestyle score: based on asset cushion
   const targetExpenses = calculateExpenses(profile, profile.targetRetireAge);
-  const yearsOfExpenses = paths.yearlyData[0]?.assets 
-    ? paths.yearlyData[0].assets / targetExpenses 
+  const yearsOfExpenses = paths.yearlyData[0]?.assets
+    ? safeNum(paths.yearlyData[0].assets / targetExpenses)
     : 0;
   const lifestyle = Math.min(100, yearsOfExpenses * 5); // 20 years = 100%
-  
+
   // Risk score: inverse of volatility exposure
   const riskExposure = profile.assetInvest / (profile.assetCash + profile.assetInvest + 1);
-  const risk = Math.max(0, 100 - riskExposure * profile.volatility * 500);
-  
+  const risk = Math.max(0, safeNum(100 - riskExposure * profile.volatility * 500));
+
   // Liquidity score: cash ratio
   const totalAssets = profile.assetCash + profile.assetInvest + profile.assetDefinedContributionJP;
   const liquidityRatio = totalAssets > 0 ? profile.assetCash / totalAssets : 0;
-  const liquidity = Math.min(100, liquidityRatio * 200); // 50% cash = 100%
-  
+  const liquidity = Math.min(100, safeNum(liquidityRatio * 200)); // 50% cash = 100%
+
   // Overall score (weighted average)
-  const overall = Math.round(
-    survival * 0.4 + 
-    lifestyle * 0.3 + 
-    risk * 0.15 + 
-    liquidity * 0.15
-  );
-  
+  const rawOverall = survival * 0.4 + lifestyle * 0.3 + risk * 0.15 + liquidity * 0.15;
+  const overall = Math.max(0, Math.min(100, Math.round(safeNum(rawOverall))));
+
   return {
     overall,
     level: getScoreLevel(overall),
@@ -222,43 +313,73 @@ export function computeExitScore(metrics: KeyMetrics, profile: Profile, paths: S
 
 // Main simulation function
 export async function runSimulation(profile: Profile): Promise<SimulationResult> {
-  // Run Monte Carlo simulations
-  const allPaths: AssetPoint[][] = [];
-  
-  for (let i = 0; i < SIMULATION_RUNS; i++) {
-    allPaths.push(runSingleSimulation(profile));
+  // Input validation
+  const validationErrors = validateProfile(profile);
+  if (validationErrors.length > 0) {
+    const messages = validationErrors.map(e => `${e.field}: ${e.message}`).join('; ');
+    throw new Error(`プロファイルのバリデーションエラー: ${messages}`);
   }
-  
-  // Calculate percentile paths
-  const medianPath = getPercentilePath(allPaths, 50);
-  const optimisticPath = getPercentilePath(allPaths, 90);
-  const pessimisticPath = getPercentilePath(allPaths, 10);
-  
-  const paths: SimulationPath = {
-    yearlyData: medianPath,
-    upperPath: optimisticPath,
-    lowerPath: pessimisticPath,
-    // Number arrays for chart components
-    median: medianPath.map(p => p.assets),
-    optimistic: optimisticPath.map(p => p.assets),
-    pessimistic: pessimisticPath.map(p => p.assets),
-  };
-  
-  // Calculate metrics
-  const metrics = calculateMetrics(allPaths, profile);
-  
-  // Calculate cash flow
-  const cashFlow = calculateCashFlow(profile);
-  
-  // Calculate score
-  const score = computeExitScore(metrics, profile, paths);
-  
-  return {
-    paths,
-    metrics,
-    cashFlow,
-    score
-  };
+
+  try {
+    // Run Monte Carlo simulations
+    const allPaths: AssetPoint[][] = [];
+
+    for (let i = 0; i < SIMULATION_RUNS; i++) {
+      allPaths.push(runSingleSimulation(profile));
+    }
+
+    // Calculate percentile paths
+    const medianPath = getPercentilePath(allPaths, 50);
+    const optimisticPath = getPercentilePath(allPaths, 90);
+    const pessimisticPath = getPercentilePath(allPaths, 10);
+
+    const paths: SimulationPath = {
+      yearlyData: medianPath,
+      upperPath: optimisticPath,
+      lowerPath: pessimisticPath,
+      // Number arrays for chart components
+      median: medianPath.map(p => p.assets),
+      optimistic: optimisticPath.map(p => p.assets),
+      pessimistic: pessimisticPath.map(p => p.assets),
+    };
+
+    // Sanitize NaN/Infinity in paths
+    for (const point of paths.yearlyData) {
+      point.assets = safeNum(point.assets);
+    }
+    for (const point of paths.upperPath) {
+      point.assets = safeNum(point.assets);
+    }
+    for (const point of paths.lowerPath) {
+      point.assets = safeNum(point.assets);
+    }
+
+    // Calculate metrics
+    const metrics = calculateMetrics(allPaths, profile);
+    metrics.survivalRate = safeNum(metrics.survivalRate);
+    metrics.assetAt100 = safeNum(metrics.assetAt100);
+
+    // Calculate cash flow
+    const cashFlow = calculateCashFlow(profile);
+
+    // Calculate score
+    const score = computeExitScore(metrics, profile, paths);
+
+    return {
+      paths,
+      metrics,
+      cashFlow,
+      score
+    };
+  } catch (error) {
+    // Re-throw validation errors as-is
+    if (error instanceof Error && error.message.startsWith('プロファイルのバリデーション')) {
+      throw error;
+    }
+    // Wrap unexpected errors with context
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`シミュレーション実行中にエラーが発生しました: ${message}`);
+  }
 }
 
 // Create default profile

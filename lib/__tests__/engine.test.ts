@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { runSimulation, computeExitScore, createDefaultProfile } from '../engine'
+import { runSimulation, computeExitScore, createDefaultProfile, validateProfile } from '../engine'
 import type { Profile, SimulationPath, KeyMetrics } from '../types'
 
 // ============================================================
@@ -302,5 +302,155 @@ describe('createDefaultProfile', () => {
 
     expect(profile.volatility).toBeGreaterThanOrEqual(0)
     expect(profile.volatility).toBeLessThanOrEqual(1)
+  })
+})
+
+// ============================================================
+// 5. validateProfile
+// ============================================================
+
+describe('validateProfile', () => {
+  it('正常値でエラーなし', () => {
+    const errors = validateProfile(createDefaultProfile())
+
+    expect(errors).toHaveLength(0)
+  })
+
+  it('currentAge が -1 でエラー', () => {
+    const errors = validateProfile(profileWith({ currentAge: -1 }))
+
+    expect(errors.length).toBeGreaterThan(0)
+    expect(errors.some(e => e.field === 'currentAge')).toBe(true)
+  })
+
+  it('currentAge が 100 でエラー', () => {
+    const errors = validateProfile(profileWith({ currentAge: 100 }))
+
+    expect(errors.some(e => e.field === 'currentAge')).toBe(true)
+  })
+
+  it('currentAge が小数でエラー', () => {
+    const errors = validateProfile(profileWith({ currentAge: 35.5 }))
+
+    expect(errors.some(e => e.field === 'currentAge')).toBe(true)
+  })
+
+  it('targetRetireAge < currentAge でエラー', () => {
+    const errors = validateProfile(profileWith({
+      currentAge: 50,
+      targetRetireAge: 40,
+    }))
+
+    expect(errors.some(e => e.field === 'targetRetireAge')).toBe(true)
+  })
+
+  it('targetRetireAge > 100 でエラー', () => {
+    const errors = validateProfile(profileWith({ targetRetireAge: 101 }))
+
+    expect(errors.some(e => e.field === 'targetRetireAge')).toBe(true)
+  })
+
+  it('grossIncome がマイナスでエラー', () => {
+    const errors = validateProfile(profileWith({ grossIncome: -100 }))
+
+    expect(errors.some(e => e.field === 'grossIncome')).toBe(true)
+  })
+
+  it('livingCostAnnual がマイナスでエラー', () => {
+    const errors = validateProfile(profileWith({ livingCostAnnual: -50 }))
+
+    expect(errors.some(e => e.field === 'livingCostAnnual')).toBe(true)
+  })
+
+  it('housingCostAnnual がマイナスでエラー', () => {
+    const errors = validateProfile(profileWith({ housingCostAnnual: -10 }))
+
+    expect(errors.some(e => e.field === 'housingCostAnnual')).toBe(true)
+  })
+
+  it('資産フィールドがマイナスでエラー', () => {
+    const errors = validateProfile(profileWith({
+      assetCash: -100,
+      assetInvest: -200,
+      assetDefinedContributionJP: -50,
+    }))
+
+    expect(errors.some(e => e.field === 'assetCash')).toBe(true)
+    expect(errors.some(e => e.field === 'assetInvest')).toBe(true)
+    expect(errors.some(e => e.field === 'assetDefinedContributionJP')).toBe(true)
+  })
+
+  it('volatility が 2 でエラー', () => {
+    const errors = validateProfile(profileWith({ volatility: 2 }))
+
+    expect(errors.some(e => e.field === 'volatility')).toBe(true)
+  })
+
+  it('expectedReturn が範囲外でエラー', () => {
+    const errors = validateProfile(profileWith({ expectedReturn: 150 }))
+
+    expect(errors.some(e => e.field === 'expectedReturn')).toBe(true)
+  })
+
+  it('inflationRate が範囲外でエラー', () => {
+    const errors = validateProfile(profileWith({ inflationRate: -20 }))
+
+    expect(errors.some(e => e.field === 'inflationRate')).toBe(true)
+  })
+
+  it('effectiveTaxRate が範囲外でエラー', () => {
+    const errors = validateProfile(profileWith({ effectiveTaxRate: 110 }))
+
+    expect(errors.some(e => e.field === 'effectiveTaxRate')).toBe(true)
+  })
+
+  it('retireSpendingMultiplier が範囲外でエラー', () => {
+    const errors = validateProfile(profileWith({ retireSpendingMultiplier: 3 }))
+
+    expect(errors.some(e => e.field === 'retireSpendingMultiplier')).toBe(true)
+  })
+
+  it('複数エラーが同時に返る', () => {
+    const errors = validateProfile(profileWith({
+      currentAge: -1,
+      grossIncome: -100,
+      volatility: 5,
+    }))
+
+    expect(errors.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('各エラーに field と message がある', () => {
+    const errors = validateProfile(profileWith({ currentAge: -1 }))
+
+    for (const error of errors) {
+      expect(typeof error.field).toBe('string')
+      expect(typeof error.message).toBe('string')
+      expect(error.message.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+// ============================================================
+// 6. runSimulation バリデーション統合
+// ============================================================
+
+describe('runSimulation バリデーション', () => {
+  it('不正プロファイルで例外が投げられる', async () => {
+    const profile = profileWith({ currentAge: -1 })
+
+    await expect(runSimulation(profile)).rejects.toThrow('バリデーションエラー')
+  })
+
+  it('volatility が範囲外で例外が投げられる', async () => {
+    const profile = profileWith({ volatility: 2 })
+
+    await expect(runSimulation(profile)).rejects.toThrow('バリデーションエラー')
+  })
+
+  it('エラーメッセージにフィールド名が含まれる', async () => {
+    const profile = profileWith({ grossIncome: -100 })
+
+    await expect(runSimulation(profile)).rejects.toThrow('grossIncome')
   })
 })
