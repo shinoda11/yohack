@@ -17,6 +17,40 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
+/** Y-branch symbol SVG — shared between mobile header and desktop sidebar */
+function YohackSymbol({ size = 20 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 180 180"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      {/* 3 branch lines */}
+      <line x1="90" y1="94" x2="42" y2="34" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+      <line x1="90" y1="94" x2="138" y2="34" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+      <line x1="90" y1="94" x2="90" y2="156" stroke="currentColor" strokeWidth="7" strokeLinecap="round" />
+      {/* Decision node — Gold */}
+      <circle cx="90" cy="94" r="9" fill="#C8B89A" />
+      {/* Endpoint dots */}
+      <circle cx="42" cy="34" r="6" fill="currentColor" />
+      <circle cx="138" cy="34" r="6" fill="currentColor" />
+    </svg>
+  );
+}
+
+/** Styled wordmark: YO (foreground) + HACK (Gold) */
+function YohackWordmark() {
+  return (
+    <span className="text-base font-bold tracking-tight">
+      <span className="text-sidebar-foreground">YO</span>
+      <span style={{ color: '#C8B89A' }}>HACK</span>
+    </span>
+  );
+}
+
 interface NavItem {
   href: string;
   label: string;
@@ -49,12 +83,12 @@ const navItems: NavItem[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Close sidebar when route changes (mobile)
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
-  
+
   // Close sidebar on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -69,10 +103,8 @@ export function Sidebar() {
       {/* Mobile Header Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent font-bold text-accent-foreground text-sm">
-            Y
-          </div>
-          <span className="font-semibold text-sidebar-foreground">YOHACK</span>
+          <YohackSymbol size={20} />
+          <YohackWordmark />
         </div>
         <Button
           variant="ghost"
@@ -83,15 +115,15 @@ export function Sidebar() {
           {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
       </div>
-      
+
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
-      
+
       {/* Sidebar */}
       <aside className={cn(
         "fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground transition-transform duration-300 ease-in-out",
@@ -102,11 +134,9 @@ export function Sidebar() {
       )}>
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-accent-foreground shadow-lg">
-          Y
-        </div>
+        <YohackSymbol size={24} />
         <div>
-          <h1 className="font-semibold tracking-tight">YOHACK</h1>
+          <YohackWordmark />
           <p className="text-xs text-muted-foreground">人生に、余白を。</p>
         </div>
       </div>
@@ -122,7 +152,7 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-accent/20 text-accent'
+                  ? 'bg-sidebar-accent text-sidebar-primary'
                   : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
               )}
             >

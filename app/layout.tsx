@@ -1,12 +1,21 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { DM_Sans, Noto_Sans_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const dmSans = DM_Sans({
+  weight: ['300', '400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+});
+
+const notoSansJP = Noto_Sans_JP({
+  weight: ['300', '400', '700'],
+  subsets: ['latin'],
+  variable: '--font-noto-sans-jp',
+});
 
 export const metadata: Metadata = {
   title: 'YOHACK - 人生に、余白を。',
@@ -38,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${notoSansJP.variable} font-sans antialiased`}>
         {children}
         <Toaster />
         <Analytics />

@@ -3,115 +3,119 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* 
-   * YOHACK - Design System
-   * Premium Fintech with Teal accent (growth, prosperity)
+  /*
+   * YOHACK Design System — Warm Gold & High-Contrast Charts
+   * Palette: Linen / Sand / Gold / Bronze / Stone / Ink / Night
    */
-  
-  /* Base - Clean white/light gray */
-  --background: oklch(0.985 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  
-  /* Primary - Deep Charcoal */
-  --primary: oklch(0.145 0 0);
-  --primary-foreground: oklch(1 0 0);
-  
+
+  /* Base - Warm Linen background */
+  --background: #F0ECE4;
+  --foreground: #1A1916;
+  --card: #FFFFFF;
+  --card-foreground: #1A1916;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1916;
+
+  /* Primary - Ink */
+  --primary: #1A1916;
+  --primary-foreground: #FFFFFF;
+
   /* Secondary */
-  --secondary: oklch(0.965 0 0);
-  --secondary-foreground: oklch(0.25 0 0);
-  
-  /* Muted */
-  --muted: oklch(0.955 0 0);
-  --muted-foreground: oklch(0.45 0 0);
-  
-  /* Accent - Teal (growth, prosperity) */
-  --accent: oklch(0.70 0.15 175);
-  --accent-foreground: oklch(1 0 0);
-  
-  /* Destructive */
-  --destructive: oklch(0.60 0.24 27);
-  --destructive-foreground: oklch(1 0 0);
-  
+  --secondary: #E8E2D8;
+  --secondary-foreground: #1A1916;
+
+  /* Muted - Stone */
+  --muted: #E4DACB;
+  --muted-foreground: #5A5550;
+
+  /* Accent - Gold */
+  --accent: #C8B89A;
+  --accent-foreground: #1A1916;
+
+  /* Destructive - Red */
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+
   /* UI Elements */
-  --border: oklch(0.91 0 0);
-  --input: oklch(0.91 0 0);
-  --ring: oklch(0.70 0.15 175);
-  
-  /* Chart Colors */
-  --chart-1: oklch(0.145 0 0);
-  --chart-2: oklch(0.70 0.15 175);
-  --chart-3: oklch(0.75 0.18 55);
-  --chart-4: oklch(0.60 0.24 27);
-  --chart-5: oklch(0.55 0.15 280);
-  
+  --border: #DDD0B8;
+  --input: #DDD0B8;
+  --ring: #C8B89A;
+
+  /* Chart Colors - High contrast for readability */
+  --chart-1: #2563EB;
+  --chart-2: #C8B89A;
+  --chart-3: #DC2626;
+  --chart-4: #16A34A;
+  --chart-5: #9333EA;
+
   --radius: 8px;
-  
-  /* Sidebar - Dark professional */
-  --sidebar: oklch(0.145 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.70 0.15 175);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.22 0 0);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.28 0 0);
-  --sidebar-ring: oklch(0.70 0.15 175);
-  
+
+  /* Sidebar - Ink background, Gold accent */
+  --sidebar: #1A1916;
+  --sidebar-foreground: #F0ECE4;
+  --sidebar-primary: #C8B89A;
+  --sidebar-primary-foreground: #1A1916;
+  --sidebar-accent: #2A2824;
+  --sidebar-accent-foreground: #F0ECE4;
+  --sidebar-border: #3A3632;
+  --sidebar-ring: #C8B89A;
+
   /* Semantic Colors */
-  --success: oklch(0.70 0.17 160);
-  --success-foreground: oklch(1 0 0);
-  --warning: oklch(0.75 0.18 55);
-  --warning-foreground: oklch(0.145 0 0);
-  --info: oklch(0.60 0.15 250);
-  --info-foreground: oklch(1 0 0);
+  --success: #16A34A;
+  --success-foreground: #FFFFFF;
+  --warning: #C8B89A;
+  --warning-foreground: #1A1916;
+  --info: #2563EB;
+  --info-foreground: #FFFFFF;
 }
 
 .dark {
-  --background: oklch(0.10 0 0);
-  --foreground: oklch(0.95 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.95 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.95 0 0);
-  --primary: oklch(1 0 0);
-  --primary-foreground: oklch(0.10 0 0);
-  --secondary: oklch(0.20 0 0);
-  --secondary-foreground: oklch(0.90 0 0);
-  --muted: oklch(0.18 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.75 0.15 175);
-  --accent-foreground: oklch(0.10 0 0);
-  --destructive: oklch(0.65 0.24 27);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.18 0 0);
-  --ring: oklch(0.75 0.15 175);
-  --chart-1: oklch(1 0 0);
-  --chart-2: oklch(0.75 0.15 175);
-  --chart-3: oklch(0.80 0.18 55);
-  --chart-4: oklch(0.65 0.24 27);
-  --chart-5: oklch(0.60 0.15 280);
-  --sidebar: oklch(0.08 0 0);
-  --sidebar-foreground: oklch(0.95 0 0);
-  --sidebar-primary: oklch(0.75 0.15 175);
-  --sidebar-primary-foreground: oklch(0.10 0 0);
-  --sidebar-accent: oklch(0.145 0 0);
-  --sidebar-accent-foreground: oklch(0.95 0 0);
-  --sidebar-border: oklch(0.20 0 0);
-  --sidebar-ring: oklch(0.75 0.15 175);
-  --success: oklch(0.75 0.17 160);
-  --success-foreground: oklch(0.10 0 0);
-  --warning: oklch(0.80 0.18 55);
-  --warning-foreground: oklch(0.10 0 0);
-  --info: oklch(0.65 0.15 250);
-  --info-foreground: oklch(1 0 0);
+  /*
+   * YOHACK Dark Mode — Night background, Linen text, Gold accent
+   */
+  --background: #060606;
+  --foreground: #F0ECE4;
+  --card: #0e0d0b;
+  --card-foreground: #F0ECE4;
+  --popover: #0e0d0b;
+  --popover-foreground: #F0ECE4;
+  --primary: #F0ECE4;
+  --primary-foreground: #060606;
+  --secondary: #1A1916;
+  --secondary-foreground: #DDD0B8;
+  --muted: #1A1916;
+  --muted-foreground: #8A7A62;
+  --accent: #C8B89A;
+  --accent-foreground: #060606;
+  --destructive: #DC2626;
+  --destructive-foreground: #F0ECE4;
+  --border: #2A2824;
+  --input: #1A1916;
+  --ring: #C8B89A;
+  /* Chart - same as light (high contrast on dark bg) */
+  --chart-1: #2563EB;
+  --chart-2: #C8B89A;
+  --chart-3: #DC2626;
+  --chart-4: #16A34A;
+  --chart-5: #9333EA;
+  --sidebar: #030303;
+  --sidebar-foreground: #F0ECE4;
+  --sidebar-primary: #C8B89A;
+  --sidebar-primary-foreground: #060606;
+  --sidebar-accent: #1A1916;
+  --sidebar-accent-foreground: #F0ECE4;
+  --sidebar-border: #2A2824;
+  --sidebar-ring: #C8B89A;
+  --success: #16A34A;
+  --success-foreground: #060606;
+  --warning: #C8B89A;
+  --warning-foreground: #060606;
+  --info: #2563EB;
+  --info-foreground: #F0ECE4;
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
+  --font-sans: var(--font-dm-sans), var(--font-noto-sans-jp), 'Geist', sans-serif;
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
   --color-background: var(--background);
   --color-foreground: var(--foreground);
