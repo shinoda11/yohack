@@ -38,6 +38,9 @@ import { OnboardingSteps } from '@/components/dashboard/onboarding-steps';
 // Validation
 import { useValidation } from '@/hooks/useValidation';
 
+// Profile completeness
+import { ProfileCompleteness } from '@/components/dashboard/profile-completeness';
+
 export default function DashboardPage() {
   const {
     profile,
@@ -150,6 +153,9 @@ export default function DashboardPage() {
         <div className="px-4 py-6 sm:px-6">
           {/* Onboarding Steps */}
           <OnboardingSteps profile={profile} />
+
+          {/* Profile Completeness - shown after onboarding */}
+          <ProfileCompleteness profile={profile} />
 
           {/* Conclusion Summary - Always visible at top */}
           <div className="mb-6">

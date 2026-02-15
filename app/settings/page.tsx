@@ -117,6 +117,7 @@ export default function SettingsPage() {
       localStorage.removeItem('exit-readiness-profile');
       localStorage.removeItem('exit-readiness-scenarios');
       localStorage.removeItem('yohack-onboarding-complete');
+      localStorage.removeItem('yohack-profile-completeness-dismissed');
     }
 
     // ストアをリセット
