@@ -26,7 +26,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 
-// 固定凡例色: 青=Rent継続、グレー=Buy
+// 固定凡例色: 青=賃貸継続、グレー=購入
 const RENT_COLOR = '#3b82f6';
 const BUY_COLOR = '#6b7280';
 
@@ -186,11 +186,11 @@ export function HousingMultiScenarioCard({
         <div className="flex justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-0.5" style={{ backgroundColor: RENT_COLOR }} />
-            <span className="text-gray-600 dark:text-gray-400">Rent継続</span>
+            <span className="text-gray-600 dark:text-gray-400">賃貸継続</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-0.5" style={{ backgroundColor: BUY_COLOR }} />
-            <span className="text-gray-600 dark:text-gray-400">Buy（この条件）</span>
+            <span className="text-gray-600 dark:text-gray-400">購入（この条件）</span>
           </div>
         </div>
 
@@ -224,11 +224,11 @@ export function HousingMultiScenarioCard({
                       <p className="font-medium text-gray-900 dark:text-gray-100">{label}歳</p>
                       <div className="mt-1 space-y-0.5">
                         <div className="flex justify-between gap-4">
-                          <span style={{ color: RENT_COLOR }}>Rent</span>
+                          <span style={{ color: RENT_COLOR }}>賃貸</span>
                           <span className="tabular-nums">{Math.round(rentVal as number).toLocaleString()}万</span>
                         </div>
                         <div className="flex justify-between gap-4">
-                          <span style={{ color: BUY_COLOR }}>Buy</span>
+                          <span style={{ color: BUY_COLOR }}>購入</span>
                           <span className="tabular-nums">{Math.round(buyVal as number).toLocaleString()}万</span>
                         </div>
                       </div>
@@ -268,7 +268,7 @@ export function HousingMultiScenarioCard({
           </ResponsiveContainer>
         </div>
 
-        {/* 4. 3指標（常時表示・Rent/Buy 2段） */}
+        {/* 4. 3指標（常時表示・賃貸/購入 2段） */}
         <div className="grid grid-cols-3 gap-3 text-center">
           {/* 指標1: 損益分岐 */}
           <div className="space-y-1">
@@ -283,11 +283,11 @@ export function HousingMultiScenarioCard({
             <p className="text-xs text-gray-500">60歳時点累積</p>
             <div className="space-y-0.5">
               <p className="text-xs">
-                <span style={{ color: RENT_COLOR }}>R</span>
+                <span style={{ color: RENT_COLOR }}>賃</span>
                 <span className="ml-1 font-medium">{Math.round(metrics.rentAt60).toLocaleString()}万</span>
               </p>
               <p className="text-xs">
-                <span style={{ color: BUY_COLOR }}>B</span>
+                <span style={{ color: BUY_COLOR }}>購</span>
                 <span className="ml-1 font-medium">{Math.round(metrics.buyAt60).toLocaleString()}万</span>
               </p>
             </div>
@@ -298,11 +298,11 @@ export function HousingMultiScenarioCard({
             <p className="text-xs text-gray-500">40-50代月次</p>
             <div className="space-y-0.5">
               <p className="text-xs">
-                <span style={{ color: RENT_COLOR }}>R</span>
+                <span style={{ color: RENT_COLOR }}>賃</span>
                 <span className="ml-1 font-medium">{metrics.rentMonthly4050.toFixed(1)}万/月</span>
               </p>
               <p className="text-xs">
-                <span style={{ color: BUY_COLOR }}>B</span>
+                <span style={{ color: BUY_COLOR }}>購</span>
                 <span className="ml-1 font-medium">{metrics.buyMonthly4050.toFixed(1)}万/月</span>
               </p>
             </div>
@@ -316,11 +316,11 @@ export function HousingMultiScenarioCard({
           </p>
           
           <div className="grid grid-cols-2 gap-4">
-            {/* Rent設定 */}
+            {/* 賃貸設定 */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: RENT_COLOR }} />
-                <Label className="text-xs font-medium">Rent継続</Label>
+                <Label className="text-xs font-medium">賃貸継続</Label>
               </div>
               <SliderInput
                 label="年間家賃"
@@ -333,11 +333,11 @@ export function HousingMultiScenarioCard({
               />
             </div>
             
-            {/* Buy設定 */}
+            {/* 購入設定 */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: BUY_COLOR }} />
-                <Label className="text-xs font-medium">Buy（購入）</Label>
+                <Label className="text-xs font-medium">購入</Label>
               </div>
               <SliderInput
                 label="物件価格"

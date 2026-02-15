@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import {
   Lightbulb,
   ArrowRight,
-  Play,
   Check,
   Clock,
   TrendingUp,
@@ -18,7 +17,6 @@ import {
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import type { KeyMetrics, Profile, ExitScoreDetail, SimulationResult } from '@/lib/types';
 import { runSimulation } from '@/lib/engine';
 import { cn } from '@/lib/utils';
@@ -315,11 +313,16 @@ export function NextBestActionsCard({
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 pl-11">
-                  {!impact && (
+                  {isApplied ? (
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Check className="h-3 w-3" />
+                      適用済み
+                    </span>
+                  ) : !impact ? (
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 gap-1.5 bg-transparent text-xs"
+                      className="h-7 gap-1.5 bg-transparent text-xs px-3 py-1"
                       onClick={() => handleCalculateImpact(action)}
                       disabled={isCalculating}
                     >
@@ -331,31 +334,20 @@ export function NextBestActionsCard({
                       ) : (
                         <>
                           <Target className="h-3 w-3" />
-                          効果を計算
+                          効果を見る
                         </>
                       )}
                     </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      className="h-7 gap-1.5 text-xs px-3 py-1 bg-[#C8B89A] text-[#1A1916] hover:bg-[#C8B89A]/90"
+                      onClick={() => handleApplyAction(action)}
+                    >
+                      <ArrowRight className="h-3 w-3" />
+                      この条件を適用
+                    </Button>
                   )}
-                  
-                  <Button
-                    variant={impact ? 'default' : 'ghost'}
-                    size="sm"
-                    className={cn('h-8 gap-1.5 text-xs', !impact && 'bg-transparent')}
-                    onClick={() => handleApplyAction(action)}
-                    disabled={isApplied}
-                  >
-                    {isApplied ? (
-                      <>
-                        <Check className="h-3 w-3" />
-                        適用済み
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-3 w-3" />
-                        適用して確認
-                      </>
-                    )}
-                  </Button>
                 </div>
               </div>
             </div>
