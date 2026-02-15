@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,6 +41,8 @@ import { useValidation } from '@/hooks/useValidation';
 // Profile completeness
 import { ProfileCompleteness } from '@/components/dashboard/profile-completeness';
 
+type CardKey = 'basicInfo' | 'income' | 'expense' | 'asset' | 'investment';
+
 export default function DashboardPage() {
   const {
     profile,
@@ -62,7 +64,7 @@ export default function DashboardPage() {
       setShowWelcome(true);
     }
   }, []);
-  
+
   // Advanced settings state (separate from main profile for UI purposes)
   const [advancedSettings, setAdvancedSettings] = useState<AdvancedSettings>({
     incomeTrajectory: 'flat',
@@ -79,6 +81,47 @@ export default function DashboardPage() {
   // パラメータ変更後3秒以内に結果が更新される
   useMainSimulation();
 
+  // --- Collapsible card state ---
+  const [openCards, setOpenCards] = useState<Record<CardKey, boolean>>({
+    basicInfo: true,
+    income: false,
+    expense: false,
+    asset: false,
+    investment: false,
+  });
+
+  // Track which cards the user has manually toggled
+  const manualToggles = useRef<Set<CardKey>>(new Set());
+
+  // Completion checks
+  const cardComplete = useMemo<Record<CardKey, boolean>>(() => ({
+    basicInfo: profile.currentAge !== 30 && profile.targetRetireAge !== 50,
+    income: profile.grossIncome !== 800,
+    expense: profile.livingCostAnnual !== 300,
+    asset: profile.assetCash !== 500 || profile.assetInvest !== 300,
+    investment: profile.expectedReturn !== 5 || profile.effectiveTaxRate !== 20,
+  }), [profile.currentAge, profile.targetRetireAge, profile.grossIncome, profile.livingCostAnnual, profile.assetCash, profile.assetInvest, profile.expectedReturn, profile.effectiveTaxRate]);
+
+  // Auto-close completed cards (only for non-manually-toggled cards)
+  useEffect(() => {
+    setOpenCards(prev => {
+      const next = { ...prev };
+      let changed = false;
+      for (const key of Object.keys(cardComplete) as CardKey[]) {
+        if (!manualToggles.current.has(key) && cardComplete[key] && prev[key]) {
+          next[key] = false;
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [cardComplete]);
+
+  const handleCardToggle = useCallback((key: CardKey, open: boolean) => {
+    manualToggles.current.add(key);
+    setOpenCards(prev => ({ ...prev, [key]: open }));
+  }, []);
+
   const dismissWelcome = () => {
     setShowWelcome(false);
     if (typeof window !== 'undefined') {
@@ -94,13 +137,7 @@ export default function DashboardPage() {
   // Handle advanced settings update
   const handleAdvancedUpdate = (updates: Partial<AdvancedSettings>) => {
     setAdvancedSettings(prev => ({ ...prev, ...updates }));
-    
-    // Optionally sync some settings to profile
-    // For now, advanced settings are stored separately
-    // In a real app, you'd want to integrate these with the simulation
   };
-
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -171,28 +208,58 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Left column: Input cards with Progressive Disclosure */}
-            <div className="space-y-6 lg:col-span-1">
-              {/* Basic Inputs - Always visible */}
-              <BasicInfoCard profile={profile} onUpdate={updateProfile} getFieldError={getFieldError} />
-              <IncomeCard profile={profile} onUpdate={updateProfile} getFieldError={getFieldError} />
-              <ExpenseCard profile={profile} onUpdate={updateProfile} getFieldError={getFieldError} />
-              <AssetCard profile={profile} onUpdate={updateProfile} getFieldError={getFieldError} />
-              <InvestmentCard profile={profile} onUpdate={updateProfile} getFieldError={getFieldError} />
-              
-              {/* Advanced Settings - Progressive Disclosure */}
+            <div className="space-y-4 lg:col-span-1">
+              {/* Basic Inputs - Collapsible */}
+              <BasicInfoCard
+                profile={profile}
+                onUpdate={updateProfile}
+                getFieldError={getFieldError}
+                open={openCards.basicInfo}
+                onOpenChange={(o) => handleCardToggle('basicInfo', o)}
+              />
+              <IncomeCard
+                profile={profile}
+                onUpdate={updateProfile}
+                getFieldError={getFieldError}
+                open={openCards.income}
+                onOpenChange={(o) => handleCardToggle('income', o)}
+              />
+              <ExpenseCard
+                profile={profile}
+                onUpdate={updateProfile}
+                getFieldError={getFieldError}
+                open={openCards.expense}
+                onOpenChange={(o) => handleCardToggle('expense', o)}
+              />
+              <AssetCard
+                profile={profile}
+                onUpdate={updateProfile}
+                getFieldError={getFieldError}
+                open={openCards.asset}
+                onOpenChange={(o) => handleCardToggle('asset', o)}
+              />
+              <InvestmentCard
+                profile={profile}
+                onUpdate={updateProfile}
+                getFieldError={getFieldError}
+                open={openCards.investment}
+                onOpenChange={(o) => handleCardToggle('investment', o)}
+              />
+
+              {/* Advanced Settings - Progressive Disclosure (has its own toggle) */}
               <AdvancedInputPanel
                 profile={profile}
                 onUpdate={updateProfile}
                 advancedSettings={advancedSettings}
                 onAdvancedUpdate={handleAdvancedUpdate}
               />
-              
+
               {/* Life Events */}
               <LifeEventsCard profile={profile} onUpdate={updateProfile} />
-              
+
               {/* Housing Scenario - 賃貸 vs 購入比較 */}
               <HousingScenarioCard profile={profile} onUpdate={updateProfile} />
-              
+
               {/* Housing Multi-Scenario - 複数プラン同時比較 */}
               <HousingMultiScenarioCard profile={profile} onUpdate={updateProfile} />
             </div>
