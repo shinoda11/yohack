@@ -54,7 +54,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
     return (
       <SectionCard
         icon={<Target className="h-5 w-5" />}
-        title="Exit Readiness Score"
+        title="余白スコア"
         description="目標達成度の総合評価"
       >
         <div className="flex flex-col items-center py-8">
@@ -71,16 +71,16 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
   }
 
   const levelText = {
-    GREEN: 'Excellent',
-    YELLOW: 'Good',
-    ORANGE: 'Fair',
-    RED: 'Needs Work',
+    GREEN: '十分',
+    YELLOW: '良好',
+    ORANGE: '要改善',
+    RED: '要見直し',
   };
 
   return (
     <SectionCard
       icon={<Target className="h-5 w-5" />}
-      title="Exit Readiness Score"
+      title="余白スコア"
       description="目標達成度の総合評価"
     >
       <div className="flex flex-col items-center">
@@ -100,14 +100,14 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
               score.level === 'GREEN' && "text-[#8A7A62] dark:text-[#C8B89A]",
               score.level === 'YELLOW' && "text-[#5A5550] dark:text-[#DDD0B8]",
               score.level === 'ORANGE' && "text-[#5A5550] dark:text-[#DDD0B8]",
-              score.level === 'RED' && "text-red-700 dark:text-red-300",
+              score.level === 'RED' && "text-red-600 dark:text-red-400",
             )}>{score.overall}</span>
             <span className="text-sm text-muted-foreground">/100</span>
           </div>
           <div
             className={cn(
               "absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold border",
-              score.level === 'GREEN' && "bg-[#C8B89A] text-white border-[#C8B89A]",
+              score.level === 'GREEN' && "bg-[#C8B89A] text-[#1A1916] border-[#C8B89A]",
               score.level === 'YELLOW' && "bg-[#5A5550] text-white border-[#5A5550]",
               score.level === 'ORANGE' && "bg-[#5A5550] text-white border-[#5A5550]",
               score.level === 'RED' && "bg-red-600 text-white border-red-600",
@@ -123,7 +123,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
           score.level === 'GREEN' && "text-[#8A7A62] dark:text-[#C8B89A]",
           score.level === 'YELLOW' && "text-[#5A5550] dark:text-[#DDD0B8]",
           score.level === 'ORANGE' && "text-[#5A5550] dark:text-[#DDD0B8]",
-          score.level === 'RED' && "text-red-700 dark:text-red-400",
+          score.level === 'RED' && "text-red-600 dark:text-red-400",
         )}>
           {score.level === 'GREEN' && '目標達成の可能性が非常に高いです'}
           {score.level === 'YELLOW' && '目標達成の見込みは良好です'}

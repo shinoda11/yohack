@@ -176,12 +176,12 @@ export default function DashboardPage() {
               <div className="flex items-center gap-2 text-sm">
                 {isLoading ? (
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-amber-500" />
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-[#5A5550]" />
                     計算中...
                   </span>
                 ) : (
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                    <span className="h-2 w-2 rounded-full bg-[#C8B89A]" />
                     最新
                   </span>
                 )}

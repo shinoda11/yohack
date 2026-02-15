@@ -241,7 +241,7 @@ export function NextBestActionsCard({
     return (
       <SectionCard
         icon={<Lightbulb className="h-5 w-5" />}
-        title="Next Best Actions"
+        title="おすすめアクション"
         description="計画改善のための推奨アクション"
       >
         <div className="space-y-3">
@@ -256,7 +256,7 @@ export function NextBestActionsCard({
   return (
     <SectionCard
       icon={<Lightbulb className="h-5 w-5" />}
-      title="Next Best Actions"
+      title="おすすめアクション"
       description="計画改善のための推奨アクション（効果をプレビュー可能）"
     >
       <div className="space-y-3">

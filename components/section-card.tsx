@@ -28,18 +28,17 @@ export function SectionCard({
   action,
 }: SectionCardProps) {
   return (
-    <Card className={cn('overflow-hidden border-gray-200 dark:border-gray-800', className)}>
+    <Card className={cn('overflow-hidden border-border', className)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* アイコンは小さく、薄く */}
-            <div className="flex h-8 w-8 items-center justify-center text-gray-400 dark:text-gray-500">
+            <div className="flex h-8 w-8 items-center justify-center text-muted-foreground">
               {icon}
             </div>
             <div>
               <CardTitle className="text-base font-semibold">{title}</CardTitle>
               {description && (
-                <CardDescription className="mt-0.5 text-xs text-gray-500">{description}</CardDescription>
+                <CardDescription className="mt-0.5 text-xs text-muted-foreground">{description}</CardDescription>
               )}
             </div>
           </div>
