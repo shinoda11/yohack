@@ -1,8 +1,8 @@
 'use client';
 
-import React from "react"
+import React, { useState } from "react"
 
-import { Target, ShieldCheck, Heart, Activity, Droplets } from 'lucide-react';
+import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, Lightbulb } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -49,6 +49,107 @@ function SubScore({ label, value, icon, description }: SubScoreProps) {
   );
 }
 
+interface ScoreAxis {
+  key: 'survival' | 'lifestyle' | 'risk' | 'liquidity';
+  label: string;
+  weight: number;
+  icon: React.ReactNode;
+  getHint: (value: number) => string | null;
+}
+
+const SCORE_AXES: ScoreAxis[] = [
+  {
+    key: 'survival',
+    label: 'サバイバル',
+    weight: 40,
+    icon: <ShieldCheck className="h-4 w-4" />,
+    getHint: (v) => v < 70 ? '投資額を増やすか、目標年齢を遅らせると改善します' : null,
+  },
+  {
+    key: 'lifestyle',
+    label: '生活水準',
+    weight: 30,
+    icon: <Heart className="h-4 w-4" />,
+    getHint: (v) => v < 70 ? '支出を見直すか、資産を増やすと改善します' : null,
+  },
+  {
+    key: 'risk',
+    label: 'リスク',
+    weight: 15,
+    icon: <Activity className="h-4 w-4" />,
+    getHint: (v) => v < 50 ? '現預金の比率を増やすとリスクが下がります' : null,
+  },
+  {
+    key: 'liquidity',
+    label: '流動性',
+    weight: 15,
+    icon: <Droplets className="h-4 w-4" />,
+    getHint: (v) => v < 50 ? '現預金を増やすと緊急時の備えが改善します' : null,
+  },
+];
+
+function getBarColor(value: number): string {
+  if (value >= 80) return 'bg-[#4A7C59]';
+  if (value >= 50) return 'bg-[#C8B89A]';
+  return 'bg-[#CC3333]';
+}
+
+function ScoreBreakdown({ score }: { score: ExitScoreDetail }) {
+  const hints = SCORE_AXES
+    .map(axis => ({ axis, hint: axis.getHint(score[axis.key]) }))
+    .filter((h): h is { axis: ScoreAxis; hint: string } => h.hint !== null);
+
+  return (
+    <div className="w-full space-y-4 border-t pt-4">
+      {/* Bar charts */}
+      <div className="space-y-3">
+        {SCORE_AXES.map(axis => {
+          const value = score[axis.key];
+          const weighted = Math.round(value * axis.weight / 100);
+          return (
+            <div key={axis.key} className="space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  {axis.icon}
+                  <span>{axis.label}</span>
+                  <span className="text-xs text-muted-foreground/60">({axis.weight}%)</span>
+                </div>
+                <div className="flex items-center gap-2 tabular-nums">
+                  <span className="font-semibold">{value}</span>
+                  <span className="text-xs text-muted-foreground">
+                    (+{weighted}pt)
+                  </span>
+                </div>
+              </div>
+              <div className="h-2 w-full rounded-full bg-muted/50">
+                <div
+                  className={cn('h-full rounded-full transition-all duration-500', getBarColor(value))}
+                  style={{ width: `${value}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Improvement hints */}
+      {hints.length > 0 && (
+        <div className="space-y-2">
+          {hints.map(({ axis, hint }) => (
+            <div
+              key={axis.key}
+              className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 p-2.5 text-sm text-amber-800 dark:text-amber-300"
+            >
+              <Lightbulb className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span>{hint}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) {
   if (isLoading || !score) {
     return (
@@ -69,6 +170,8 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
       </SectionCard>
     );
   }
+
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   const levelText = {
     GREEN: '十分',
@@ -202,6 +305,19 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
             description="緊急時に使える現金の割合。予期せぬ支出に対応できる余裕度を示します。"
           />
         </div>
+
+        {/* Breakdown toggle */}
+        <button
+          type="button"
+          onClick={() => setShowBreakdown(!showBreakdown)}
+          className="mt-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ChevronDown className={cn('h-4 w-4 transition-transform', showBreakdown && 'rotate-180')} />
+          {showBreakdown ? '閉じる' : '詳しく見る'}
+        </button>
+
+        {/* Score breakdown */}
+        {showBreakdown && <ScoreBreakdown score={score} />}
       </div>
     </SectionCard>
   );
