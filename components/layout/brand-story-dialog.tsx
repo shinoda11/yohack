@@ -116,7 +116,7 @@ export function BrandStoryDialog({ open, onOpenChange }: BrandStoryDialogProps) 
             <div className="hero-enter">
               <AnimatedYSymbol />
             </div>
-            <div className="text-center">
+            <div className="text-center" style={{ fontFamily: 'var(--font-noto-serif-jp), serif' }}>
               <p className="text-xl font-bold tracking-tight hero-enter-d1">
                 <span className="text-foreground">YO</span>
                 <span style={{ color: '#C8B89A' }}>HACK</span>
@@ -130,8 +130,8 @@ export function BrandStoryDialog({ open, onOpenChange }: BrandStoryDialogProps) 
           <DialogDescription className="sr-only">YOHACKの思想とデザインコンセプトについて</DialogDescription>
 
           {/* Philosophy text */}
-          <div className="space-y-4 text-base font-light tracking-wide text-muted-foreground leading-loose">
-            <p className="text-lg font-normal mb-6">
+          <div className="space-y-5 text-[17px] font-light tracking-wide text-muted-foreground" style={{ fontFamily: 'var(--font-noto-serif-jp), serif', lineHeight: 2 }}>
+            <p className="text-xl font-normal mb-6">
               人生は分岐の連続です。
             </p>
             <div className="pl-4 border-l-2 border-[#C8B89A]/30 space-y-0.5 font-normal text-[#C8B89A]">

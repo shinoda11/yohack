@@ -1,6 +1,6 @@
 import React from "react"
 import type { Metadata } from 'next'
-import { DM_Sans, Noto_Sans_JP } from 'next/font/google'
+import { DM_Sans, Noto_Sans_JP, Noto_Serif_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
@@ -15,6 +15,12 @@ const notoSansJP = Noto_Sans_JP({
   weight: ['300', '400', '700'],
   subsets: ['latin'],
   variable: '--font-noto-sans-jp',
+});
+
+const notoSerifJP = Noto_Serif_JP({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-noto-serif-jp',
 });
 
 export const metadata: Metadata = {
@@ -38,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={`${dmSans.variable} ${notoSansJP.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${notoSansJP.variable} ${notoSerifJP.variable} font-sans antialiased`}>
         {children}
         <footer className="border-t py-6 px-4 text-center">
           <div className="flex items-center justify-center gap-4 flex-wrap">
