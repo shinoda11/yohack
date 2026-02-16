@@ -57,7 +57,7 @@ export default function LandingPage() {
             YOHACK は、
             <br className="sm:hidden" />
             人生の選択肢を「世界線」として並べ、
-            <br />
+            <br className="sm:hidden" />
             安心ラインと余白を見える化する
             <br className="sm:hidden" />
             意思決定シミュレーターです。
@@ -118,7 +118,7 @@ export default function LandingPage() {
                 「家を買う / 買わない」より
                 <br className="sm:hidden" />
                 「駐在を取るかどうか」の方が、
-                <br />
+                <br className="sm:hidden" />
                 全体の余白に効いていた。
               </p>
               <p className="mt-4 text-xs" style={{ color: '#8A7A62' }}>
@@ -143,7 +143,7 @@ export default function LandingPage() {
                 年収 1,800万 → 1,200万の
                 <br className="sm:hidden" />
                 ペースダウンを織り込んでも、
-                <br />
+                <br className="sm:hidden" />
                 8,000万ラインなら
                 <br className="sm:hidden" />
                 安心ラインを割らなかった。
@@ -254,7 +254,7 @@ export default function LandingPage() {
 
       {/* S4: Flat stance */}
       <section className="py-20 px-4" style={{ backgroundColor: '#F5F3EF' }}>
-        <div className="max-w-xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center">
           <p className="text-base sm:text-lg leading-loose" style={{ color: '#5A5550' }}>
             YOHACK は、物件も保険も
             <br className="sm:hidden" />
@@ -385,7 +385,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs leading-relaxed" style={{ color: '#8A7A62' }}>
             ※ YOHACK はファイナンシャルアドバイスではありません。
-            <br />
+            <br className="sm:hidden" />
             シミュレーション結果は参考値であり、
             <br className="sm:hidden" />
             将来の成果を保証するものではありません。
