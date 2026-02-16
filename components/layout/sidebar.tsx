@@ -62,17 +62,17 @@ interface NavItemWithBadge extends NavItem {
 
 const navItems: NavItemWithBadge[] = [
   {
-    href: '/plan',
+    href: '/app/plan',
     label: 'ライフプラン',
     icon: <CalendarDays className="h-5 w-5" />,
   },
   {
-    href: '/',
+    href: '/app',
     label: 'シミュレーション',
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
-    href: '/v2',
+    href: '/app/v2',
     label: '世界線比較',
     icon: <Sparkles className="h-5 w-5" />,
   },
@@ -193,10 +193,10 @@ export function Sidebar() {
       {/* Settings */}
       <div className="border-t border-sidebar-border p-4 space-y-1">
         <Link
-          href="/settings"
+          href="/app/settings"
           className={cn(
             'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-            pathname === '/settings'
+            pathname === '/app/settings'
               ? 'bg-sidebar-accent text-sidebar-primary'
               : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
           )}

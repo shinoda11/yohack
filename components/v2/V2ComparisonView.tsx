@@ -125,7 +125,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             </div>
 
             {/* CTA */}
-            <Link href="/plan" className="mt-8">
+            <Link href="/app/plan" className="mt-8">
               <Button className="bg-[#C8B89A] hover:bg-[#8A7A62] text-white gap-2">
                 ライフプランでシナリオを作成する
                 <ArrowRight className="h-4 w-4" />
@@ -528,13 +528,13 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                   </div>
                 </div>
                 <div className="flex gap-2 pt-1">
-                  <Link href="/">
+                  <Link href="/app">
                     <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
                       シミュレーションへ
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </Link>
-                  <Link href="/plan">
+                  <Link href="/app/plan">
                     <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
                       ライフプランへ
                       <ArrowRight className="h-3 w-3" />
@@ -571,7 +571,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             ))}
           </div>
           <Link
-            href="/plan"
+            href="/app/plan"
             className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
           >
             <span>新しいシナリオを作成</span>
@@ -609,7 +609,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
         <div className="flex flex-col items-center text-center gap-3">
           <Plus className="h-6 w-6 text-[#8A7A62]" />
           <p className="text-sm font-medium text-[#8A7A62]">世界線を追加</p>
-          <Link href="/">
+          <Link href="/app">
             <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
               ダッシュボードで条件を変えて保存
               <ArrowRight className="h-3 w-3" />

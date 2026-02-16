@@ -57,7 +57,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
   const content = (
     <>
       {count === 0 ? (
-        <Link href="/plan" className="block">
+        <Link href="/app/plan" className="block">
           <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             ライフプランで将来の計画を追加しましょう
             <ArrowRight className="inline h-3.5 w-3.5 ml-1" />
@@ -99,7 +99,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
           )}
 
           {/* リンク */}
-          <Link href="/plan" className="block">
+          <Link href="/app/plan" className="block">
             <p className="text-sm text-[#C8B89A] hover:underline pt-1">
               ライフプランで編集する
               <ArrowRight className="inline h-3.5 w-3.5 ml-0.5" />
@@ -119,7 +119,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
   }
 
   return (
-    <Link href="/plan" className="block">
+    <Link href="/app/plan" className="block">
       <SectionCard
         icon={icon}
         title={title}

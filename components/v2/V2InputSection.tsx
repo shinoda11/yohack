@@ -274,13 +274,13 @@ export function V2InputSection(props: V2InputSectionProps) {
                       </p>
                     </div>
                     <div className="flex items-center justify-center gap-3 flex-wrap">
-                      <Link href="/">
+                      <Link href="/app">
                         <Button variant="outline" size="sm" className="gap-2 bg-transparent">
                           シミュレーションで条件を調整
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </Link>
-                      <Link href="/plan">
+                      <Link href="/app/plan">
                         <Button variant="outline" size="sm" className="gap-2 bg-transparent">
                           ライフプランでシナリオを作成
                           <ArrowRight className="h-3.5 w-3.5" />

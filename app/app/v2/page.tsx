@@ -7,7 +7,6 @@ import { useStrategy } from '@/hooks/useStrategy';
 import { useToast } from '@/hooks/use-toast';
 import { readinessConfig } from '@/lib/v2/readinessConfig';
 
-import { Sidebar } from '@/components/layout/sidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { V2ResultSection } from '@/components/v2/V2ResultSection';
 import { V2InputSection } from '@/components/v2/V2InputSection';
@@ -101,12 +100,8 @@ export default function V2DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-
-      {/* Main content - responsive margin for sidebar */}
-      <main className="min-h-screen pt-14 lg:pt-0 lg:ml-64 overflow-auto">
-        <div className="container mx-auto max-w-7xl p-4 sm:p-6 space-y-6">
+    <div className="overflow-auto">
+      <div className="container mx-auto max-w-7xl p-4 sm:p-6 space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
@@ -150,8 +145,7 @@ export default function V2DashboardPage() {
               <V2ResultSection {...resultProps} renderMode="strategy" />
             </TabsContent>
           </Tabs>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

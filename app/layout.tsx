@@ -46,19 +46,6 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`${dmSans.variable} ${notoSansJP.variable} ${notoSerifJP.variable} font-sans antialiased`}>
         {children}
-        <footer className="border-t py-6 px-4 text-center">
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <a href="/legal/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              利用規約
-            </a>
-            <a href="/legal/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              プライバシーポリシー
-            </a>
-            <a href="/legal/commercial" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              特定商取引法
-            </a>
-          </div>
-        </footer>
         <Toaster />
         <Analytics />
       </body>

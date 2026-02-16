@@ -327,7 +327,7 @@ export function TimelineContent() {
   };
 
   const handleGoToComparison = () => {
-    router.push('/v2');
+    router.push('/app/v2');
   };
 
   const isUnsupportedEvent = (_type: LifeEventType) => false;

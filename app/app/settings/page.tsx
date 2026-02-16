@@ -4,7 +4,6 @@ import { useRef, useState } from 'react';
 import { useProfileStore } from '@/lib/store';
 import { validateProfile } from '@/lib/engine';
 import { useToast } from '@/hooks/use-toast';
-import { Sidebar } from '@/components/layout/sidebar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -131,11 +130,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Sidebar />
-
-      <main className="min-h-screen pt-14 lg:pt-0 lg:ml-64 overflow-auto">
-        <div className="container mx-auto max-w-3xl p-4 sm:p-6 space-y-6">
+    <>
+      <div className="container mx-auto max-w-3xl p-4 sm:p-6 space-y-6">
           {/* Header */}
           <div>
             <h1 className="text-3xl font-bold tracking-tight">設定</h1>
@@ -257,8 +253,7 @@ export default function SettingsPage() {
               </a>
             </CardContent>
           </Card>
-        </div>
-      </main>
+      </div>
 
       {/* リセット確認ダイアログ */}
       <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
@@ -279,6 +274,6 @@ export default function SettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

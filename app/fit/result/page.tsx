@@ -86,7 +86,7 @@ function ReadyResult() {
             size="lg"
             className="w-full text-white"
             style={{ backgroundColor: '#C8B89A' }}
-            onClick={() => window.location.href = '/'}
+            onClick={() => window.location.href = '/app'}
           >
             シミュレーションを試す
             <ArrowRight className="w-4 h-4 ml-2" />

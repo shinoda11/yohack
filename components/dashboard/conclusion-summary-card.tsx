@@ -395,7 +395,7 @@ export function ConclusionSummaryCard({
         {score && profile && onStartWorldlineComparison && (
           <div className="mt-4 pt-4 border-t border-border">
             {hasScenarios ? (
-              <Link href="/v2" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors">
+              <Link href="/app/v2" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors">
                 <GitBranch className="h-4 w-4" />
                 世界線比較を見る
                 <ArrowRight className="h-3.5 w-3.5" />

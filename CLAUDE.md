@@ -27,25 +27,28 @@ YOHACK — 人生の余白（お金・時間・体力）で人生の選択を比
 ## 現在のルート構成
 | パス | 用途 | 備考 |
 |------|------|------|
-| `/` | メインダッシュボード（入力 + シミュレーション結果） | オンボーディングウィザード付き |
-| `/v2` | 世界線比較 | アクセス制御なし（Basic認証のみ） |
-| `/plan` | ライフプラン（ライフイベント + RSU タブ切替） | |
-| `/pricing` | 料金ページ | |
-| `/settings` | 設定（データ管理・バージョン情報） | |
-| `/legal/*` | 利用規約・プライバシー・特商法 | |
-| `/timeline` | → `/plan` へリダイレクト | |
-| `/rsu` | → `/plan?tab=rsu` へリダイレクト | |
-
-全ルート共通で Basic認証（`middleware.ts`、`SITE_PASSWORD` 環境変数）。
+| `/` | LP（7セクション） | 認証なし。Instagram → LP → FitGate の入口 |
+| `/fit` | FitGate（12問 + 自由記述） | 認証なし |
+| `/fit/result` | FitGate 判定結果 | 認証なし |
+| `/fit/prep` | Prep向けレター登録 | 認証なし |
+| `/app` | メインダッシュボード（入力 + シミュレーション結果） | Basic認証。オンボーディングウィザード付き |
+| `/app/v2` | 世界線比較 | Basic認証 |
+| `/app/plan` | ライフプラン（ライフイベント + RSU タブ切替） | Basic認証 |
+| `/app/settings` | 設定（データ管理・バージョン情報） | Basic認証 |
+| `/pricing` | 料金ページ | 認証なし |
+| `/legal/*` | 利用規約・プライバシー・特商法 | 認証なし |
 
 ## ディレクトリ構造
 ```
 app/
-  page.tsx              ← メインダッシュボード
-  v2/page.tsx           ← 世界線比較
-  plan/page.tsx         ← ライフプラン（ライフイベント + RSU）
+  page.tsx              ← LP（7セクション）
+  fit/                  ← FitGate（12問フォーム + 判定結果 + Prep）
+  app/
+    page.tsx            ← メインダッシュボード
+    v2/page.tsx         ← 世界線比較
+    plan/page.tsx       ← ライフプラン
+    settings/page.tsx   ← 設定
   pricing/page.tsx      ← 料金
-  settings/page.tsx     ← 設定
   legal/                ← 利用規約・プライバシー・特商法
 
 components/
@@ -176,9 +179,9 @@ docs/
 ```
 
 ### フェーズ
-- **Phase 1（現在）**: プロダクト品質向上。LP は別リポで改修
+- **Phase 1（完了）**: プロダクト品質向上。LP・FitGate 実装済み。`/` → LP、`/app/*` → プロダクト
 - **Phase 2**: Supabase導入（認証 + DB）。localStorage → DB移行
-- **Phase 3**: LP・FitGate 統合。Stripe連携（Pass 課金）。`/` → LP、`/app/*` → プロダクト。アクセス制御
+- **Phase 3**: Stripe連携（Pass 課金）。アクセス制御（Pass未購入者はプロダクトにアクセスできない）
 
 ### FitGate → プロファイル自動プリセット（Phase 2-3）
 | FitGate質問 | → YOHACKフィールド |

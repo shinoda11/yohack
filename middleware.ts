@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // /fit routes are public (FitGate)
-  if (request.nextUrl.pathname.startsWith('/fit')) {
+  const { pathname } = request.nextUrl;
+
+  // Only /app and /app/* require Basic auth
+  if (!pathname.startsWith('/app')) {
     return NextResponse.next();
   }
 
