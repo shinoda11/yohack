@@ -345,7 +345,7 @@ export function RSUContent() {
                   <Bar
                     dataKey="valueJPY"
                     name="価値 (JPY)"
-                    fill="hsl(var(--chart-1))"
+                    fill="#C8B89A"
                     radius={[4, 4, 0, 0]}
                   />
                 </BarChart>
