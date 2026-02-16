@@ -1,12 +1,14 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { TrendingUp, ChevronDown } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { SliderInput } from '@/components/slider-input';
 import { FieldError } from '@/components/ui/field-error';
 import { TermTooltip } from '@/components/ui/term-tooltip';
 import { glossary } from '@/lib/glossary';
+import { getEstimatedTaxRates } from '@/lib/engine';
 import type { Profile } from '@/lib/types';
 
 interface InvestmentCardProps {
@@ -16,7 +18,14 @@ interface InvestmentCardProps {
     | 'inflationRate'
     | 'volatility'
     | 'effectiveTaxRate'
+    | 'useAutoTaxRate'
     | 'retireSpendingMultiplier'
+    | 'grossIncome'
+    | 'rsuAnnual'
+    | 'sideIncomeNet'
+    | 'partnerGrossIncome'
+    | 'partnerRsuAnnual'
+    | 'mode'
   >;
   onUpdate: (updates: Partial<Profile>) => void;
   getFieldError?: (field: string) => string | undefined;
@@ -28,6 +37,11 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
   const realReturn = profile.expectedReturn - profile.inflationRate;
   const icon = <TrendingUp className="h-5 w-5" />;
   const title = '投資設定';
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Auto-calculated tax rates
+  const taxRates = getEstimatedTaxRates(profile as Profile);
+  const displayRate = profile.useAutoTaxRate ? taxRates.combined : profile.effectiveTaxRate;
 
   const content = (
     <div className="space-y-6">
@@ -83,19 +97,71 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
         <FieldError message={getFieldError?.('volatility')} />
       </div>
 
-      {/* Effective tax rate */}
-      <div>
-        <SliderInput
-          label={<TermTooltip term="実効税率" description={glossary['実効税率']} />}
-          value={profile.effectiveTaxRate}
-          onChange={(value) => onUpdate({ effectiveTaxRate: value })}
-          min={10}
-          max={50}
-          step={1}
-          unit="%"
-        />
-        <FieldError message={getFieldError?.('effectiveTaxRate')} />
+      {/* Estimated effective tax rate (read-only) */}
+      <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+        <div className="flex items-center justify-between text-sm">
+          <TermTooltip term="推定実効税率" description="年収から自動計算された所得税・住民税・社会保険料の合算割合" />
+          <span className="font-semibold">{displayRate.toFixed(1)}%</span>
+        </div>
+        {profile.useAutoTaxRate && profile.mode === 'couple' && (
+          <div className="text-xs text-muted-foreground space-y-0.5 pt-1">
+            <div className="flex justify-between">
+              <span>本人</span>
+              <span>{taxRates.main.toFixed(1)}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span>配偶者</span>
+              <span>{taxRates.partner.toFixed(1)}%</span>
+            </div>
+          </div>
+        )}
+        {profile.useAutoTaxRate && (
+          <p className="text-xs text-muted-foreground pt-1">
+            収入から自動計算（所得税+住民税+社保）
+          </p>
+        )}
       </div>
+
+      {/* Advanced settings toggle */}
+      <button
+        type="button"
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronDown className={`h-3 w-3 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+        高度な設定
+      </button>
+
+      {showAdvanced && (
+        <div className="space-y-4 pl-3 border-l-2 border-muted">
+          {/* Auto tax toggle */}
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!profile.useAutoTaxRate}
+              onChange={(e) => onUpdate({ useAutoTaxRate: !e.target.checked })}
+              className="rounded border-input"
+            />
+            <span className="text-muted-foreground">実効税率を手動で設定する</span>
+          </label>
+
+          {/* Manual tax rate slider (only visible when override is on) */}
+          {!profile.useAutoTaxRate && (
+            <div>
+              <SliderInput
+                label={<TermTooltip term="実効税率" description={glossary['実効税率']} />}
+                value={profile.effectiveTaxRate}
+                onChange={(value) => onUpdate({ effectiveTaxRate: value })}
+                min={10}
+                max={50}
+                step={1}
+                unit="%"
+              />
+              <FieldError message={getFieldError?.('effectiveTaxRate')} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Retirement spending multiplier */}
       <div>
@@ -122,7 +188,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
         {' / インフレ'}
         <span className="font-medium text-foreground">{profile.inflationRate}%</span>
         {' / 税率'}
-        <span className="font-medium text-foreground">{profile.effectiveTaxRate}%</span>
+        <span className="font-medium text-foreground">{displayRate.toFixed(1)}%</span>
       </>
     );
     return (

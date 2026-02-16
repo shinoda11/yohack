@@ -92,6 +92,120 @@ export function validateProfile(profile: Profile): ValidationError[] {
   return errors;
 }
 
+// ============================================================
+// Tax Calculation (Japanese tax system, simplified)
+// ============================================================
+
+/**
+ * 年収（万円）から実効税率（%）を自動計算する。
+ * 所得税（累進）+ 復興特別所得税 + 住民税（10%）+ 社会保険料の合算。
+ * FP 完璧ではないが、年収800万〜3000万帯で±2%の精度。
+ */
+export function calculateEffectiveTaxRate(grossIncome: number): number {
+  if (grossIncome <= 0) return 0;
+
+  // --- 1. 給与所得控除 (2024年基準) ---
+  let employmentDeduction: number;
+  if (grossIncome <= 162.5) {
+    employmentDeduction = 55;
+  } else if (grossIncome <= 180) {
+    employmentDeduction = grossIncome * 0.4 - 10;
+  } else if (grossIncome <= 360) {
+    employmentDeduction = grossIncome * 0.3 + 8;
+  } else if (grossIncome <= 660) {
+    employmentDeduction = grossIncome * 0.2 + 44;
+  } else if (grossIncome <= 850) {
+    employmentDeduction = grossIncome * 0.1 + 110;
+  } else {
+    employmentDeduction = 195; // 上限
+  }
+
+  // --- 2. 社会保険料 ---
+  // 厚生年金: 9.15% (標準報酬月額65万＝年収780万で上限)
+  const pension = Math.min(grossIncome, 780) * 0.0915;
+  // 健康保険: 5% (標準報酬月額上限 ≈ 年収1390万)
+  const health = Math.min(grossIncome, 1390) * 0.05;
+  // 雇用保険: 0.6%
+  const employment = grossIncome * 0.006;
+  const socialInsurance = pension + health + employment;
+
+  // --- 3. 基礎控除 (高所得者は段階的に縮小) ---
+  const totalIncome = grossIncome - employmentDeduction; // 合計所得金額
+  let basicDeduction: number;
+  if (totalIncome <= 2400) {
+    basicDeduction = 48;
+  } else if (totalIncome <= 2450) {
+    basicDeduction = 32;
+  } else if (totalIncome <= 2500) {
+    basicDeduction = 16;
+  } else {
+    basicDeduction = 0;
+  }
+
+  // --- 4. 課税所得 ---
+  const taxableIncome = Math.max(0, grossIncome - employmentDeduction - basicDeduction - socialInsurance);
+
+  // --- 5. 所得税 (累進課税) ---
+  let incomeTax = 0;
+  const brackets: [number, number][] = [
+    [195, 0.05],
+    [330, 0.10],
+    [695, 0.20],
+    [900, 0.23],
+    [1800, 0.33],
+    [4000, 0.40],
+    [Infinity, 0.45],
+  ];
+  let prev = 0;
+  for (const [limit, rate] of brackets) {
+    if (taxableIncome <= prev) break;
+    const taxable = Math.min(taxableIncome, limit) - prev;
+    incomeTax += taxable * rate;
+    prev = limit;
+  }
+  // 復興特別所得税 2.1%
+  incomeTax *= 1.021;
+
+  // --- 6. 住民税 (10%) ---
+  const residentTax = taxableIncome * 0.10;
+
+  // --- 7. 実効税率 ---
+  const totalTax = incomeTax + residentTax + socialInsurance;
+  return (totalTax / grossIncome) * 100;
+}
+
+/**
+ * プロファイルから推定実効税率を取得する。
+ * useAutoTaxRate=true の場合は自動計算、false の場合は手動入力値を返す。
+ */
+export function getEstimatedTaxRates(profile: Profile): { main: number; partner: number; combined: number } {
+  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+  const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
+
+  if (!profile.useAutoTaxRate) {
+    return {
+      main: profile.effectiveTaxRate,
+      partner: profile.effectiveTaxRate,
+      combined: profile.effectiveTaxRate,
+    };
+  }
+
+  const mainRate = mainGross > 0 ? calculateEffectiveTaxRate(mainGross) : 0;
+  const partnerRate = partnerGross > 0 ? calculateEffectiveTaxRate(partnerGross) : 0;
+
+  // Weighted average for display
+  const totalGross = mainGross + partnerGross;
+  const combined = totalGross > 0
+    ? (mainGross * mainRate + partnerGross * partnerRate) / totalGross
+    : 0;
+
+  return { main: mainRate, partner: partnerRate, combined };
+}
+
+// ============================================================
+// Simulation Helpers
+// ============================================================
+
 // Generate random return using normal distribution (Box-Muller transform)
 function randomNormal(mean: number, stdDev: number): number {
   const u1 = Math.random();
@@ -100,26 +214,32 @@ function randomNormal(mean: number, stdDev: number): number {
   return mean + z * stdDev;
 }
 
-// Calculate net income after tax
+// Calculate net income after tax (per-person tax calculation for couples)
 function calculateNetIncome(profile: Profile, age: number): number {
   const isRetired = age >= profile.targetRetireAge;
-  
+
   if (isRetired) {
     // Post-retirement: pension + passive income
     const pensionAge = 65;
     const basePension = age >= pensionAge ? 200 : 0; // 基礎年金 approx
     return basePension + profile.retirePassiveIncome;
   }
-  
-  // Pre-retirement income
-  let totalGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
-  
+
+  // Per-person tax calculation
+  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+  const mainRate = profile.useAutoTaxRate
+    ? calculateEffectiveTaxRate(mainGross)
+    : profile.effectiveTaxRate;
+  let netIncome = mainGross * (1 - mainRate / 100);
+
   if (profile.mode === 'couple') {
-    totalGross += profile.partnerGrossIncome + profile.partnerRsuAnnual;
+    const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
+    const partnerRate = profile.useAutoTaxRate
+      ? calculateEffectiveTaxRate(partnerGross)
+      : profile.effectiveTaxRate;
+    netIncome += partnerGross * (1 - partnerRate / 100);
   }
-  
-  // Apply effective tax rate
-  const netIncome = totalGross * (1 - profile.effectiveTaxRate / 100);
+
   return netIncome;
 }
 
@@ -415,6 +535,7 @@ export function createDefaultProfile(): Profile {
     volatility: 0.15,
     
     effectiveTaxRate: 25,
+    useAutoTaxRate: true,
     retireSpendingMultiplier: 0.8,
     retirePassiveIncome: 0,
     

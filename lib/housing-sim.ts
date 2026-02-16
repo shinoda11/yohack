@@ -1,5 +1,6 @@
 // Housing Simulation - Rent vs Buy Comparison with CRN (Common Random Numbers)
 import type { Profile, AssetPoint, ExitScoreDetail, SimulationPath, KeyMetrics } from './types';
+import { calculateEffectiveTaxRate } from './engine';
 import { getScoreLevel } from './types';
 
 export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW' | 'RELOCATE';
@@ -92,23 +93,30 @@ const MAX_AGE = 100;
 const SIMULATION_RUNS = 500;
 const BASE_SEED = 42;
 
-// Calculate net income after tax
+// Calculate net income after tax (per-person tax calculation)
 function calculateNetIncome(profile: Profile, age: number): number {
   const isRetired = age >= profile.targetRetireAge;
-  
+
   if (isRetired) {
     const pensionAge = 65;
     const basePension = age >= pensionAge ? 200 : 0;
     return basePension + profile.retirePassiveIncome;
   }
-  
-  let totalGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
-  
+
+  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+  const mainRate = profile.useAutoTaxRate
+    ? calculateEffectiveTaxRate(mainGross)
+    : profile.effectiveTaxRate;
+  let netIncome = mainGross * (1 - mainRate / 100);
+
   if (profile.mode === 'couple') {
-    totalGross += profile.partnerGrossIncome + profile.partnerRsuAnnual;
+    const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
+    const partnerRate = profile.useAutoTaxRate
+      ? calculateEffectiveTaxRate(partnerGross)
+      : profile.effectiveTaxRate;
+    netIncome += partnerGross * (1 - partnerRate / 100);
   }
-  
-  const netIncome = totalGross * (1 - profile.effectiveTaxRate / 100);
+
   return netIncome;
 }
 

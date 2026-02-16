@@ -69,7 +69,8 @@ export interface Profile {
   volatility: number; // decimal (e.g., 0.15 = 15%)
   
   // Tax and retirement
-  effectiveTaxRate: number; // %
+  effectiveTaxRate: number; // % (manual override value)
+  useAutoTaxRate: boolean; // true = auto-calculate from income
   retireSpendingMultiplier: number;
   retirePassiveIncome: number;
   

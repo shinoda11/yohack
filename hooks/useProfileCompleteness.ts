@@ -36,7 +36,6 @@ export function useProfileCompleteness(profile: Profile): ProfileCompleteness {
       { field: 'assetCash', label: '現預金', cardId: 'asset', isComplete: profile.assetCash !== 500 },
       { field: 'assetInvest', label: '投資資産', cardId: 'asset', isComplete: profile.assetInvest !== 300 },
       { field: 'expectedReturn', label: '期待リターン', cardId: 'investment', isComplete: profile.expectedReturn !== 5 },
-      { field: 'effectiveTaxRate', label: '実効税率', cardId: 'investment', isComplete: profile.effectiveTaxRate !== 20 },
     ];
 
     const completedCount = checks.filter((c) => c.isComplete).length;

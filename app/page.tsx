@@ -129,8 +129,8 @@ export default function DashboardPage() {
     income: profile.grossIncome !== 800,
     expense: profile.livingCostAnnual !== 300,
     asset: profile.assetCash !== 500 || profile.assetInvest !== 300,
-    investment: profile.expectedReturn !== 5 || profile.effectiveTaxRate !== 20,
-  }), [profile.currentAge, profile.targetRetireAge, profile.grossIncome, profile.livingCostAnnual, profile.assetCash, profile.assetInvest, profile.expectedReturn, profile.effectiveTaxRate]);
+    investment: profile.expectedReturn !== 5,
+  }), [profile.currentAge, profile.targetRetireAge, profile.grossIncome, profile.livingCostAnnual, profile.assetCash, profile.assetInvest, profile.expectedReturn]);
 
   // Auto-close completed cards (only for non-manually-toggled cards)
   useEffect(() => {

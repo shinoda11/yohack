@@ -28,6 +28,7 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/lib/types';
 import type { Profile } from '@/lib/types';
+import { calculateEffectiveTaxRate } from '@/lib/engine';
 import { computeMonthlyPaymentManYen } from '@/lib/housing-sim';
 import { isPro } from '@/lib/plan';
 import {
@@ -129,12 +130,19 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
         const pension = age >= 65 ? 200 : 0;
         return pension + profile.retirePassiveIncome;
       }
-      let total =
-        profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+      const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+      const mainRate = profile.useAutoTaxRate
+        ? calculateEffectiveTaxRate(mainGross)
+        : profile.effectiveTaxRate;
+      let net = mainGross * (1 - mainRate / 100);
       if (profile.mode === 'couple') {
-        total += profile.partnerGrossIncome + profile.partnerRsuAnnual;
+        const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
+        const partnerRate = profile.useAutoTaxRate
+          ? calculateEffectiveTaxRate(partnerGross)
+          : profile.effectiveTaxRate;
+        net += partnerGross * (1 - partnerRate / 100);
       }
-      return total * (1 - profile.effectiveTaxRate / 100);
+      return net;
     }
 
     function baseExpenses(age: number): number {

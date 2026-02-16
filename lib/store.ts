@@ -352,6 +352,10 @@ export const useProfileStore = create<ProfileStore>()(
       // ストレージから復元後にシミュレーションを再実行
       onRehydrateStorage: () => (state) => {
         if (state) {
+          // Migrate: useAutoTaxRate が未定義の既存プロファイルにデフォルト値を設定
+          if (state.profile.useAutoTaxRate === undefined) {
+            state.profile.useAutoTaxRate = true;
+          }
           // 復元後にシミュレーションを再実行
           state._storageInitialized = true;
           setTimeout(() => {
