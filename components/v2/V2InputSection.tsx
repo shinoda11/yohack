@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Label } from "@/components/ui/label";
-import { Save, RotateCcw, Home, Users, ChevronRight } from 'lucide-react';
+import { Save, RotateCcw, Home, Users, ChevronRight, TrendingUp } from 'lucide-react';
 
 import type { SimulationResult, Profile, LifeEvent } from '@/lib/types';
 import type { SavedScenario } from '@/lib/store';
@@ -259,23 +260,33 @@ export function V2InputSection(props: V2InputSectionProps) {
                     />
                   </div>
                 ) : (
-                  <div className="text-center py-12 space-y-4">
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted">
-                      <Info className="h-6 w-6 text-muted-foreground" />
+                  <div className="text-center py-12 space-y-5">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#C8B89A]/10">
+                      <TrendingUp className="h-6 w-6 text-[#C8B89A]" />
                     </div>
                     <div>
-                      <p className="font-medium">余白は小さめです</p>
+                      <p className="font-medium text-foreground">余白を増やすと、使い道が見えてきます</p>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        現在のキャッシュフローでは配分可能な余白がありません。
+                      </p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        現在のキャッシュフローでは配分可能な余白がありません。タイムラインでシナリオを作成すると比較できます。
+                        シミュレーション画面で収入を増やす・支出を減らすと、ここに使い道の選択肢が表示されます。
                       </p>
                     </div>
-                    <a
-                      href="/timeline"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-muted/50 text-sm font-medium transition-colors"
-                    >
-                      タイムラインでシナリオを作成
-                      <ArrowRight className="h-4 w-4" />
-                    </a>
+                    <div className="flex items-center justify-center gap-3 flex-wrap">
+                      <Link href="/">
+                        <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+                          シミュレーションで条件を調整
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </Link>
+                      <Link href="/plan">
+                        <Button variant="outline" size="sm" className="gap-2 bg-transparent">
+                          ライフプランでシナリオを作成
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 );
               })()
