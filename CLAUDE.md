@@ -71,7 +71,13 @@ lib/
 
 hooks/                  ← 8ファイル
 scripts/                ← ケース台帳シミュレーション・感度分析・SoTチェック
-docs/                   ← ケース結果・感度分析結果
+docs/
+  lp-design.md             ← LP設計書 v1.0
+  migration-from-lp.md     ← 旧LPリポからの移植ガイド
+  fitgate-reference/       ← 旧リポから抽出した移植対象コード（実装時の参照用）
+  case-catalog-results.md  ← 18ケースの賃貸vs購入比較結果
+  sensitivity-analysis.md  ← 感度分析結果
+  product-backlog.md       ← プロダクトバックログ
 ```
 
 ## アーキテクチャ原則
@@ -184,6 +190,9 @@ docs/                   ← ケース結果・感度分析結果
 | 現在の家賃 | `housingCostAnnual`（月額→年額変換） |
 | 検討物件価格帯 | 住宅プラン初期値 |
 | 貯蓄＋投資 | `assetCash + assetInvest` |
+
+### 移植の詳細手順
+`docs/migration-from-lp.md` を参照。旧リポから移植対象コードを `docs/fitgate-reference/` に抽出済み。LP のセクション構成は `docs/lp-design.md` に準拠。
 
 ## コマンド
 | コマンド | 用途 |

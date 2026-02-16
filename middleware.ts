@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(request: NextRequest) {
+  // /fit routes are public (FitGate)
+  if (request.nextUrl.pathname.startsWith('/fit')) {
+    return NextResponse.next();
+  }
+
   const sitePassword = process.env.SITE_PASSWORD;
 
   if (!sitePassword) {

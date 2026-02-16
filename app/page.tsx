@@ -37,6 +37,9 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { WelcomeDialog } from '@/components/dashboard/welcome-dialog';
 import { OnboardingSteps } from '@/components/dashboard/onboarding-steps';
 
+// FitGate preset
+import { loadFitGateAnswers, fitGateToProfile, clearFitGateAnswers } from '@/lib/fitgate';
+
 // Validation
 import { useValidation } from '@/hooks/useValidation';
 
@@ -69,9 +72,22 @@ export default function DashboardPage() {
   const router = useRouter();
   const [creatingWorldline, setCreatingWorldline] = useState<string | null>(null);
 
-  // Check for first-time visit
+  // Check for first-time visit + FitGate preset
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    // FitGate → profile preset (skip wizard if data exists)
+    const fitGateAnswers = loadFitGateAnswers();
+    if (fitGateAnswers) {
+      const preset = fitGateToProfile(fitGateAnswers);
+      updateProfile(preset);
+      clearFitGateAnswers();
+      // Mark onboarding as complete since FitGate already collected key data
+      localStorage.setItem('yohack-onboarding-complete', 'fitgate');
+      localStorage.setItem('yohack-profile-edited', '1');
+      return;
+    }
+
     const status = localStorage.getItem('yohack-onboarding-complete');
     if (!status) {
       setShowWelcome(true);
