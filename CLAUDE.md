@@ -20,6 +20,14 @@ FIRE達成可能性をモンテカルロシミュレーションで計算し、�
 - 新しい状態が必要な場合は既存ストアを拡張する
 - 違反チェック: `npm run check:store`
 
+### エンジン前提
+- **スコアウェイト**: survival 55%, lifestyle 20%, risk 15%, liquidity 10%
+- **住宅ローン**: 変動金利 0.5% → +0.3%/5年、上限 2.3%
+- **家賃インフレ**: 0.5%（一般インフレ 2% とは分離、`rentInflationRate`）
+- **維持費上昇**: 1.5%/年（`ownerCostEscalation`）
+- **年金**: 報酬比例方式（基礎年金 80万×加入年数/40 + 標準報酬月額×5.481/1000×加入月数、月額上限 65万）
+- **投資リターン**: デフォルト 5%、UI で 3%/5%/7% のプリセット選択可
+
 ### ディレクトリ構造
 ```
 app/
@@ -43,19 +51,30 @@ components/
 lib/
   store.ts          ← Zustand SoT（profile, simResult, scenarios）
   engine.ts         ← モンテカルロシミュレーション（1000回、max age 100）
+  housing-sim.ts    ← 住宅シミュレーション（500回シード付き、CRN比較）
   types.ts          ← 型定義
-  v2/               ← 世界線比較ロジック（store, adapter, events, margin, strategy, worldline）
 
 hooks/
   useSimulation.ts  ← シミュレーション実行フック
   useMargin.ts      ← 余白計算
   useStrategy.ts    ← 戦略計算
   useWorldLines.ts  ← 世界線比較
+
+scripts/
+  case-catalog-sim.ts      ← ケース台帳 C01-C18 のシミュレーション実行
+  sensitivity-analysis.ts  ← 感度分析（4ケース×4パラメータ×3水準）
+
+docs/
+  case-catalog-results.md  ← 18ケースの賃貸vs購入比較結果
+  sensitivity-analysis.md  ← 感度分析結果（影響度ランキング）
 ```
 
 ## コマンド
 - `pnpm dev` — 開発サーバー起動
 - `pnpm build` — ビルド
+- `pnpm test` — テスト実行（vitest 116本）
+- `pnpm test:watch` — テストウォッチモード
+- `pnpm case-sim` — ケース台帳シミュレーション実行（C01-C18）
 - `npm run check:store` — SoT ガードレールチェック
 - `pnpm lint` — ESLint
 
@@ -68,11 +87,13 @@ hooks/
 - コンポーネントファイルは `'use client'` ディレクティブ必須
 
 ## テスト
-- `lib/__tests__/` に3件（adapter, engine, housing-sim）。vitest 使用
-- `pnpm test` — テスト実行、`pnpm test:watch` — ウォッチモード
+- `lib/__tests__/` に4件（adapter, engine, e2e-personas, housing-sim）。vitest 使用
+- 116本（e2e ペルソナ検証 22本含む）
+- `pnpm test` — テスト実行
 
 ## 重要な注意点
 - Pro/Free レイヤー（`lib/plan.ts`）は現在 `isPro()=true` で全機能開放中。Phase 2 で Supabase 認証に置き換え予定
-- `typescript.ignoreBuildErrors: true` が有効（`next.config.mjs`）
 - localStorage でプロファイルとシナリオを永続化している
 - シミュレーションは profile 変更時に自動で debounce 実行される
+- **投資リターンがスコアに最も影響（±31）**。他のパラメータ（金利上限・家賃上昇率・維持費上昇率）は±4以下
+- エンジンの前提を変更したら必ず `pnpm case-sim` で18ケースを再検証すること

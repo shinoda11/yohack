@@ -175,6 +175,8 @@ describe('calculateMoneyMargin', () => {
         yearlyData: [{ age: 35, assets: 2800 }],
         upperPath: [{ age: 35, assets: 4000 }],
         lowerPath: [{ age: 35, assets: 1500 }],
+        p25Path: [{ age: 35, assets: 2200 }],
+        p75Path: [{ age: 35, assets: 3400 }],
         median: [2800],
         optimistic: [4000],
         pessimistic: [1500],
