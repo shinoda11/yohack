@@ -207,23 +207,30 @@ export function getEstimatedTaxRates(profile: Profile): { main: number; partner:
 // ============================================================
 
 /**
- * 個人の年金額を年収から概算する（万円/年）。
- * 基礎年金（78万/年）+ 厚生年金（報酬比例部分）。
- * キャリア平均年収 ≈ 現在年収 × 0.75（若年期の低収入を考慮）。
+ * 個人の年金額を年収・退職年齢から概算する（万円/年）。
+ * 加入期間 = 20歳〜min(retireAge, 60) （最大40年）
+ * 基礎年金: 80万/年 × (加入年数/40)
+ * 厚生年金: 平均標準報酬月額 × 5.481/1000 × 加入月数
+ * 標準報酬月額上限: 65万（年収780万相当）
+ * キャリア平均年収 ≈ 現在年収 × 0.75（若年期の低収入を考慮）
  */
-function calculatePersonPension(grossIncome: number): number {
+function calculatePersonPension(grossIncome: number, retireAge: number): number {
   if (grossIncome <= 0) return 0;
 
-  // 基礎年金: 78万/年（満額、40年加入想定）
-  const basicPension = 78;
+  // 加入期間: 20歳〜min(retireAge, 60), 最大40年
+  const contributionYears = Math.max(0, Math.min(retireAge, 60) - 20);
+  const cappedYears = Math.min(contributionYears, 40);
+  const contributionMonths = cappedYears * 12;
+
+  // 基礎年金: 80万/年（満額）× 加入年数/40
+  const basicPension = 80 * cappedYears / 40;
 
   // 厚生年金 報酬比例部分:
   // 平均標準報酬額 = 現在年収 × 0.75（キャリア平均）
   // 標準報酬月額上限 = 65万（年収780万 ÷ 12）
-  // 乗率 5.481/1000 × 480ヶ月（40年加入）
   const careerAvgAnnual = grossIncome * 0.75;
   const avgMonthly = Math.min(careerAvgAnnual / 12, 65);
-  const proportional = avgMonthly * 5.481 / 1000 * 480;
+  const proportional = avgMonthly * 5.481 / 1000 * contributionMonths;
 
   return Math.round(basicPension + proportional);
 }
@@ -231,11 +238,12 @@ function calculatePersonPension(grossIncome: number): number {
 /**
  * 世帯の年間年金額を計算する（万円/年）。
  * 本人 + 配偶者（coupleモードの場合）をそれぞれ個別計算。
+ * 加入期間は退職年齢（targetRetireAge）に基づく。
  */
 export function calculateAnnualPension(profile: Profile): number {
-  let total = calculatePersonPension(profile.grossIncome);
+  let total = calculatePersonPension(profile.grossIncome, profile.targetRetireAge);
   if (profile.mode === 'couple') {
-    total += calculatePersonPension(profile.partnerGrossIncome);
+    total += calculatePersonPension(profile.partnerGrossIncome, profile.targetRetireAge);
   }
   return total;
 }
