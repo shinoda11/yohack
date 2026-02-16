@@ -95,18 +95,34 @@ export function AssetCard({ profile, onUpdate, getFieldError, open, onOpenChange
           </span>
         </div>
         <div className="mt-2 grid grid-cols-3 gap-1 text-xs sm:gap-2">
-          <div className="text-center">
-            <div className="font-medium">{Math.round((profile.assetCash / totalAssets) * 100) || 0}%</div>
-            <div className="text-muted-foreground">現預金</div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">{Math.round((profile.assetInvest / totalAssets) * 100) || 0}%</div>
-            <div className="text-muted-foreground">投資</div>
-          </div>
-          <div className="text-center">
-            <div className="font-medium">{Math.round((profile.assetDefinedContributionJP / totalAssets) * 100) || 0}%</div>
-            <div className="text-muted-foreground">DC年金</div>
-          </div>
+          {(() => {
+            if (totalAssets === 0) return (
+              <>
+                <div className="text-center"><div className="font-medium">0%</div><div className="text-muted-foreground">現預金</div></div>
+                <div className="text-center"><div className="font-medium">0%</div><div className="text-muted-foreground">投資</div></div>
+                <div className="text-center"><div className="font-medium">0%</div><div className="text-muted-foreground">DC年金</div></div>
+              </>
+            );
+            const rawCash = (profile.assetCash / totalAssets) * 100;
+            const rawInvest = (profile.assetInvest / totalAssets) * 100;
+            const rawDC = (profile.assetDefinedContributionJP / totalAssets) * 100;
+            const floored = [Math.floor(rawCash), Math.floor(rawInvest), Math.floor(rawDC)];
+            const remainders = [rawCash - floored[0], rawInvest - floored[1], rawDC - floored[2]];
+            let diff = 100 - floored.reduce((a, b) => a + b, 0);
+            const indices = [0, 1, 2].sort((a, b) => remainders[b] - remainders[a]);
+            for (const i of indices) {
+              if (diff <= 0) break;
+              floored[i]++;
+              diff--;
+            }
+            return (
+              <>
+                <div className="text-center"><div className="font-medium">{floored[0]}%</div><div className="text-muted-foreground">現預金</div></div>
+                <div className="text-center"><div className="font-medium">{floored[1]}%</div><div className="text-muted-foreground">投資</div></div>
+                <div className="text-center"><div className="font-medium">{floored[2]}%</div><div className="text-muted-foreground">DC年金</div></div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

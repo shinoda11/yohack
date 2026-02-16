@@ -99,7 +99,7 @@ const presetEvents: PresetEvent[] = [
   { id: 'job_change', label: '転職', description: '年収+150万円を想定', icon: <Briefcase className="h-4 w-4" />, type: 'income_increase', ageOffset: 2, amount: 150, duration: 1, isRecurring: false, category: 'career' },
   { id: 'overseas_assignment', label: '海外駐在', description: '年収+200万円（手当込み）x 3年', icon: <Globe className="h-4 w-4" />, type: 'income_increase', ageOffset: 3, amount: 200, duration: 3, isRecurring: true, category: 'career' },
   { id: 'side_business', label: '副業開始', description: '年間+50万円を想定', icon: <Sparkles className="h-4 w-4" />, type: 'income_increase', ageOffset: 1, amount: 50, duration: 10, isRecurring: true, category: 'career' },
-  { id: 'partial_retire', label: '部分リタイア', description: '労働時間を半分に', icon: <Plane className="h-4 w-4" />, type: 'retirement_partial', ageOffset: 15, amount: 0, duration: 1, isRecurring: false, category: 'career' },
+  // { id: 'partial_retire', label: '部分リタイア', description: '労働時間を半分に', icon: <Plane className="h-4 w-4" />, type: 'retirement_partial', ageOffset: 15, amount: 0, duration: 1, isRecurring: false, category: 'career' },
   // Lifestyle
   { id: 'world_trip', label: '世界一周', description: '長期旅行 200万円', icon: <Globe className="h-4 w-4" />, type: 'asset_purchase', ageOffset: 5, amount: 200, duration: 1, isRecurring: false, category: 'lifestyle' },
   { id: 'overseas_relocation', label: '海外移住', description: '移住費用+生活費増 年100万円 x 5年', icon: <Globe className="h-4 w-4" />, type: 'expense_increase', ageOffset: 10, amount: 100, duration: 5, isRecurring: true, category: 'lifestyle' },
@@ -110,7 +110,7 @@ const presetEvents: PresetEvent[] = [
 ];
 
 // 未対応イベント
-const unsupportedEventTypes: LifeEventType[] = ['retirement_partial'];
+// const unsupportedEventTypes: LifeEventType[] = ['retirement_partial'];
 
 export function TimelineContent() {
   const router = useRouter();
@@ -247,7 +247,7 @@ export function TimelineContent() {
     router.push('/v2');
   };
 
-  const isUnsupportedEvent = (type: LifeEventType) => unsupportedEventTypes.includes(type);
+  const isUnsupportedEvent = (_type: LifeEventType) => false;
 
   const familyPresets = presetEvents.filter((p) => p.category === 'family');
   const careerPresets = presetEvents.filter((p) => p.category === 'career');

@@ -98,7 +98,7 @@ export default function DashboardPage() {
   // --- Collapsible card state ---
   const [openCards, setOpenCards] = useState<Record<CardKey, boolean>>({
     basicInfo: true,
-    income: false,
+    income: true,
     expense: false,
     asset: false,
     investment: false,
