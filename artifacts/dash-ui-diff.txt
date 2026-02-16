@@ -1,4 +1,0 @@
-src/components/CockpitView.tsx
-src/components/LifeEventCareCostCard.tsx
-src/components/LifeEventChildCostCard.tsx
-src/components/LifeEventRelocationCard.tsx
