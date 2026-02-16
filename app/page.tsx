@@ -40,7 +40,7 @@ import { useValidation } from '@/hooks/useValidation';
 // Profile completeness
 import { ProfileCompleteness } from '@/components/dashboard/profile-completeness';
 
-type CardKey = 'basicInfo' | 'income' | 'expense' | 'asset' | 'investment';
+type CardKey = 'basicInfo' | 'income' | 'expense' | 'asset' | 'investment' | 'lifeEvents' | 'housing';
 
 export default function DashboardPage() {
   const {
@@ -118,6 +118,8 @@ export default function DashboardPage() {
     expense: false,
     asset: false,
     investment: false,
+    lifeEvents: false,
+    housing: false,
   });
 
   // Track which cards the user has manually toggled
@@ -130,6 +132,8 @@ export default function DashboardPage() {
     expense: profile.livingCostAnnual !== 300,
     asset: profile.assetCash !== 500 || profile.assetInvest !== 300,
     investment: profile.expectedReturn !== 5,
+    lifeEvents: false,
+    housing: false,
   }), [profile.currentAge, profile.targetRetireAge, profile.grossIncome, profile.livingCostAnnual, profile.assetCash, profile.assetInvest, profile.expectedReturn]);
 
   // Auto-close completed cards (only for non-manually-toggled cards)
@@ -159,6 +163,8 @@ export default function DashboardPage() {
     expense: useRef<HTMLDivElement>(null),
     asset: useRef<HTMLDivElement>(null),
     investment: useRef<HTMLDivElement>(null),
+    lifeEvents: useRef<HTMLDivElement>(null),
+    housing: useRef<HTMLDivElement>(null),
   };
 
   const handleOpenCard = useCallback((cardId: string) => {
@@ -338,10 +344,22 @@ export default function DashboardPage() {
               />
 
               {/* Life Events - サマリー + ライフプランへのリンク */}
-              <LifeEventsSummaryCard profile={profile} />
+              <div ref={cardRefs.lifeEvents}>
+                <LifeEventsSummaryCard
+                  profile={profile}
+                  open={openCards.lifeEvents}
+                  onOpenChange={(o) => handleCardToggle('lifeEvents', o)}
+                />
+              </div>
 
               {/* 住宅プラン - 賃貸 vs 複数購入プラン比較 */}
-              <HousingPlanCard profile={profile} />
+              <div ref={cardRefs.housing}>
+                <HousingPlanCard
+                  profile={profile}
+                  open={openCards.housing}
+                  onOpenChange={(o) => handleCardToggle('housing', o)}
+                />
+              </div>
             </div>
 
             {/* Right column: Result cards with tabs */}

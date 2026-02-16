@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { Home, Plus, Trash2, Sparkles } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
+import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { SliderInput } from '@/components/slider-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -88,9 +89,11 @@ function createDefaultPlan(index: number): HousingPlan {
 // --- コンポーネント ---
 interface HousingPlanCardProps {
   profile: Profile;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function HousingPlanCard({ profile }: HousingPlanCardProps) {
+export function HousingPlanCard({ profile, open, onOpenChange }: HousingPlanCardProps) {
   const [rentAnnual, setRentAnnual] = useState(profile.housingCostAnnual);
   const [plans, setPlans] = useState<HousingPlan[]>([createDefaultPlan(0)]);
   const [showProDialog, setShowProDialog] = useState(false);
@@ -296,12 +299,19 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
     return `60歳時点では${best.name}（${formatCurrency(best.price)}）が賃貸より${formatCurrency(Math.round(Math.abs(diff)))}有利です`;
   }, [summaries, bestPlanId]);
 
-  return (
-    <SectionCard
-      icon={<Home className="h-5 w-5" />}
-      title="住宅プラン"
-      description="賃貸継続と購入プランの資産比較"
-    >
+  const icon = <Home className="h-5 w-5" />;
+  const titleText = '住宅プラン';
+
+  const summaryNode = (() => {
+    const rentMonthly = Math.round(rentAnnual / 12);
+    const parts: string[] = [`賃貸継続 家賃${rentMonthly}万/月`];
+    for (const plan of plans) {
+      parts.push(`${plan.name} ${formatCurrency(plan.price)}`);
+    }
+    return <>{parts.join(' | ')}</>;
+  })();
+
+  const content = (
       <div className="space-y-6">
         {/* 年間家賃 */}
         <div>
@@ -568,29 +578,47 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
           実際の投資リターンは変動するため、目安としてご利用ください。
         </p>
       </div>
+  );
 
-      {/* Pro ゲートダイアログ */}
-      <Dialog open={showProDialog} onOpenChange={setShowProDialog}>
-        <DialogContent className="max-w-sm text-center">
-          <DialogHeader>
-            <div className="flex justify-center mb-2">
-              <Sparkles className="h-10 w-10 text-[#C8B89A]" />
-            </div>
-            <DialogTitle>複数プラン比較は Pro 機能です</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            最大3つの購入プランを同時に比較して、最適な住宅選択を見つけましょう。
-          </p>
-          <Link href="/pricing">
-            <Button className="w-full bg-[#C8B89A] text-[#1A1916] hover:bg-[#C8B89A]/90">
-              Pro を始める
-            </Button>
-          </Link>
-          <p className="text-xs text-muted-foreground">
-            月額 ¥2,980 から
-          </p>
-        </DialogContent>
-      </Dialog>
+  const proDialog = (
+    <Dialog open={showProDialog} onOpenChange={setShowProDialog}>
+      <DialogContent className="max-w-sm text-center">
+        <DialogHeader>
+          <div className="flex justify-center mb-2">
+            <Sparkles className="h-10 w-10 text-[#C8B89A]" />
+          </div>
+          <DialogTitle>複数プラン比較は Pro 機能です</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          最大3つの購入プランを同時に比較して、最適な住宅選択を見つけましょう。
+        </p>
+        <Link href="/pricing">
+          <Button className="w-full bg-[#C8B89A] text-[#1A1916] hover:bg-[#C8B89A]/90">
+            Pro を始める
+          </Button>
+        </Link>
+        <p className="text-xs text-muted-foreground">
+          月額 ¥2,980 から
+        </p>
+      </DialogContent>
+    </Dialog>
+  );
+
+  if (open !== undefined && onOpenChange) {
+    return (
+      <>
+        <CollapsibleCard icon={icon} title={titleText} summary={summaryNode} open={open} onOpenChange={onOpenChange}>
+          {content}
+        </CollapsibleCard>
+        {proDialog}
+      </>
+    );
+  }
+
+  return (
+    <SectionCard icon={icon} title={titleText} description="賃貸継続と購入プランの資産比較">
+      {content}
+      {proDialog}
     </SectionCard>
   );
 }
