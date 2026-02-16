@@ -29,6 +29,7 @@ import {
   ArrowRight,
   GitBranch,
   Globe,
+  Package,
 } from 'lucide-react';
 import {
   Dialog,
@@ -46,7 +47,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { LifeEvent, LifeEventType } from '@/lib/types';
+import type { LifeEvent, LifeEventType, Profile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 // 落ち着いた配色のアイコン設定
@@ -59,6 +60,7 @@ const eventTypeIcons: Record<string, React.ReactNode> = {
   child_birth: <Baby className="h-4 w-4" />,
   education: <GraduationCap className="h-4 w-4" />,
   retirement_partial: <Briefcase className="h-4 w-4" />,
+  rental_income: <Home className="h-4 w-4" />,
 };
 
 const eventTypeLabels: Record<string, string> = {
@@ -70,6 +72,7 @@ const eventTypeLabels: Record<string, string> = {
   child_birth: '出産',
   education: '教育費',
   retirement_partial: '部分退職',
+  rental_income: '賃貸収入',
 };
 
 // プリセットイベント
@@ -84,6 +87,7 @@ interface PresetEvent {
   duration: number;
   isRecurring: boolean;
   category: 'family' | 'career' | 'lifestyle';
+  defaultTarget?: 'self' | 'partner';
 }
 
 const presetEvents: PresetEvent[] = [
@@ -100,6 +104,9 @@ const presetEvents: PresetEvent[] = [
   { id: 'overseas_assignment', label: '海外駐在', description: '年収+200万円（手当込み）x 3年', icon: <Globe className="h-4 w-4" />, type: 'income_increase', ageOffset: 3, amount: 200, duration: 3, isRecurring: true, category: 'career' },
   { id: 'side_business', label: '副業開始', description: '年間+50万円を想定', icon: <Sparkles className="h-4 w-4" />, type: 'income_increase', ageOffset: 1, amount: 50, duration: 10, isRecurring: true, category: 'career' },
   // { id: 'partial_retire', label: '部分リタイア', description: '労働時間を半分に', icon: <Plane className="h-4 w-4" />, type: 'retirement_partial', ageOffset: 15, amount: 0, duration: 1, isRecurring: false, category: 'career' },
+  { id: 'partner_childcare_leave', label: 'パートナー育休', description: '育休取得による収入減（1年間）', icon: <Baby className="h-4 w-4" />, type: 'income_decrease', ageOffset: 3, amount: 0, duration: 1, isRecurring: true, category: 'career', defaultTarget: 'partner' },
+  { id: 'partner_part_time', label: 'パートナー時短勤務', description: '時短勤務による収入減（3年間）', icon: <Briefcase className="h-4 w-4" />, type: 'income_decrease', ageOffset: 3, amount: 0, duration: 3, isRecurring: true, category: 'career', defaultTarget: 'partner' },
+  { id: 'partner_career_change', label: 'パートナー転職', description: 'パートナーの転職による収入増', icon: <Briefcase className="h-4 w-4" />, type: 'income_increase', ageOffset: 2, amount: 100, duration: 1, isRecurring: false, category: 'career', defaultTarget: 'partner' },
   // Lifestyle
   { id: 'world_trip', label: '世界一周', description: '長期旅行 200万円', icon: <Globe className="h-4 w-4" />, type: 'asset_purchase', ageOffset: 5, amount: 200, duration: 1, isRecurring: false, category: 'lifestyle' },
   { id: 'overseas_relocation', label: '海外移住', description: '移住費用+生活費増 年100万円 x 5年', icon: <Globe className="h-4 w-4" />, type: 'expense_increase', ageOffset: 10, amount: 100, duration: 5, isRecurring: true, category: 'lifestyle' },
@@ -111,6 +118,70 @@ const presetEvents: PresetEvent[] = [
 
 // 未対応イベント
 // const unsupportedEventTypes: LifeEventType[] = ['retirement_partial'];
+
+// バンドルプリセット（複合イベントテンプレート）
+interface BundlePresetEvent {
+  name: string;
+  type: LifeEventType;
+  target?: 'self' | 'partner';
+  amountFn: (profile: Profile) => number;
+  duration: number;
+  isRecurring: boolean;
+  ageOffsetFromBundle: number;
+}
+
+interface BundlePreset {
+  id: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  category: 'family' | 'career' | 'lifestyle';
+  defaultAgeOffset: number;
+  events: BundlePresetEvent[];
+  coupleOnly?: boolean;
+}
+
+const bundlePresets: BundlePreset[] = [
+  {
+    id: 'overseas_with_home',
+    label: '海外駐在（持ち家あり）',
+    description: '駐在手当 + 住居費補助 + 自宅賃貸収入',
+    icon: <Globe className="h-4 w-4" />,
+    category: 'career',
+    defaultAgeOffset: 3,
+    events: [
+      { name: '駐在手当', type: 'income_increase', amountFn: () => 200, duration: 3, isRecurring: true, ageOffsetFromBundle: 0 },
+      { name: '住居費補助', type: 'expense_decrease', amountFn: (p) => p.housingCostAnnual, duration: 3, isRecurring: true, ageOffsetFromBundle: 0 },
+      { name: '自宅賃貸収入', type: 'rental_income', amountFn: (p) => Math.round(p.housingCostAnnual * 0.8), duration: 3, isRecurring: true, ageOffsetFromBundle: 0 },
+    ],
+  },
+  {
+    id: 'overseas_renter',
+    label: '海外駐在（賃貸）',
+    description: '駐在手当 + 住居費補助（現家賃解約）',
+    icon: <Globe className="h-4 w-4" />,
+    category: 'career',
+    defaultAgeOffset: 3,
+    events: [
+      { name: '駐在手当', type: 'income_increase', amountFn: () => 200, duration: 3, isRecurring: true, ageOffsetFromBundle: 0 },
+      { name: '住居費補助（現家賃解約）', type: 'expense_decrease', amountFn: (p) => p.housingCostAnnual, duration: 3, isRecurring: true, ageOffsetFromBundle: 0 },
+    ],
+  },
+  {
+    id: 'partner_childcare_package',
+    label: '育休→時短→フル復帰',
+    description: 'パートナー育休1年 + 時短2年 + 出産費用',
+    icon: <Baby className="h-4 w-4" />,
+    category: 'family',
+    defaultAgeOffset: 3,
+    coupleOnly: true,
+    events: [
+      { name: '育休', type: 'income_decrease', target: 'partner', amountFn: (p) => Math.round(p.partnerGrossIncome * 0.3), duration: 1, isRecurring: true, ageOffsetFromBundle: 0 },
+      { name: '時短勤務', type: 'income_decrease', target: 'partner', amountFn: (p) => Math.round(p.partnerGrossIncome * 0.25), duration: 2, isRecurring: true, ageOffsetFromBundle: 1 },
+      { name: '出産費用', type: 'expense_increase', amountFn: () => 100, duration: 1, isRecurring: true, ageOffsetFromBundle: 0 },
+    ],
+  },
+];
 
 export function TimelineContent() {
   const router = useRouter();
@@ -134,11 +205,21 @@ export function TimelineContent() {
 
   const [justSavedScenarioId, setJustSavedScenarioId] = useState<string | null>(null);
 
+  // Target selector state (self/partner)
+  const [customTargetInput, setCustomTargetInput] = useState<'self' | 'partner'>('self');
+
   // Edit dialog state
   const [editingEvent, setEditingEvent] = useState<LifeEvent | null>(null);
   const [editAgeInput, setEditAgeInput] = useState('');
   const [editAmountInput, setEditAmountInput] = useState('');
   const [editDurationInput, setEditDurationInput] = useState('');
+  const [editTargetInput, setEditTargetInput] = useState<'self' | 'partner'>('self');
+
+  // Bundle dialog state
+  const [isBundleDialogOpen, setIsBundleDialogOpen] = useState(false);
+  const [selectedBundle, setSelectedBundle] = useState<BundlePreset | null>(null);
+  const [bundleAgeInput, setBundleAgeInput] = useState<string>(String(profile.currentAge + 3));
+  const bundleAge = Number.parseInt(bundleAgeInput, 10) || profile.currentAge;
 
   const editAge = Number.parseInt(editAgeInput, 10) || profile.currentAge;
   const editAmount = Number.parseInt(editAmountInput, 10) || 0;
@@ -149,6 +230,7 @@ export function TimelineContent() {
     setEditAgeInput(String(event.age));
     setEditAmountInput(String(event.amount));
     setEditDurationInput(String(event.duration || 1));
+    setEditTargetInput(event.target || 'self');
   };
 
   const handleSaveEdit = () => {
@@ -158,6 +240,7 @@ export function TimelineContent() {
       age: editAge,
       amount: editAmount,
       duration: editingEvent.isRecurring ? editDuration : 1,
+      target: editTargetInput !== 'self' ? editTargetInput : undefined,
     };
     updateProfile({
       lifeEvents: lifeEvents.map((e) => (e.id === updated.id ? updated : e)),
@@ -250,16 +333,59 @@ export function TimelineContent() {
   const isUnsupportedEvent = (_type: LifeEventType) => false;
 
   const familyPresets = presetEvents.filter((p) => p.category === 'family');
-  const careerPresets = presetEvents.filter((p) => p.category === 'career');
+  const careerPresets = presetEvents.filter((p) => p.category === 'career' && (!p.defaultTarget || p.defaultTarget === 'self' || profile.mode === 'couple'));
   const lifestylePresets = presetEvents.filter((p) => p.category === 'lifestyle');
 
   const addPresetEvent = (preset: PresetEvent) => {
     setSelectedPreset(preset);
     setCustomAgeInput(String(profile.currentAge + preset.ageOffset));
-    setCustomAmountInput(String(preset.amount));
     setCustomDurationInput(String(preset.duration));
+
+    // Set target
+    const target = preset.defaultTarget || 'self';
+    setCustomTargetInput(target);
+
+    // Compute amount for partner presets
+    let amount = preset.amount;
+    if (preset.id === 'partner_childcare_leave') {
+      amount = Math.round(profile.partnerGrossIncome * 0.3);
+    } else if (preset.id === 'partner_part_time') {
+      amount = Math.round(profile.partnerGrossIncome * 0.5);
+    }
+    setCustomAmountInput(String(amount));
+
     setIsPresetDialogOpen(true);
   };
+
+  const addBundlePreset = (bundle: BundlePreset) => {
+    setSelectedBundle(bundle);
+    setBundleAgeInput(String(profile.currentAge + bundle.defaultAgeOffset));
+    setIsBundleDialogOpen(true);
+  };
+
+  const confirmBundlePreset = () => {
+    if (!selectedBundle) return;
+    const bId = `bundle-${Date.now()}`;
+    const newEvents: LifeEvent[] = selectedBundle.events.map((evt, i) => ({
+      id: `${bId}-${i}`,
+      type: evt.type,
+      name: evt.name,
+      age: bundleAge + evt.ageOffsetFromBundle,
+      amount: evt.amountFn(profile),
+      duration: evt.duration,
+      isRecurring: evt.isRecurring,
+      target: evt.target !== 'self' ? evt.target : undefined,
+      bundleId: bId,
+    }));
+    updateProfile({ lifeEvents: [...lifeEvents, ...newEvents] });
+    setIsSynced(false);
+    setIsBundleDialogOpen(false);
+    setSelectedBundle(null);
+  };
+
+  const filteredBundlePresets = bundlePresets.filter(
+    (b) => !b.coupleOnly || profile.mode === 'couple'
+  );
 
   const confirmPresetEvent = () => {
     if (!selectedPreset) return;
@@ -272,6 +398,7 @@ export function TimelineContent() {
       amount: customAmount,
       duration: selectedPreset.isRecurring ? customDuration : 1,
       isRecurring: selectedPreset.isRecurring,
+      target: customTargetInput !== 'self' ? customTargetInput : undefined,
     };
 
     updateProfile({
@@ -368,6 +495,40 @@ export function TimelineContent() {
         description="ボタンをクリックして年齢と金額を調整するだけで追加できます"
       >
         <div className="space-y-5">
+          {filteredBundlePresets.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <Package className="h-3 w-3" />
+                パッケージ
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {filteredBundlePresets.map((bundle) => (
+                  <TooltipProvider key={bundle.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-auto py-2 px-3 bg-transparent border-dashed"
+                          onClick={() => addBundlePreset(bundle)}
+                        >
+                          {bundle.icon}
+                          <span className="ml-1.5">{bundle.label}</span>
+                          <Badge variant="outline" className="ml-1.5 text-[10px] px-1 py-0">
+                            {bundle.events.length}件
+                          </Badge>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{bundle.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
               <Baby className="h-3 w-3" />
@@ -497,6 +658,7 @@ export function TimelineContent() {
                   event.type === 'child_birth' ||
                   event.type === 'education' ||
                   event.type === 'asset_purchase';
+                const isIncome = event.type === 'income_increase' || event.type === 'rental_income' || event.type === 'expense_decrease';
 
                 return (
                   <div
@@ -517,14 +679,19 @@ export function TimelineContent() {
                                 {event.age}歳
                                 {event.duration && event.duration > 1 && ` - ${event.age + event.duration - 1}歳`}
                               </Badge>
-                              <span className="text-sm font-medium">{event.name}</span>
+                              <span className="text-sm font-medium">
+                                {event.name}
+                                {event.target === 'partner' && (
+                                  <span className="text-xs text-muted-foreground ml-1">(パートナー)</span>
+                                )}
+                              </span>
                             </div>
                             {event.amount > 0 && (
                               <p className={cn(
                                 'mt-1 text-sm font-medium',
                                 isExpense ? 'text-muted-foreground' : 'text-foreground'
                               )}>
-                                {isExpense ? '-' : '+'}{event.amount.toLocaleString()}万円/年
+                                {isExpense ? '-' : isIncome ? '+' : '-'}{event.amount.toLocaleString()}万円/年
                                 {event.duration && event.duration > 1 && (
                                   <span className="text-muted-foreground font-normal ml-1">
                                     (総額 {(event.amount * event.duration).toLocaleString()}万円)
@@ -810,6 +977,34 @@ export function TimelineContent() {
                 </div>
               )}
 
+              {profile.mode === 'couple' && (selectedPreset.type === 'income_increase' || selectedPreset.type === 'income_decrease') && (
+                <div className="space-y-2">
+                  <Label>対象者</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="preset-target"
+                        checked={customTargetInput === 'self'}
+                        onChange={() => setCustomTargetInput('self')}
+                        className="accent-[#8A7A62]"
+                      />
+                      <span className="text-sm">自分</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="preset-target"
+                        checked={customTargetInput === 'partner'}
+                        onChange={() => setCustomTargetInput('partner')}
+                        className="accent-[#8A7A62]"
+                      />
+                      <span className="text-sm">パートナー</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-sm">
                   <span className="font-medium">{customAge}歳</span>
@@ -819,11 +1014,11 @@ export function TimelineContent() {
                   {selectedPreset.isRecurring ? 'の間、' : 'に、'}
                   <span className={cn(
                     'font-medium',
-                    selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease'
+                    selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease' || selectedPreset.type === 'rental_income'
                       ? 'text-[#8A7A62] dark:text-[#C8B89A]'
                       : 'text-muted-foreground'
                   )}>
-                    {selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease'
+                    {selectedPreset.type === 'income_increase' || selectedPreset.type === 'expense_decrease' || selectedPreset.type === 'rental_income'
                       ? `+${customAmount.toLocaleString()}万円`
                       : `-${customAmount.toLocaleString()}万円`}
                     {selectedPreset.isRecurring ? '/年' : '（一括）'}
@@ -947,6 +1142,34 @@ export function TimelineContent() {
                   </p>
                 )}
               </div>
+
+              {profile.mode === 'couple' && (editingEvent.type === 'income_increase' || editingEvent.type === 'income_decrease') && (
+                <div className="space-y-2">
+                  <Label>対象者</Label>
+                  <div className="flex items-center gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="edit-target"
+                        checked={editTargetInput === 'self'}
+                        onChange={() => setEditTargetInput('self')}
+                        className="accent-[#8A7A62]"
+                      />
+                      <span className="text-sm">自分</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="edit-target"
+                        checked={editTargetInput === 'partner'}
+                        onChange={() => setEditTargetInput('partner')}
+                        className="accent-[#8A7A62]"
+                      />
+                      <span className="text-sm">パートナー</span>
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="flex justify-between sm:justify-between">
@@ -966,6 +1189,102 @@ export function TimelineContent() {
                   保存
                 </Button>
               </div>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+
+      {/* Bundle Preset Dialog */}
+      <Dialog open={isBundleDialogOpen} onOpenChange={setIsBundleDialogOpen}>
+        {selectedBundle && (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {selectedBundle.icon}
+                {selectedBundle.label}
+              </DialogTitle>
+              <DialogDescription>
+                {selectedBundle.description}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="bundle-age">開始年齢</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="bundle-age"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={bundleAgeInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || /^\d*$/.test(val)) {
+                        setBundleAgeInput(val);
+                      }
+                    }}
+                    onBlur={() => {
+                      const num = Number.parseInt(bundleAgeInput, 10);
+                      if (Number.isNaN(num) || num < profile.currentAge) {
+                        setBundleAgeInput(String(profile.currentAge));
+                      } else if (num > 100) {
+                        setBundleAgeInput('100');
+                      } else {
+                        setBundleAgeInput(String(num));
+                      }
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-muted-foreground">歳</span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    (あと{Math.max(0, bundleAge - profile.currentAge)}年後)
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>登録されるイベント ({selectedBundle.events.length}件)</Label>
+                <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                  {selectedBundle.events.map((evt, i) => {
+                    const amount = evt.amountFn(profile);
+                    const startAge = bundleAge + evt.ageOffsetFromBundle;
+                    const isExpenseType = evt.type === 'expense_increase' || evt.type === 'expense_decrease';
+                    const isIncomeType = evt.type === 'income_increase' || evt.type === 'rental_income';
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        <span className="flex h-6 w-6 items-center justify-center rounded bg-background text-muted-foreground">
+                          {eventTypeIcons[evt.type]}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <span className="font-medium">{evt.name}</span>
+                          {evt.target === 'partner' && (
+                            <span className="text-xs text-muted-foreground ml-1">(パートナー)</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground tabular-nums flex-shrink-0">
+                          {startAge}歳{evt.duration > 1 && `〜${startAge + evt.duration - 1}歳`}
+                        </span>
+                        <span className={cn(
+                          'text-xs font-medium tabular-nums flex-shrink-0',
+                          (isIncomeType || evt.type === 'expense_decrease') ? 'text-[#8A7A62] dark:text-[#C8B89A]' : 'text-muted-foreground'
+                        )}>
+                          {(isIncomeType || evt.type === 'expense_decrease') ? '+' : '-'}{amount.toLocaleString()}万円/年
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsBundleDialogOpen(false)}>
+                キャンセル
+              </Button>
+              <Button onClick={confirmBundlePreset}>
+                一括追加する
+              </Button>
             </DialogFooter>
           </DialogContent>
         )}

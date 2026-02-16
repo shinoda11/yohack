@@ -15,6 +15,7 @@ const EVENT_ICONS: Record<LifeEventType, string> = {
   child_birth: '👶',
   education: '🎓',
   retirement_partial: '🌴',
+  rental_income: '🏠',
 };
 
 function formatAmount(type: LifeEventType, amount: number): string {
@@ -23,7 +24,8 @@ function formatAmount(type: LifeEventType, amount: number): string {
     type === 'asset_purchase' ||
     type === 'child_birth' ||
     type === 'education';
-  const sign = isPositiveExpense ? '+' : type === 'income_increase' ? '+' : '-';
+  const isIncome = type === 'income_increase' || type === 'rental_income';
+  const sign = isPositiveExpense ? '+' : isIncome ? '+' : '-';
   return `${sign}${amount}万円/年`;
 }
 
@@ -39,7 +41,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
 
   // 年間影響額の合計（支出増=プラス、収入増=マイナスで見る）
   const annualImpact = events.reduce((sum, e) => {
-    if (e.type === 'income_increase') return sum + e.amount;
+    if (e.type === 'income_increase' || e.type === 'rental_income') return sum + e.amount;
     if (e.type === 'income_decrease') return sum - e.amount;
     if (e.type === 'expense_decrease') return sum - e.amount;
     return sum + e.amount;
@@ -75,7 +77,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
                 className="flex items-center gap-2 text-sm text-muted-foreground"
               >
                 <span>{EVENT_ICONS[e.type] ?? '📋'}</span>
-                <span className="truncate">{e.name}</span>
+                <span className="truncate">{e.name}{e.target === 'partner' ? ' (パートナー)' : ''}</span>
                 <span className="tabular-nums flex-shrink-0">{e.age}歳</span>
                 <span className="tabular-nums flex-shrink-0 ml-auto">
                   {formatAmount(e.type, e.amount)}

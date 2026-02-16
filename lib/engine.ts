@@ -239,6 +239,7 @@ function calculatePersonPension(grossIncome: number, retireAge: number): number 
  * 世帯の年間年金額を計算する（万円/年）。
  * 本人 + 配偶者（coupleモードの場合）をそれぞれ個別計算。
  * 加入期間は退職年齢（targetRetireAge）に基づく。
+ * TODO: パートナーの収入イベントによる年金額への影響は未対応（プロファイル初期年収ベース）
  */
 export function calculateAnnualPension(profile: Profile): number {
   let total = calculatePersonPension(profile.grossIncome, profile.targetRetireAge);
@@ -260,10 +261,12 @@ function randomNormal(mean: number, stdDev: number): number {
   return mean + z * stdDev;
 }
 
-// Calculate income adjustment from life events at a given age
-function calculateIncomeAdjustment(profile: Profile, age: number): number {
+// Calculate income adjustment from life events at a given age, filtered by target
+function calculateIncomeAdjustment(profile: Profile, age: number, target: 'self' | 'partner'): number {
   let adjustment = 0;
   for (const event of profile.lifeEvents) {
+    const eventTarget = event.target || 'self';
+    if (eventTarget !== target) continue;
     if (age >= event.age) {
       const endAge = event.duration ? event.age + event.duration : MAX_AGE;
       if (age < endAge) {
@@ -278,34 +281,53 @@ function calculateIncomeAdjustment(profile: Profile, age: number): number {
   return adjustment;
 }
 
+// Calculate rental income from life events at a given age (applies pre- and post-retirement)
+function calculateRentalIncome(profile: Profile, age: number): number {
+  let rental = 0;
+  for (const event of profile.lifeEvents) {
+    if (event.type !== 'rental_income') continue;
+    if (age >= event.age) {
+      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
+      if (age < endAge) {
+        rental += event.amount;
+      }
+    }
+  }
+  return rental;
+}
+
 // Calculate net income after tax (per-person tax, pension, income events)
 function calculateNetIncome(profile: Profile, age: number): number {
   const isRetired = age >= profile.targetRetireAge;
+  const rentalIncome = calculateRentalIncome(profile, age);
 
   if (isRetired) {
-    // Post-retirement: pension (from age 65) + passive income
+    // Post-retirement: pension (from age 65) + passive income + rental income
     const pensionAge = 65;
     const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
-    return pension + profile.retirePassiveIncome;
+    return pension + profile.retirePassiveIncome + rentalIncome;
   }
 
   // Pre-retirement: gross income + income events → per-person tax
-  const incomeAdj = calculateIncomeAdjustment(profile, age);
+  const selfAdj = calculateIncomeAdjustment(profile, age, 'self');
 
-  // Apply income events to main earner's gross (career events are personal)
-  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + incomeAdj);
+  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + selfAdj);
   const mainRate = profile.useAutoTaxRate
     ? calculateEffectiveTaxRate(mainGross)
     : profile.effectiveTaxRate;
   let netIncome = mainGross * (1 - mainRate / 100);
 
   if (profile.mode === 'couple') {
-    const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
+    const partnerAdj = calculateIncomeAdjustment(profile, age, 'partner');
+    const partnerGross = Math.max(0, profile.partnerGrossIncome + profile.partnerRsuAnnual + partnerAdj);
     const partnerRate = profile.useAutoTaxRate
       ? calculateEffectiveTaxRate(partnerGross)
       : profile.effectiveTaxRate;
     netIncome += partnerGross * (1 - partnerRate / 100);
   }
+
+  // Add rental income (separate from employment income, applies as net)
+  netIncome += rentalIncome;
 
   return netIncome;
 }

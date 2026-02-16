@@ -324,6 +324,201 @@ describe('E2E ペルソナ検証', () => {
   })
 
   // ----------------------------------------------------------
+  // パートナー収入イベント
+  // ----------------------------------------------------------
+  describe('パートナー収入イベント', () => {
+    it('DINKs + partner income_decrease でスコアが下がる', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 50,
+        mode: 'couple',
+        grossIncome: 1000,
+        partnerGrossIncome: 600,
+        livingCostAnnual: 360,
+        housingCostAnnual: 180,
+        assetCash: 1000,
+        assetInvest: 1500,
+        assetDefinedContributionJP: 500,
+        dcContributionAnnual: 66,
+        lifeEvents: [],
+      })
+
+      const withPartnerDecrease = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'partner-leave',
+            type: 'income_decrease',
+            name: 'パートナー育休',
+            age: 36,
+            amount: 300,
+            duration: 3,
+            isRecurring: true,
+            target: 'partner',
+          },
+        ],
+      })
+
+      const [rBase, rWithEvent] = await Promise.all([
+        runAverage(base),
+        runAverage(withPartnerDecrease),
+      ])
+
+      expect(rBase.score).toBeGreaterThan(rWithEvent.score)
+    })
+
+    it('solo モードでは partner イベントが無視される', async () => {
+      const base = profileWith({
+        currentAge: 28,
+        targetRetireAge: 55,
+        mode: 'solo',
+        grossIncome: 500,
+        livingCostAnnual: 240,
+        housingCostAnnual: 96,
+        assetCash: 100,
+        assetInvest: 100,
+        lifeEvents: [],
+      })
+
+      const withPartnerEvent = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'partner-decrease',
+            type: 'income_decrease',
+            name: 'パートナー転職',
+            age: 30,
+            amount: 200,
+            duration: 5,
+            isRecurring: true,
+            target: 'partner',
+          },
+        ],
+      })
+
+      const [rBase, rWithEvent] = await Promise.all([
+        runAverage(base, 5),
+        runAverage(withPartnerEvent, 5),
+      ])
+
+      // solo モードでは partner ブロックが実行されないためスコアが同じ
+      expect(Math.abs(rBase.score - rWithEvent.score)).toBeLessThanOrEqual(5)
+    })
+  })
+
+  // ----------------------------------------------------------
+  // 賃貸収入イベント
+  // ----------------------------------------------------------
+  describe('賃貸収入イベント', () => {
+    it('rental_income が退職後も収入に加算される', async () => {
+      // 退職年齢を低めに設定し、rental_income が退職後も効くことを確認
+      const base = profileWith({
+        currentAge: 45,
+        targetRetireAge: 50,
+        mode: 'solo',
+        grossIncome: 800,
+        livingCostAnnual: 300,
+        housingCostAnnual: 120,
+        assetCash: 2000,
+        assetInvest: 3000,
+        assetDefinedContributionJP: 500,
+        lifeEvents: [],
+      })
+
+      const withRental = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'rental-1',
+            type: 'rental_income' as const,
+            name: '自宅賃貸収入',
+            age: 45,
+            amount: 120,
+            duration: 30,
+            isRecurring: true,
+          },
+        ],
+      })
+
+      const [rBase, rWithRental] = await Promise.all([
+        runAverage(base),
+        runAverage(withRental),
+      ])
+
+      // rental_income ありのほうがスコアが高い（退職後も収入があるため）
+      expect(rWithRental.score).toBeGreaterThan(rBase.score)
+      expect(rWithRental.survivalRate).toBeGreaterThan(rBase.survivalRate)
+    })
+
+    it('rental_income + income_decrease の複合ケースが正しく計算される', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 50,
+        mode: 'couple',
+        grossIncome: 1000,
+        partnerGrossIncome: 600,
+        livingCostAnnual: 360,
+        housingCostAnnual: 180,
+        assetCash: 1000,
+        assetInvest: 1500,
+        assetDefinedContributionJP: 500,
+        lifeEvents: [],
+      })
+
+      // rental_income + partner income_decrease: 賃貸収入でパートナー減収を一部相殺
+      const withComplex = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'rental-2',
+            type: 'rental_income' as const,
+            name: '賃貸収入',
+            age: 36,
+            amount: 100,
+            duration: 20,
+            isRecurring: true,
+          },
+          {
+            id: 'partner-decrease-2',
+            type: 'income_decrease',
+            name: 'パートナー育休',
+            age: 36,
+            amount: 300,
+            duration: 2,
+            isRecurring: true,
+            target: 'partner' as const,
+          },
+        ],
+      })
+
+      // 純減なのでスコアは下がるが、rental_income があるので完全な300万減よりはマシ
+      const onlyDecrease = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'partner-decrease-3',
+            type: 'income_decrease',
+            name: 'パートナー育休',
+            age: 36,
+            amount: 300,
+            duration: 2,
+            isRecurring: true,
+            target: 'partner' as const,
+          },
+        ],
+      })
+
+      const [rComplex, rOnlyDecrease] = await Promise.all([
+        runAverage(withComplex),
+        runAverage(onlyDecrease),
+      ])
+
+      // rental_income で一部相殺されるため、複合ケースのスコアが高い
+      expect(rComplex.score).toBeGreaterThan(rOnlyDecrease.score)
+    })
+  })
+
+  // ----------------------------------------------------------
   // サブスコア相対比較
   // ----------------------------------------------------------
   describe('ペルソナ間の相対比較', () => {

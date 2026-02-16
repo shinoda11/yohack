@@ -10,15 +10,16 @@ export type HomeStatus = 'renter' | 'owner' | 'planning' | 'relocating';
 export type ScoreLevel = 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED';
 
 // Life event types
-export type LifeEventType = 
-  | 'income_increase' 
-  | 'income_decrease' 
-  | 'expense_increase' 
+export type LifeEventType =
+  | 'income_increase'
+  | 'income_decrease'
+  | 'expense_increase'
   | 'expense_decrease'
   | 'asset_purchase'
   | 'child_birth'
   | 'education'
-  | 'retirement_partial';
+  | 'retirement_partial'
+  | 'rental_income';
 
 // Life event definition
 export interface LifeEvent {
@@ -29,6 +30,8 @@ export interface LifeEvent {
   amount: number; // in 万円
   duration?: number; // years
   isRecurring: boolean;
+  target?: 'self' | 'partner'; // undefined = 'self'（後方互換）
+  bundleId?: string; // バンドルプリセットで一括登録されたイベントの紐づけ用
 }
 
 // User profile / input data
