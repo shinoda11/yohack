@@ -1,6 +1,6 @@
 // Housing Simulation - Rent vs Buy Comparison with CRN (Common Random Numbers)
 import type { Profile, AssetPoint, ExitScoreDetail, SimulationPath, KeyMetrics } from './types';
-import { calculateEffectiveTaxRate } from './engine';
+import { calculateEffectiveTaxRate, calculateAnnualPension } from './engine';
 import { getScoreLevel } from './types';
 
 export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW' | 'RELOCATE';
@@ -93,17 +93,37 @@ const MAX_AGE = 100;
 const SIMULATION_RUNS = 500;
 const BASE_SEED = 42;
 
-// Calculate net income after tax (per-person tax calculation)
+// Calculate income adjustment from life events
+function calculateIncomeAdjustment(profile: Profile, age: number): number {
+  let adjustment = 0;
+  for (const event of profile.lifeEvents) {
+    if (age >= event.age) {
+      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
+      if (age < endAge) {
+        if (event.type === 'income_increase') {
+          adjustment += event.amount;
+        } else if (event.type === 'income_decrease') {
+          adjustment -= event.amount;
+        }
+      }
+    }
+  }
+  return adjustment;
+}
+
+// Calculate net income after tax (per-person tax, pension, income events)
 function calculateNetIncome(profile: Profile, age: number): number {
   const isRetired = age >= profile.targetRetireAge;
 
   if (isRetired) {
     const pensionAge = 65;
-    const basePension = age >= pensionAge ? 200 : 0;
-    return basePension + profile.retirePassiveIncome;
+    const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
+    return pension + profile.retirePassiveIncome;
   }
 
-  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+  const incomeAdj = calculateIncomeAdjustment(profile, age);
+
+  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + incomeAdj);
   const mainRate = profile.useAutoTaxRate
     ? calculateEffectiveTaxRate(mainGross)
     : profile.effectiveTaxRate;

@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/lib/types';
 import type { Profile } from '@/lib/types';
-import { calculateEffectiveTaxRate } from '@/lib/engine';
+import { calculateEffectiveTaxRate, calculateAnnualPension } from '@/lib/engine';
 import { computeMonthlyPaymentManYen } from '@/lib/housing-sim';
 import { isPro } from '@/lib/plan';
 import {
@@ -126,12 +126,27 @@ export function HousingPlanCard({ profile }: HousingPlanCardProps) {
     const initialAssets =
       profile.assetCash + profile.assetInvest + profile.assetDefinedContributionJP;
 
+    function incomeAdjustment(age: number): number {
+      let adj = 0;
+      for (const event of profile.lifeEvents) {
+        if (age >= event.age) {
+          const endAge = event.duration ? event.age + event.duration : maxAge + 1;
+          if (age < endAge) {
+            if (event.type === 'income_increase') adj += event.amount;
+            else if (event.type === 'income_decrease') adj -= event.amount;
+          }
+        }
+      }
+      return adj;
+    }
+
     function netIncome(age: number): number {
       if (age >= profile.targetRetireAge) {
-        const pension = age >= 65 ? 200 : 0;
+        const pension = age >= 65 ? calculateAnnualPension(profile as Profile) : 0;
         return pension + profile.retirePassiveIncome;
       }
-      const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+      const adj = incomeAdjustment(age);
+      const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + adj);
       const mainRate = profile.useAutoTaxRate
         ? calculateEffectiveTaxRate(mainGross)
         : profile.effectiveTaxRate;

@@ -203,6 +203,44 @@ export function getEstimatedTaxRates(profile: Profile): { main: number; partner:
 }
 
 // ============================================================
+// Pension Calculation
+// ============================================================
+
+/**
+ * 個人の年金額を年収から概算する（万円/年）。
+ * 基礎年金（78万/年）+ 厚生年金（報酬比例部分）。
+ * キャリア平均年収 ≈ 現在年収 × 0.75（若年期の低収入を考慮）。
+ */
+function calculatePersonPension(grossIncome: number): number {
+  if (grossIncome <= 0) return 0;
+
+  // 基礎年金: 78万/年（満額、40年加入想定）
+  const basicPension = 78;
+
+  // 厚生年金 報酬比例部分:
+  // 平均標準報酬額 = 現在年収 × 0.75（キャリア平均）
+  // 標準報酬月額上限 = 65万（年収780万 ÷ 12）
+  // 乗率 5.481/1000 × 480ヶ月（40年加入）
+  const careerAvgAnnual = grossIncome * 0.75;
+  const avgMonthly = Math.min(careerAvgAnnual / 12, 65);
+  const proportional = avgMonthly * 5.481 / 1000 * 480;
+
+  return Math.round(basicPension + proportional);
+}
+
+/**
+ * 世帯の年間年金額を計算する（万円/年）。
+ * 本人 + 配偶者（coupleモードの場合）をそれぞれ個別計算。
+ */
+export function calculateAnnualPension(profile: Profile): number {
+  let total = calculatePersonPension(profile.grossIncome);
+  if (profile.mode === 'couple') {
+    total += calculatePersonPension(profile.partnerGrossIncome);
+  }
+  return total;
+}
+
+// ============================================================
 // Simulation Helpers
 // ============================================================
 
@@ -214,19 +252,40 @@ function randomNormal(mean: number, stdDev: number): number {
   return mean + z * stdDev;
 }
 
-// Calculate net income after tax (per-person tax calculation for couples)
+// Calculate income adjustment from life events at a given age
+function calculateIncomeAdjustment(profile: Profile, age: number): number {
+  let adjustment = 0;
+  for (const event of profile.lifeEvents) {
+    if (age >= event.age) {
+      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
+      if (age < endAge) {
+        if (event.type === 'income_increase') {
+          adjustment += event.amount;
+        } else if (event.type === 'income_decrease') {
+          adjustment -= event.amount;
+        }
+      }
+    }
+  }
+  return adjustment;
+}
+
+// Calculate net income after tax (per-person tax, pension, income events)
 function calculateNetIncome(profile: Profile, age: number): number {
   const isRetired = age >= profile.targetRetireAge;
 
   if (isRetired) {
-    // Post-retirement: pension + passive income
+    // Post-retirement: pension (from age 65) + passive income
     const pensionAge = 65;
-    const basePension = age >= pensionAge ? 200 : 0; // 基礎年金 approx
-    return basePension + profile.retirePassiveIncome;
+    const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
+    return pension + profile.retirePassiveIncome;
   }
 
-  // Per-person tax calculation
-  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
+  // Pre-retirement: gross income + income events → per-person tax
+  const incomeAdj = calculateIncomeAdjustment(profile, age);
+
+  // Apply income events to main earner's gross (career events are personal)
+  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + incomeAdj);
   const mainRate = profile.useAutoTaxRate
     ? calculateEffectiveTaxRate(mainGross)
     : profile.effectiveTaxRate;
@@ -386,7 +445,7 @@ function calculateCashFlow(profile: Profile): CashFlowBreakdown {
 
   // Simplified cash flow at retirement
   const income = profile.retirePassiveIncome;
-  const pension = retireAge >= pensionAge ? 200 : 0;
+  const pension = retireAge >= pensionAge ? calculateAnnualPension(profile) : 0;
   const dividends = (profile.assetInvest * 0.03); // Assume 3% dividend yield
   const expenses = calculateExpenses(profile, retireAge, inflationFactor);
   
