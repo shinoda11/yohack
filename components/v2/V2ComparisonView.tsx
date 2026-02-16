@@ -135,6 +135,63 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     );
   }
 
+  // --- Pre-compute raw values for comparison highlighting ---
+  const currentRaw = {
+    fireAge: (() => {
+      if (!simResult) return null;
+      const age = simResult.metrics.fireAge;
+      return (age == null || age > 100) ? null : age;
+    })(),
+    assets60: (() => {
+      if (!simResult?.paths.yearlyData || profile.currentAge > 60) return null;
+      const idx = Math.min(60 - profile.currentAge, simResult.paths.yearlyData.length - 1);
+      const assets = simResult.paths.yearlyData[idx]?.assets;
+      return (assets == null || Number.isNaN(assets)) ? null : assets;
+    })(),
+    monthlyCF: (() => {
+      const netCF = simResult?.cashFlow?.netCashFlow;
+      if (netCF == null || Number.isNaN(netCF)) return null;
+      return Math.round(netCF / 12);
+    })(),
+    drawdownAge: (() => {
+      if (!simResult?.paths.yearlyData) return null;
+      const ddIdx = simResult.paths.yearlyData.findIndex((y, i) =>
+        i > 0 && y.assets < simResult.paths.yearlyData[i - 1].assets
+      );
+      return ddIdx > 0 ? profile.currentAge + ddIdx : null;
+    })(),
+  };
+
+  const scenarioRawMap = new Map(scenarios.slice(0, 2).map((scenario) => [scenario.id, {
+    fireAge: (() => {
+      if (!scenario.result) return null;
+      const age = scenario.result.metrics.fireAge;
+      return (age == null || age > 100) ? null : age;
+    })(),
+    assets60: (() => {
+      const data = scenario.result?.paths.yearlyData;
+      if (!data || scenario.profile.currentAge > 60) return null;
+      const idx = Math.min(60 - scenario.profile.currentAge, data.length - 1);
+      const assets = data[idx]?.assets;
+      return (assets == null || Number.isNaN(assets)) ? null : assets;
+    })(),
+    monthlyCF: (() => {
+      const netCF = scenario.result?.cashFlow?.netCashFlow;
+      if (netCF == null || Number.isNaN(netCF)) return null;
+      return Math.round(netCF / 12);
+    })(),
+    drawdownAge: (() => {
+      const data = scenario.result?.paths.yearlyData;
+      if (!data) return null;
+      const ddIdx = data.findIndex((y, i) => i > 0 && y.assets < data[i - 1].assets);
+      return ddIdx > 0 ? scenario.profile.currentAge + ddIdx : null;
+    })(),
+  }]));
+
+  type MetricKey = 'fireAge' | 'assets60' | 'monthlyCF' | 'drawdownAge';
+  const rowHasDiff = (metric: MetricKey) =>
+    scenarios.slice(0, 2).some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
+
   // --- Comparison table (1+ scenarios) ---
   return (
     <Card>
@@ -185,7 +242,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             </thead>
             <tbody>
               {/* 安心ライン到達年齢 */}
-              <tr className="border-b hover:bg-muted/30">
+              <tr className={cn("border-b hover:bg-muted/30", rowHasDiff('fireAge') && "bg-[rgba(200,184,154,0.08)]")}>
                 <td className="py-3 px-2 font-medium">安心ライン到達年齢</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
@@ -195,23 +252,33 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${age}歳`;
                   })()}
                 </td>
-                {scenarios.slice(0, 2).map((scenario) => (
-                  <td key={scenario.id} className={cn(
-                    "text-center py-3 px-2 tabular-nums font-semibold",
-                    selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
-                  )}>
-                    {(() => {
-                      if (!scenario.result) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
-                      const age = scenario.result.metrics.fireAge;
-                      if (age == null || age > 100) return <span className="text-muted-foreground text-xs">未達</span>;
-                      return `${age}歳`;
-                    })()}
-                  </td>
-                ))}
+                {scenarios.slice(0, 2).map((scenario) => {
+                  const sRaw = scenarioRawMap.get(scenario.id);
+                  const delta = (sRaw?.fireAge != null && currentRaw.fireAge != null)
+                    ? sRaw.fireAge - currentRaw.fireAge : null;
+                  return (
+                    <td key={scenario.id} className={cn(
+                      "text-center py-3 px-2 tabular-nums font-semibold",
+                      selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
+                    )}>
+                      {(() => {
+                        if (!scenario.result) return <span className="text-muted-foreground text-xs">—（未計算）</span>;
+                        const age = scenario.result.metrics.fireAge;
+                        if (age == null || age > 100) return <span className="text-muted-foreground text-xs">未達</span>;
+                        return `${age}歳`;
+                      })()}
+                      {delta != null && delta !== 0 && (
+                        <span className="block text-xs mt-0.5" style={{ color: delta < 0 ? '#4A7C59' : '#CC3333' }}>
+                          {delta > 0 ? '+' : ''}{delta}歳
+                        </span>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
 
               {/* 60歳時点の資産 */}
-              <tr className="border-b hover:bg-muted/30">
+              <tr className={cn("border-b hover:bg-muted/30", rowHasDiff('assets60') && "bg-[rgba(200,184,154,0.08)]")}>
                 <td className="py-3 px-2 font-medium">60歳時点資産</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
@@ -224,6 +291,15 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                   })()}
                 </td>
                 {scenarios.slice(0, 2).map((scenario) => {
+                  const sRaw = scenarioRawMap.get(scenario.id);
+                  const delta = (sRaw?.assets60 != null && currentRaw.assets60 != null)
+                    ? sRaw.assets60 - currentRaw.assets60 : null;
+                  const deltaText = delta != null && delta !== 0
+                    ? `${delta > 0 ? '+' : ''}${Math.round(delta).toLocaleString()}万`
+                    : null;
+                  const deltaColor = delta != null && delta !== 0
+                    ? (delta > 0 ? '#4A7C59' : '#CC3333') : undefined;
+
                   const data = scenario.result?.paths.yearlyData;
                   if (!data) {
                     return (
@@ -257,17 +333,21 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
                     )}>
                       {`${(assets / 10000).toFixed(1)}億`}
+                      {deltaText && (
+                        <span className="block text-xs mt-0.5" style={{ color: deltaColor }}>
+                          {deltaText}
+                        </span>
+                      )}
                     </td>
                   );
                 })}
               </tr>
 
               {/* 40-50代平均月次CFマージン - SoTのcashFlow.netCashFlowを参照 */}
-              <tr className="border-b hover:bg-muted/30">
+              <tr className={cn("border-b hover:bg-muted/30", rowHasDiff('monthlyCF') && "bg-[rgba(200,184,154,0.08)]")}>
                 <td className="py-3 px-2 font-medium">現在の月次CF</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
-                    // SoTのcashFlow.netCashFlowを参照（年間値を月次に変換）
                     const netCF = simResult?.cashFlow?.netCashFlow;
                     if (netCF == null || Number.isNaN(netCF)) {
                       return <span className="text-muted-foreground text-xs">—（未計算）</span>;
@@ -277,6 +357,10 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                   })()}
                 </td>
                 {scenarios.slice(0, 2).map((scenario) => {
+                  const sRaw = scenarioRawMap.get(scenario.id);
+                  const delta = (sRaw?.monthlyCF != null && currentRaw.monthlyCF != null)
+                    ? sRaw.monthlyCF - currentRaw.monthlyCF : null;
+
                   const netCF = scenario.result?.cashFlow?.netCashFlow;
                   if (netCF == null || Number.isNaN(netCF)) {
                     return (
@@ -293,13 +377,18 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
                     )}>
                       {`${monthlyCF.toFixed(0)}万/月`}
+                      {delta != null && delta !== 0 && (
+                        <span className="block text-xs mt-0.5" style={{ color: delta > 0 ? '#4A7C59' : '#CC3333' }}>
+                          {delta > 0 ? '+' : ''}{delta}万/月
+                        </span>
+                      )}
                     </td>
                   );
                 })}
               </tr>
 
               {/* 取り崩し開始年齢 */}
-              <tr className="hover:bg-muted/30">
+              <tr className={cn("hover:bg-muted/30", rowHasDiff('drawdownAge') && "bg-[rgba(200,184,154,0.08)]")}>
                 <td className="py-3 px-2 font-medium">取り崩し開始</td>
                 <td className="text-center py-3 px-2 tabular-nums font-semibold">
                   {(() => {
@@ -307,13 +396,16 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     const ddIdx = simResult.paths.yearlyData.findIndex((y, i) =>
                       i > 0 && y.assets < simResult.paths.yearlyData[i - 1].assets
                     );
-                    // 取り崩しがない = 資産が常に増加している
                     return ddIdx > 0
                       ? `${profile.currentAge + ddIdx}歳`
                       : <span className="text-muted-foreground text-xs">なし</span>;
                   })()}
                 </td>
                 {scenarios.slice(0, 2).map((scenario) => {
+                  const sRaw = scenarioRawMap.get(scenario.id);
+                  const delta = (sRaw?.drawdownAge != null && currentRaw.drawdownAge != null)
+                    ? sRaw.drawdownAge - currentRaw.drawdownAge : null;
+
                   const data = scenario.result?.paths.yearlyData;
                   if (!data) {
                     return (
@@ -331,6 +423,11 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
                     )}>
                       {ddIdx > 0 ? `${scenario.profile.currentAge + ddIdx}歳` : 'なし'}
+                      {delta != null && delta !== 0 && (
+                        <span className="block text-xs mt-0.5" style={{ color: delta > 0 ? '#4A7C59' : '#CC3333' }}>
+                          {delta > 0 ? '+' : ''}{delta}歳
+                        </span>
+                      )}
                     </td>
                   );
                 })}
