@@ -481,26 +481,31 @@ export function computeExitScore(metrics: KeyMetrics, profile: Profile, paths: S
   // Survival score (0-100)
   const survival = Math.min(100, safeNum(metrics.survivalRate));
 
-  // Lifestyle score: based on asset cushion (with inflation at retirement)
+  // Lifestyle score: based on projected assets at retirement age
   const yearsToRetire = profile.targetRetireAge - profile.currentAge;
   const retireInflation = Math.pow(1 + profile.inflationRate / 100, yearsToRetire);
   const targetExpenses = calculateExpenses(profile, profile.targetRetireAge, retireInflation);
-  const yearsOfExpenses = paths.yearlyData[0]?.assets
-    ? safeNum(paths.yearlyData[0].assets / targetExpenses)
-    : 0;
+  const retireIndex = Math.max(0, Math.min(yearsToRetire, paths.yearlyData.length - 1));
+  const retireAssets = paths.yearlyData[retireIndex]?.assets ?? 0;
+  const yearsOfExpenses = retireAssets > 0 ? safeNum(retireAssets / targetExpenses) : 0;
   const lifestyle = Math.min(100, yearsOfExpenses * 5); // 20 years = 100%
 
-  // Risk score: inverse of volatility exposure
-  const riskExposure = profile.assetInvest / (profile.assetCash + profile.assetInvest + 1);
+  // Risk score: inverse of volatility exposure (include home equity as non-volatile asset)
+  const homeEquity = (profile.homeStatus === 'owner' || profile.homeStatus === 'relocating')
+    ? Math.max(0, (profile.homeMarketValue ?? 0) - (profile.mortgagePrincipal ?? 0))
+    : 0;
+  const riskExposure = profile.assetInvest / (profile.assetCash + profile.assetInvest + homeEquity + 1);
   const risk = Math.max(0, safeNum(100 - riskExposure * profile.volatility * 500));
 
-  // Liquidity score: cash ratio
-  const totalAssets = profile.assetCash + profile.assetInvest + profile.assetDefinedContributionJP;
-  const liquidityRatio = totalAssets > 0 ? profile.assetCash / totalAssets : 0;
-  const liquidity = Math.min(100, safeNum(liquidityRatio * 200)); // 50% cash = 100%
+  // Liquidity score: projected assets at 5 years as months of expenses
+  const projIndex = Math.min(5, paths.yearlyData.length - 1);
+  const projectedAssets = paths.yearlyData[projIndex]?.assets ?? 0;
+  const annualExpenses = targetExpenses > 0 ? targetExpenses : 1;
+  const monthsOfExpenses = projectedAssets > 0 ? (projectedAssets / (annualExpenses / 12)) : 0;
+  const liquidity = Math.min(100, safeNum(monthsOfExpenses * (100 / 60))); // 60 months = 100%
 
   // Overall score (weighted average)
-  const rawOverall = survival * 0.4 + lifestyle * 0.3 + risk * 0.15 + liquidity * 0.15;
+  const rawOverall = survival * 0.55 + lifestyle * 0.20 + risk * 0.15 + liquidity * 0.10;
   const overall = Math.max(0, Math.min(100, Math.round(safeNum(rawOverall))));
 
   return {

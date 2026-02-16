@@ -61,14 +61,14 @@ const SCORE_AXES: ScoreAxis[] = [
   {
     key: 'survival',
     label: 'サバイバル',
-    weight: 40,
+    weight: 55,
     icon: <ShieldCheck className="h-4 w-4" />,
     getHint: (v) => v < 70 ? '投資額を増やすか、目標年齢を遅らせると改善します' : null,
   },
   {
     key: 'lifestyle',
     label: '生活水準',
-    weight: 30,
+    weight: 20,
     icon: <Heart className="h-4 w-4" />,
     getHint: (v) => v < 70 ? '支出を見直すか、資産を増やすと改善します' : null,
   },
@@ -82,7 +82,7 @@ const SCORE_AXES: ScoreAxis[] = [
   {
     key: 'liquidity',
     label: '流動性',
-    weight: 15,
+    weight: 10,
     icon: <Droplets className="h-4 w-4" />,
     getHint: (v) => v < 50 ? '現預金を増やすと緊急時の備えが改善します' : null,
   },

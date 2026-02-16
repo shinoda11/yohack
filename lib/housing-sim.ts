@@ -288,10 +288,10 @@ function runSimulationWithSeed(profile: Profile, seed: number): HousingSimulatio
   const liquidity = Math.min(100, liquidityRatio * 200);
   
   const overall = Math.round(
-    survival * 0.4 + 
-    lifestyle * 0.3 + 
-    risk * 0.15 + 
-    liquidity * 0.15
+    survival * 0.55 +
+    lifestyle * 0.20 +
+    risk * 0.15 +
+    liquidity * 0.10
   );
   
   const score: ExitScoreDetail = {
