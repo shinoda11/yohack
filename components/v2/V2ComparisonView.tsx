@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import type { SimulationResult, Profile } from '@/lib/types';
 import type { SavedScenario } from '@/lib/store';
 
@@ -10,6 +11,9 @@ import {
   Target,
   ArrowRight,
   ChevronRight,
+  CalendarDays,
+  Save,
+  Columns,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +28,45 @@ interface V2ComparisonViewProps {
   setActiveTab: (tab: 'margins' | 'allocation' | 'decision' | 'worldlines' | 'strategy') => void;
 }
 
+/** Y-branch symbol for the empty state */
+function YBranchSymbol() {
+  return (
+    <svg
+      width={64}
+      height={64}
+      viewBox="0 0 180 180"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <line x1="90" y1="94" x2="42" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+      <line x1="90" y1="94" x2="138" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+      <line x1="90" y1="94" x2="90" y2="156" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+      <circle cx="90" cy="94" r="9" fill="#C8B89A" />
+      <circle cx="42" cy="34" r="6" fill="#C8B89A" opacity="0.5" />
+      <circle cx="138" cy="34" r="6" fill="#C8B89A" opacity="0.5" />
+    </svg>
+  );
+}
+
+const steps = [
+  {
+    icon: <CalendarDays className="h-5 w-5 text-[#C8B89A]" />,
+    title: '条件を変える',
+    description: 'ライフプランでイベントを追加。転職・出産・住宅購入など。',
+  },
+  {
+    icon: <Save className="h-5 w-5 text-[#C8B89A]" />,
+    title: 'シナリオを保存',
+    description: '現在の条件に名前をつけて保存。いつでも戻れる。',
+  },
+  {
+    icon: <Columns className="h-5 w-5 text-[#C8B89A]" />,
+    title: '並べて比較',
+    description: '最大2つのシナリオを現在の状態と並べて比較。',
+  },
+];
+
 export function V2ComparisonView(props: V2ComparisonViewProps) {
   const {
     simResult,
@@ -36,6 +79,62 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     setActiveTab,
   } = props;
 
+  // --- Empty state ---
+  if (scenarios.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-12 px-6">
+          <div className="flex flex-col items-center text-center max-w-lg mx-auto">
+            {/* Y-branch symbol */}
+            <YBranchSymbol />
+
+            {/* Heading */}
+            <h3
+              className="mt-6 text-xl font-bold tracking-tight"
+              style={{ fontFamily: 'var(--font-noto-serif-jp), serif' }}
+            >
+              世界線を作って、比較する
+            </h3>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              同じ前提で異なる選択肢を並べると、<br className="hidden sm:inline" />
+              どの年代にどれだけ余白が残るか見えてきます。
+            </p>
+
+            {/* Step guide */}
+            <div className="mt-8 grid gap-4 sm:grid-cols-3 w-full">
+              {steps.map((step, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg border p-4 text-left"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#C8B89A]/10">
+                      {step.icon}
+                    </div>
+                    <span className="text-xs font-medium text-[#C8B89A]">ステップ{i + 1}</span>
+                  </div>
+                  <h4 className="text-sm font-medium">{step.title}</h4>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <Link href="/plan" className="mt-8">
+              <Button className="bg-[#C8B89A] hover:bg-[#8A7A62] text-white gap-2">
+                ライフプランでシナリオを作成する
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // --- Comparison table (1+ scenarios) ---
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -81,11 +180,6 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     </div>
                   </th>
                 ))}
-                {scenarios.length === 0 && (
-                  <th className="text-center py-3 px-2 font-medium min-w-32">
-                    <span className="text-muted-foreground text-xs">シナリオなし</span>
-                  </th>
-                )}
               </tr>
             </thead>
             <tbody>
@@ -113,9 +207,6 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     })()}
                   </td>
                 ))}
-                {scenarios.length === 0 && (
-                  <td className="text-center py-3 px-2 text-muted-foreground text-xs">—</td>
-                )}
               </tr>
 
               {/* 60歳時点の資産 */}
@@ -168,9 +259,6 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     </td>
                   );
                 })}
-                {scenarios.length === 0 && (
-                  <td className="text-center py-3 px-2 text-muted-foreground text-xs">—</td>
-                )}
               </tr>
 
               {/* 40-50代平均月次CFマージン - SoTのcashFlow.netCashFlowを参照 */}
@@ -207,9 +295,6 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     </td>
                   );
                 })}
-                {scenarios.length === 0 && (
-                  <td className="text-center py-3 px-2 text-muted-foreground text-xs">—</td>
-                )}
               </tr>
 
               {/* 取り崩し開始年齢 */}
@@ -248,48 +333,43 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     </td>
                   );
                 })}
-                {scenarios.length === 0 && (
-                  <td className="text-center py-3 px-2 text-muted-foreground text-xs">—</td>
-                )}
               </tr>
             </tbody>
           </table>
         </div>
 
         {/* アクション行 */}
-        {scenarios.length > 0 && (
-          <div className="mt-4 pt-4 border-t flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {selectedComparisonIds.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearComparisonIds}
-                  className="bg-transparent"
-                >
-                  選択解除
-                </Button>
-              )}
-              {scenarios.slice(0, 2).map((scenario) => (
-                <Button
-                  key={scenario.id}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => loadScenario(scenario.id)}
-                >
-                  「{scenario.name}」を読み込む
-                </Button>
-              ))}
-            </div>
-            <a
-              href="/timeline"
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
-            >
-              <span>新しいシナリオを作成</span>
-              <ArrowRight className="h-3 w-3" />
-            </a>
+        <div className="mt-4 pt-4 border-t flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {selectedComparisonIds.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearComparisonIds}
+                className="bg-transparent"
+              >
+                選択解除
+              </Button>
+            )}
+            {scenarios.slice(0, 2).map((scenario) => (
+              <Button
+                key={scenario.id}
+                variant="ghost"
+                size="sm"
+                onClick={() => loadScenario(scenario.id)}
+              >
+                「{scenario.name}」を読み込む
+              </Button>
+            ))}
           </div>
-        )}
+          <Link
+            href="/plan"
+            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+          >
+            <span>新しいシナリオを作成</span>
+            <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
 
         {/* Step 2: 比較後 → 余白の使い道へ */}
         <div className="mt-4 rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
@@ -312,22 +392,6 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             </Button>
           </div>
         </div>
-
-        {/* シナリオがない場合 */}
-        {scenarios.length === 0 && (
-          <div className="mt-4 pt-4 border-t text-center">
-            <p className="text-sm text-muted-foreground mb-3">
-              タイムラインでライフイベントを追加し、シナリオを保存すると比較できます
-            </p>
-            <a
-              href="/timeline"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border hover:bg-muted/50 text-sm font-medium transition-colors"
-            >
-              タイムラインでシナリオを作成
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
