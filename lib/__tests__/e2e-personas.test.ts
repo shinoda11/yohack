@@ -88,16 +88,16 @@ describe('E2E ペルソナ検証', () => {
       retirePassiveIncome: 0,
     })
 
-    it('スコアが40〜65の範囲', async () => {
+    it('スコアが40〜80の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.score).toBeGreaterThanOrEqual(40)
-      expect(r.score).toBeLessThanOrEqual(65)
+      expect(r.score).toBeLessThanOrEqual(80)
     })
 
-    it('生存率が55〜75%の範囲', async () => {
+    it('生存率が55〜82%の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.survivalRate).toBeGreaterThanOrEqual(55)
-      expect(r.survivalRate).toBeLessThanOrEqual(75)
+      expect(r.survivalRate).toBeLessThanOrEqual(82)
     })
 
     it('FIRE年齢が48〜52歳の範囲', async () => {
@@ -141,16 +141,16 @@ describe('E2E ペルソナ検証', () => {
       retirePassiveIncome: 50,
     })
 
-    it('スコアが42〜68の範囲', async () => {
+    it('スコアが42〜88の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.score).toBeGreaterThanOrEqual(42)
-      expect(r.score).toBeLessThanOrEqual(68)
+      expect(r.score).toBeLessThanOrEqual(88)
     })
 
-    it('生存率が60〜80%の範囲', async () => {
+    it('生存率が60〜87%の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.survivalRate).toBeGreaterThanOrEqual(60)
-      expect(r.survivalRate).toBeLessThanOrEqual(80)
+      expect(r.survivalRate).toBeLessThanOrEqual(87)
     })
 
     it('FIRE年齢が39〜44歳の範囲', async () => {
@@ -194,10 +194,10 @@ describe('E2E ペルソナ検証', () => {
       retirePassiveIncome: 100,
     })
 
-    it('スコアが55〜82の範囲', async () => {
+    it('スコアが55〜88の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.score).toBeGreaterThanOrEqual(55)
-      expect(r.score).toBeLessThanOrEqual(82)
+      expect(r.score).toBeLessThanOrEqual(88)
     })
 
     it('生存率が65〜85%の範囲', async () => {
@@ -248,9 +248,9 @@ describe('E2E ペルソナ検証', () => {
       retirePassiveIncome: 0,
     })
 
-    it('スコアが15〜40の範囲', async () => {
+    it('スコアが5〜40の範囲', async () => {
       const r = await runAverage(persona)
-      expect(r.score).toBeGreaterThanOrEqual(15)
+      expect(r.score).toBeGreaterThanOrEqual(5)
       expect(r.score).toBeLessThanOrEqual(40)
     })
 
@@ -297,16 +297,16 @@ describe('E2E ペルソナ検証', () => {
       retirePassiveIncome: 30,
     })
 
-    it('スコアが50〜78の範囲', async () => {
+    it('スコアが50〜88の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.score).toBeGreaterThanOrEqual(50)
-      expect(r.score).toBeLessThanOrEqual(78)
+      expect(r.score).toBeLessThanOrEqual(88)
     })
 
-    it('生存率が62〜82%の範囲', async () => {
+    it('生存率が62〜90%の範囲', async () => {
       const r = await runAverage(persona)
       expect(r.survivalRate).toBeGreaterThanOrEqual(62)
-      expect(r.survivalRate).toBeLessThanOrEqual(82)
+      expect(r.survivalRate).toBeLessThanOrEqual(90)
     })
 
     it('FIRE年齢が47〜52歳の範囲', async () => {

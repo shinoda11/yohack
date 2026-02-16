@@ -3,6 +3,7 @@ import {
   runHousingScenarios,
   runRelocateScenario,
   computeMonthlyPaymentManYen,
+  computeYearlyHousingCosts,
 } from '../housing-sim'
 import type { BuyNowParams, RelocateParams } from '../housing-sim'
 import { createDefaultProfile } from '../engine'
@@ -91,11 +92,19 @@ describe('RENT_BASELINE', () => {
     expect(results[0].monthlyPayment).toBeCloseTo(profile.housingCostAnnual / 12, 5)
   })
 
-  it('totalCost40Years が housingCostAnnual * 40 と一致', () => {
+  it('totalCost40Years が rentInflationRate 込みで計算される', () => {
     const profile = createDefaultProfile()
     const results = runHousingScenarios(profile, null)
 
-    expect(results[0].totalCost40Years).toBe(profile.housingCostAnnual * 40)
+    // rentInflationRate=0.5% で40年の合計
+    const rentInflation = (profile.rentInflationRate ?? profile.inflationRate) / 100
+    let expected = 0
+    for (let y = 0; y < 40; y++) {
+      expected += profile.housingCostAnnual * Math.pow(1 + rentInflation, y)
+    }
+    expected = Math.round(expected)
+
+    expect(results[0].totalCost40Years).toBe(expected)
   })
 })
 
@@ -335,6 +344,74 @@ describe('エッジケース', () => {
 
 // ============================================================
 // 6. computeMonthlyPaymentManYen 単体テスト
+// ============================================================
+
+// ============================================================
+// 6b. computeYearlyHousingCosts 単体テスト
+// ============================================================
+
+describe('computeYearlyHousingCosts', () => {
+  it('固定金利（rateSteps なし）で年次コストが返る', () => {
+    const params = defaultBuyParams({ interestRate: 1.0 })
+    const schedule = computeYearlyHousingCosts(params, 40)
+
+    expect(schedule).toHaveLength(40)
+    // 最初の年は正の値
+    expect(schedule[0]).toBeGreaterThan(0)
+  })
+
+  it('ローン期間後は維持費のみになる', () => {
+    const params = defaultBuyParams({ mortgageYears: 10, ownerAnnualCost: 50 })
+    const schedule = computeYearlyHousingCosts(params, 20)
+
+    // year 0 (during mortgage) > year 15 (post-mortgage, owner costs only)
+    expect(schedule[0]).toBeGreaterThan(schedule[15])
+    // year 15 should be approximately ownerAnnualCost (with potential escalation)
+    expect(schedule[15]).toBeCloseTo(50, 0)
+  })
+
+  it('ownerCostEscalation で維持費が逓増する', () => {
+    const params = defaultBuyParams({
+      mortgageYears: 5,
+      ownerAnnualCost: 100,
+      ownerCostEscalation: 2.0, // 2%/年
+    })
+    const schedule = computeYearlyHousingCosts(params, 20)
+
+    // Post-mortgage: year 10 owner cost should be 100 * (1.02)^10 ≈ 121.9
+    const expectedYear10 = 100 * Math.pow(1.02, 10)
+    expect(schedule[10]).toBeCloseTo(expectedYear10, 0)
+  })
+
+  it('rateSteps で金利ステップアップ後はコスト増', () => {
+    const params = defaultBuyParams({
+      interestRate: 0.5,
+      rateSteps: [
+        { year: 0, rate: 0.5 },
+        { year: 5, rate: 1.5 },
+      ],
+    })
+    const schedule = computeYearlyHousingCosts(params, 10)
+
+    // ステップアップ後の年はコスト増
+    expect(schedule[6]).toBeGreaterThan(schedule[0])
+  })
+
+  it('loanPrincipal <= 0 の場合は維持費のみ', () => {
+    const params = defaultBuyParams({
+      propertyPrice: 3000,
+      downPayment: 5000,
+      ownerAnnualCost: 50,
+    })
+    const schedule = computeYearlyHousingCosts(params, 5)
+
+    expect(schedule[0]).toBeCloseTo(50, 0)
+    expect(schedule).toHaveLength(5)
+  })
+})
+
+// ============================================================
+// 7. computeMonthlyPaymentManYen 単体テスト
 // ============================================================
 
 describe('computeMonthlyPaymentManYen', () => {
