@@ -213,47 +213,71 @@ export function V2ResultSection(props: V2ResultSectionProps) {
           </CardContent>
         </Card>
 
-        {/* Risk Margin Card */}
+        {/* Risk Tolerance Card */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
               <Shield className="h-5 w-5 text-gray-500" />
-              リスクの余白
+              リスク耐性
             </CardTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              市場変動への耐性（前提で変わる目安）
+              市場が下落したときの耐久力
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-center">
+            {/* Drawdown capacity */}
+            <div className="rounded-lg bg-muted/50 p-4 text-center">
               <div className="text-4xl font-bold text-gray-800">
                 {riskMargin ? `${riskMargin.drawdownCapacity.toFixed(0)}%` : '—'}
               </div>
-              <div className="text-sm text-muted-foreground">
-                許容下落率
-              </div>
+              <p className="text-sm text-muted-foreground mt-1">
+                {riskMargin
+                  ? `資産が${riskMargin.drawdownCapacity.toFixed(0)}%下落しても安心ラインを維持`
+                  : '許容下落率'}
+              </p>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">ボラティリティ耐性</span>
-                <Badge variant={riskMargin && riskMargin.volatilityTolerance > 15 ? 'default' : 'secondary'}>
-                  {riskMargin ? `${riskMargin.volatilityTolerance.toFixed(0)}%` : '—'}
-                </Badge>
+
+            {/* Emergency fund coverage */}
+            {(() => {
+              const months = riskMargin?.emergencyFundCoverage ?? 0;
+              const hasData = riskMargin !== null;
+              let colorClass = 'bg-gray-50 text-gray-600';
+              if (hasData) {
+                if (months >= 12) colorClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400';
+                else if (months >= 6) colorClass = 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400';
+                else if (months >= 3) colorClass = 'bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:text-orange-400';
+                else colorClass = 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400';
+              }
+              return (
+                <div className={cn('rounded-lg p-3 flex items-center gap-3', colorClass)}>
+                  <Shield className="h-5 w-5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">
+                      {hasData
+                        ? `収入ゼロでも${Math.floor(months)}ヶ月暮らせる`
+                        : '緊急資金カバー率: —'}
+                    </p>
+                    {hasData && months < 6 && (
+                      <p className="text-xs mt-0.5 opacity-80">6ヶ月以上の緊急資金が理想です</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Sequence risk */}
+            <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3">
+              <div>
+                <p className="text-sm font-medium">退職直後の暴落リスク</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  退職直後に市場が下落すると、資産の減りが加速します
+                </p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">緊急資金カバー率</span>
-                <Badge variant={riskMargin && riskMargin.emergencyFundCoverage >= 6 ? 'default' : 'destructive'}>
-                  {riskMargin ? `${riskMargin.emergencyFundCoverage.toFixed(1)}ヶ月` : '—'}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">シーケンスリスク</span>
-                <Badge variant={riskMargin && riskMargin.sequenceRisk < 0.3 ? 'default' : 'destructive'}>
-                  {riskMargin
-                    ? (riskMargin.sequenceRisk < 0.3 ? '低' : riskMargin.sequenceRisk < 0.6 ? '中' : '高')
-                    : '—'}
-                </Badge>
-              </div>
+              <Badge variant={riskMargin && riskMargin.sequenceRisk < 0.3 ? 'default' : 'destructive'}>
+                {riskMargin
+                  ? (riskMargin.sequenceRisk < 0.3 ? '低' : riskMargin.sequenceRisk < 0.6 ? '中' : '高')
+                  : '—'}
+              </Badge>
             </div>
           </CardContent>
         </Card>
