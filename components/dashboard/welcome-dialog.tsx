@@ -115,6 +115,13 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const numChange = (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(e.target.value, 10);
+    update(field, isNaN(parsed) ? 0 : parsed);
+  };
+
+  const selectAll = (e: React.FocusEvent<HTMLInputElement>) => e.target.select();
+
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onSkip(); }}>
       <DialogContent className="max-w-lg p-0 overflow-hidden" showCloseButton={false}>
@@ -195,7 +202,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     id="onb-age"
                     type="number"
                     value={formData.currentAge}
-                    onChange={(e) => update('currentAge', Number(e.target.value))}
+                    onChange={numChange('currentAge')}
+                    onFocus={selectAll}
                     min={18}
                     max={80}
                     className="mt-1"
@@ -226,7 +234,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     id="onb-retire"
                     type="number"
                     value={formData.targetRetireAge}
-                    onChange={(e) => update('targetRetireAge', Number(e.target.value))}
+                    onChange={numChange('targetRetireAge')}
+                    onFocus={selectAll}
                     min={formData.currentAge + 1}
                     max={80}
                     className="mt-1"
@@ -257,7 +266,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       id="onb-income"
                       type="number"
                       value={formData.grossIncome}
-                      onChange={(e) => update('grossIncome', Number(e.target.value))}
+                      onChange={numChange('grossIncome')}
+                      onFocus={selectAll}
                       min={0}
                       className="pr-12"
                     />
@@ -272,7 +282,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                         id="onb-partner-income"
                         type="number"
                         value={formData.partnerGrossIncome}
-                        onChange={(e) => update('partnerGrossIncome', Number(e.target.value))}
+                        onChange={numChange('partnerGrossIncome')}
+                        onFocus={selectAll}
                         min={0}
                         className="pr-12"
                       />
@@ -287,7 +298,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       id="onb-rent"
                       type="number"
                       value={formData.housingCostMonthly}
-                      onChange={(e) => update('housingCostMonthly', Number(e.target.value))}
+                      onChange={numChange('housingCostMonthly')}
+                      onFocus={selectAll}
                       min={0}
                       className="pr-12"
                     />
@@ -319,7 +331,8 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       id="onb-assets"
                       type="number"
                       value={formData.totalAssets}
-                      onChange={(e) => update('totalAssets', Number(e.target.value))}
+                      onChange={numChange('totalAssets')}
+                      onFocus={selectAll}
                       min={0}
                       className="pr-12"
                     />
