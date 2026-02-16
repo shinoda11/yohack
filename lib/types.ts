@@ -66,6 +66,7 @@ export interface Profile {
   // Investment settings
   expectedReturn: number; // %
   inflationRate: number; // %
+  rentInflationRate?: number; // % (家賃インフレ率, undefined → inflationRate にフォールバック)
   volatility: number; // decimal (e.g., 0.15 = 15%)
   
   // Tax and retirement

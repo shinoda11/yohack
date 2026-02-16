@@ -307,11 +307,14 @@ function calculateNetIncome(profile: Profile, age: number): number {
 function calculateExpenses(profile: Profile, age: number, inflationFactor: number = 1): number {
   const isRetired = age >= profile.targetRetireAge;
 
-  // Housing cost: rent inflates, mortgage stays nominal
+  // Housing cost: rent inflates at rentInflationRate, mortgage stays nominal
   const isOwner = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
+  const yearsElapsed = age - profile.currentAge;
+  const rentInflation = profile.rentInflationRate ?? profile.inflationRate;
+  const rentInflationFactor = Math.pow(1 + rentInflation / 100, yearsElapsed);
   const housingCost = isOwner
-    ? profile.housingCostAnnual                     // Mortgage: nominal fixed
-    : profile.housingCostAnnual * inflationFactor;  // Rent: inflates
+    ? profile.housingCostAnnual                         // Mortgage: nominal fixed
+    : profile.housingCostAnnual * rentInflationFactor;  // Rent: inflates at rentInflationRate
 
   // Living costs inflate
   let baseExpenses = profile.livingCostAnnual * inflationFactor + housingCost;
@@ -629,6 +632,7 @@ export function createDefaultProfile(): Profile {
     
     expectedReturn: 5,
     inflationRate: 2,
+    rentInflationRate: 0.5,
     volatility: 0.15,
     
     effectiveTaxRate: 25,

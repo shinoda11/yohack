@@ -356,6 +356,10 @@ export const useProfileStore = create<ProfileStore>()(
           if (state.profile.useAutoTaxRate === undefined) {
             state.profile.useAutoTaxRate = true;
           }
+          // Migrate: rentInflationRate が未定義の既存プロファイルにデフォルト値を設定
+          if (state.profile.rentInflationRate === undefined) {
+            state.profile.rentInflationRate = 0.5;
+          }
           // 復元後にシミュレーションを再実行
           state._storageInitialized = true;
           setTimeout(() => {

@@ -5,6 +5,11 @@ import { getScoreLevel } from './types';
 
 export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW' | 'RELOCATE';
 
+export interface RateStep {
+  year: number;       // ステップアップ開始年 (0-indexed)
+  rate: number;       // 適用金利 (%)
+}
+
 export interface BuyNowParams {
   propertyPrice: number;        // 物件価格（万円）
   downPayment: number;          // 頭金（万円）
@@ -13,6 +18,8 @@ export interface BuyNowParams {
   interestRate: number;         // 金利（%）
   ownerAnnualCost: number;      // 管理費・固定資産税（万円/年）
   buyAfterYears: 0 | 3 | 10;    // 購入タイミング
+  rateSteps?: RateStep[];       // 変動金利ステップアップスケジュール
+  ownerCostEscalation?: number; // 維持費逓増率 (%/年, e.g. 1.5)
 }
 
 export interface RelocateParams {
@@ -89,6 +96,95 @@ export function computeMonthlyPaymentManYen(
   return payment;
 }
 
+/**
+ * 年次住宅コストスケジュールを計算する。
+ * 変動金利ステップアップ + 維持費逓増を考慮。
+ */
+export function computeYearlyHousingCosts(
+  buyParams: BuyNowParams,
+  totalYears: number
+): number[] {
+  const {
+    propertyPrice,
+    downPayment,
+    mortgageYears,
+    interestRate,
+    ownerAnnualCost,
+    rateSteps,
+    ownerCostEscalation,
+  } = buyParams;
+
+  const loanPrincipal = propertyPrice - downPayment;
+  const escalation = (ownerCostEscalation ?? 0) / 100;
+
+  if (loanPrincipal <= 0 || mortgageYears <= 0) {
+    return Array.from({ length: totalYears }, (_, y) =>
+      ownerAnnualCost * Math.pow(1 + escalation, y)
+    );
+  }
+
+  const totalLoanMonths = mortgageYears * 12;
+
+  // Build rate lookup: for a given year, what rate applies?
+  const steps = rateSteps
+    ? [...rateSteps].sort((a, b) => a.year - b.year)
+    : [{ year: 0, rate: interestRate }];
+
+  function getRateForYear(year: number): number {
+    let rate = steps[0]?.rate ?? interestRate;
+    for (const step of steps) {
+      if (step.year <= year) rate = step.rate;
+      else break;
+    }
+    return rate;
+  }
+
+  const schedule: number[] = [];
+  let balance = loanPrincipal;
+  let monthsPaidTotal = 0;
+  let currentRate = getRateForYear(0);
+  let monthlyPayment = computeMonthlyPaymentManYen(balance, currentRate, mortgageYears);
+
+  for (let year = 0; year < totalYears; year++) {
+    // Check for rate change
+    const newRate = getRateForYear(year);
+    if (year > 0 && newRate !== currentRate) {
+      currentRate = newRate;
+      const remainingMonths = totalLoanMonths - monthsPaidTotal;
+      if (remainingMonths > 0 && balance > 0) {
+        monthlyPayment = computeMonthlyPaymentManYen(balance, currentRate, remainingMonths / 12);
+      } else {
+        monthlyPayment = 0;
+      }
+    }
+
+    // Months of mortgage remaining this year
+    const remainingMonths = totalLoanMonths - monthsPaidTotal;
+    const monthsThisYear = Math.min(12, Math.max(0, remainingMonths));
+
+    // Mortgage cost: pay and track balance
+    let mortgageCost = 0;
+    if (monthsThisYear > 0 && balance > 0) {
+      mortgageCost = monthlyPayment * monthsThisYear;
+      const monthlyRate = currentRate / 100 / 12;
+      for (let m = 0; m < monthsThisYear; m++) {
+        if (balance <= 0) break;
+        const interestPart = balance * monthlyRate;
+        const principalPart = monthlyPayment - interestPart;
+        balance = Math.max(0, balance - principalPart);
+      }
+      monthsPaidTotal += monthsThisYear;
+    }
+
+    // Owner costs with escalation
+    const ownerCost = ownerAnnualCost * Math.pow(1 + escalation, year);
+
+    schedule.push(mortgageCost + ownerCost);
+  }
+
+  return schedule;
+}
+
 const MAX_AGE = 100;
 const SIMULATION_RUNS = 500;
 const BASE_SEED = 42;
@@ -141,13 +237,29 @@ function calculateNetIncome(profile: Profile, age: number): number {
 }
 
 // Calculate annual expenses with inflation
-function calculateExpenses(profile: Profile, age: number, inflationFactor: number = 1): number {
+// housingCostOverride: if provided, replaces the standard housing cost calculation for that year
+function calculateExpenses(
+  profile: Profile,
+  age: number,
+  inflationFactor: number = 1,
+  housingCostOverride?: number
+): number {
   const isRetired = age >= profile.targetRetireAge;
 
-  const isOwner = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
-  const housingCost = isOwner
-    ? profile.housingCostAnnual
-    : profile.housingCostAnnual * inflationFactor;
+  let housingCost: number;
+  if (housingCostOverride !== undefined) {
+    housingCost = housingCostOverride;
+  } else {
+    const isOwner = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
+    if (isOwner) {
+      housingCost = profile.housingCostAnnual;
+    } else {
+      const yearsElapsed = age - profile.currentAge;
+      const rentInflation = profile.rentInflationRate ?? profile.inflationRate;
+      const rentInflationFactor = Math.pow(1 + rentInflation / 100, yearsElapsed);
+      housingCost = profile.housingCostAnnual * rentInflationFactor;
+    }
+  }
 
   let baseExpenses = profile.livingCostAnnual * inflationFactor + housingCost;
 
@@ -172,7 +284,11 @@ function calculateExpenses(profile: Profile, age: number, inflationFactor: numbe
 }
 
 // Run single simulation with seeded random
-function runSingleSimulationSeeded(profile: Profile, rng: SeededRandom): AssetPoint[] {
+function runSingleSimulationSeeded(
+  profile: Profile,
+  rng: SeededRandom,
+  housingCostSchedule?: number[]
+): AssetPoint[] {
   const path: AssetPoint[] = [];
 
   let totalAssets = profile.assetCash + profile.assetInvest + profile.assetDefinedContributionJP;
@@ -186,7 +302,8 @@ function runSingleSimulationSeeded(profile: Profile, rng: SeededRandom): AssetPo
     const inflationFactor = Math.pow(1 + inflationRate, yearsElapsed);
 
     const income = calculateNetIncome(profile, age);
-    const expenses = calculateExpenses(profile, age, inflationFactor);
+    const housingOverride = housingCostSchedule?.[yearsElapsed];
+    const expenses = calculateExpenses(profile, age, inflationFactor, housingOverride);
     const netCashFlow = income - expenses;
 
     const dcContrib = age < profile.targetRetireAge ? profile.dcContributionAnnual : 0;
@@ -222,14 +339,18 @@ function getPercentilePath(allPaths: AssetPoint[][], percentile: number): AssetP
 }
 
 // Run simulation with CRN (Common Random Numbers)
-function runSimulationWithSeed(profile: Profile, seed: number): HousingSimulationResult {
+function runSimulationWithSeed(
+  profile: Profile,
+  seed: number,
+  housingCostSchedule?: number[]
+): HousingSimulationResult {
   const allPaths: AssetPoint[][] = [];
-  
+
   for (let i = 0; i < SIMULATION_RUNS; i++) {
     const rng = new SeededRandom(seed + i);
-    allPaths.push(runSingleSimulationSeeded(profile, rng));
+    allPaths.push(runSingleSimulationSeeded(profile, rng, housingCostSchedule));
   }
-  
+
   const medianPath = getPercentilePath(allPaths, 50);
   const upperPath = getPercentilePath(allPaths, 90);
   const lowerPath = getPercentilePath(allPaths, 10);
@@ -246,54 +367,72 @@ function runSimulationWithSeed(profile: Profile, seed: number): HousingSimulatio
     optimistic: upperPath.map(p => p.assets),
     pessimistic: lowerPath.map(p => p.assets),
   };
-  
+
   // Calculate survival rate
-  const survivingPaths = allPaths.filter(path => 
+  const survivingPaths = allPaths.filter(path =>
     path.every(point => point.assets >= 0)
   );
   const survivalRate = (survivingPaths.length / allPaths.length) * 100;
-  
+
   // Assets at 100
   const assetAt100 = paths.yearlyData[paths.yearlyData.length - 1]?.assets ?? 0;
-  
-  // FIRE age
+
+  // FIRE age: use schedule-aware expenses
   let fireAge: number | null = null;
-  const targetExpenses = calculateExpenses(profile, profile.targetRetireAge);
   const safeWithdrawalRate = 0.04;
-  
+
   for (const point of paths.yearlyData) {
-    if (point.assets * safeWithdrawalRate >= targetExpenses) {
+    const yearsElapsed = point.age - profile.currentAge;
+    const inflationFactor = Math.pow(1 + profile.inflationRate / 100, yearsElapsed);
+    const housingOverride = housingCostSchedule?.[yearsElapsed];
+    const expensesAtAge = calculateExpenses(profile, point.age, inflationFactor, housingOverride);
+    if (point.assets * safeWithdrawalRate >= expensesAtAge) {
       fireAge = point.age;
       break;
     }
   }
-  
+
   const metrics: KeyMetrics = {
     fireAge,
     assetAt100,
     survivalRate,
     yearsToFire: fireAge ? fireAge - profile.currentAge : null
   };
-  
+
   // Calculate score
   const survival = Math.min(100, survivalRate);
-  const yearsOfExpenses = paths.yearlyData[0]?.assets 
-    ? paths.yearlyData[0].assets / targetExpenses 
-    : 0;
+
+  // Lifestyle: use projected assets at retirement age
+  const yearsToRetire = profile.targetRetireAge - profile.currentAge;
+  const retireInflationFactor = Math.pow(1 + profile.inflationRate / 100, yearsToRetire);
+  const retireHousingOverride = housingCostSchedule?.[yearsToRetire];
+  const targetExpenses = calculateExpenses(profile, profile.targetRetireAge, retireInflationFactor, retireHousingOverride);
+  const retireIndex = Math.max(0, Math.min(yearsToRetire, paths.yearlyData.length - 1));
+  const retireAssets = paths.yearlyData[retireIndex]?.assets ?? 0;
+  const yearsOfExpenses = retireAssets > 0 && targetExpenses > 0 ? retireAssets / targetExpenses : 0;
   const lifestyle = Math.min(100, yearsOfExpenses * 5);
-  const riskExposure = profile.assetInvest / (profile.assetCash + profile.assetInvest + 1);
+
+  // Risk: include home equity as non-volatile asset
+  const homeEquity = (profile.homeStatus === 'owner' || profile.homeStatus === 'relocating')
+    ? Math.max(0, (profile.homeMarketValue ?? 0) - (profile.mortgagePrincipal ?? 0))
+    : 0;
+  const riskExposure = profile.assetInvest / (profile.assetCash + profile.assetInvest + homeEquity + 1);
   const risk = Math.max(0, 100 - riskExposure * profile.volatility * 500);
-  const totalAssets = profile.assetCash + profile.assetInvest + profile.assetDefinedContributionJP;
-  const liquidityRatio = totalAssets > 0 ? profile.assetCash / totalAssets : 0;
-  const liquidity = Math.min(100, liquidityRatio * 200);
-  
+
+  // Liquidity: projected assets at 5 years as months of expenses
+  const projIndex = Math.min(5, paths.yearlyData.length - 1);
+  const projectedAssets = paths.yearlyData[projIndex]?.assets ?? 0;
+  const annualExpenses = targetExpenses > 0 ? targetExpenses : 1;
+  const monthsOfExpenses = projectedAssets > 0 ? (projectedAssets / (annualExpenses / 12)) : 0;
+  const liquidity = Math.min(100, monthsOfExpenses * (100 / 60)); // 60 months = 100%
+
   const overall = Math.round(
     survival * 0.55 +
     lifestyle * 0.20 +
     risk * 0.15 +
     liquidity * 0.10
   );
-  
+
   const score: ExitScoreDetail = {
     overall,
     level: getScoreLevel(overall),
@@ -302,16 +441,20 @@ function runSimulationWithSeed(profile: Profile, seed: number): HousingSimulatio
     risk: Math.round(risk),
     liquidity: Math.round(liquidity)
   };
-  
+
   return { paths, metrics, score };
 }
 
 // Compute safe FIRE age (90% survival probability)
-function computeSafeFireAge(profile: Profile, seed: number): number | null {
+function computeSafeFireAge(
+  profile: Profile,
+  seed: number,
+  housingCostSchedule?: number[]
+): number | null {
   for (let testAge = profile.currentAge; testAge <= 70; testAge++) {
     const testProfile = { ...profile, targetRetireAge: testAge };
-    const result = runSimulationWithSeed(testProfile, seed);
-    
+    const result = runSimulationWithSeed(testProfile, seed, housingCostSchedule);
+
     if (result.metrics.survivalRate >= 90) {
       return testAge;
     }
@@ -427,13 +570,39 @@ export function runRelocateScenario(
     };
   }
 
-  const relocateSim = runSimulationWithSeed(relocateProfile, BASE_SEED);
-  const relocateSafeAge = computeSafeFireAge(relocateProfile, BASE_SEED);
+  // Build schedule for relocate scenario
+  const totalYears = MAX_AGE - baseProfile.currentAge + 1;
+  const relocateBuyParams: BuyNowParams = {
+    propertyPrice: newPropertyPrice,
+    downPayment: newDownPayment,
+    purchaseCostRate: newPurchaseCostRate,
+    mortgageYears: newMortgageYears,
+    interestRate: newInterestRate,
+    ownerAnnualCost: newOwnerAnnualCost,
+    buyAfterYears: 0,
+  };
+  const relocateSchedule = computeYearlyHousingCosts(relocateBuyParams, totalYears);
+
+  let effectiveSchedule: number[];
+  if (relocateAfterYears === 0) {
+    effectiveSchedule = relocateSchedule;
+  } else {
+    const rentInflation = (baseProfile.rentInflationRate ?? baseProfile.inflationRate) / 100;
+    effectiveSchedule = [];
+    for (let y = 0; y < totalYears; y++) {
+      if (y < relocateAfterYears) {
+        effectiveSchedule.push(baseProfile.housingCostAnnual * Math.pow(1 + rentInflation, y));
+      } else {
+        effectiveSchedule.push(relocateSchedule[y - relocateAfterYears] ?? 0);
+      }
+    }
+  }
+
+  const relocateSim = runSimulationWithSeed(relocateProfile, BASE_SEED, effectiveSchedule);
+  const relocateSafeAge = computeSafeFireAge(relocateProfile, BASE_SEED, effectiveSchedule);
 
   // Calculate total costs over 40 years
-  const totalMortgagePayments = newMonthlyPayment * 12 * newMortgageYears;
-  const totalOwnerCosts = newOwnerAnnualCost * 40;
-  const relocateTotal40 = newDownPayment + newPurchaseCosts - saleProceeds + totalMortgagePayments + totalOwnerCosts;
+  const relocateTotal40 = newDownPayment + newPurchaseCosts - saleProceeds + relocateSchedule.slice(0, 40).reduce((s, c) => s + c, 0);
 
   const age60Index = Math.max(0, 60 - baseProfile.currentAge);
   const relocateAssetsAt60 = relocateSim.paths.yearlyData[age60Index]?.assets ?? 0;
@@ -456,17 +625,23 @@ export function runHousingScenarios(
   relocateParams?: RelocateParams | null
 ): HousingScenarioResult[] {
   const results: HousingScenarioResult[] = [];
-  
+  const totalYears = MAX_AGE - baseProfile.currentAge + 1;
+
   // === 1. Baseline (Rent) Scenario ===
   const baselineSim = runSimulationWithSeed(baseProfile, BASE_SEED);
   const baselineSafeAge = computeSafeFireAge(baseProfile, BASE_SEED);
-  
+
   const rentAnnual = baseProfile.housingCostAnnual;
-  const rentTotal40 = rentAnnual * 40;
-  
+  const rentInflation = (baseProfile.rentInflationRate ?? baseProfile.inflationRate) / 100;
+  let rentTotal40 = 0;
+  for (let y = 0; y < 40; y++) {
+    rentTotal40 += rentAnnual * Math.pow(1 + rentInflation, y);
+  }
+  rentTotal40 = Math.round(rentTotal40);
+
   const age60Index = Math.max(0, 60 - baseProfile.currentAge);
   const baselineAssetsAt60 = baselineSim.paths.yearlyData[age60Index]?.assets ?? 0;
-  
+
   results.push({
     type: 'RENT_BASELINE',
     scenarioProfile: baseProfile,
@@ -476,7 +651,7 @@ export function runHousingScenarios(
     totalCost40Years: rentTotal40,
     assetsAt60: baselineAssetsAt60,
   });
-  
+
   // === 2. Buy Scenario ===
   if (buyNowParams) {
     const {
@@ -488,19 +663,20 @@ export function runHousingScenarios(
       ownerAnnualCost,
       buyAfterYears,
     } = buyNowParams;
-    
+
     const purchaseCosts = propertyPrice * (purchaseCostRate / 100);
     const loanPrincipal = propertyPrice - downPayment;
     const monthlyPayment = computeMonthlyPaymentManYen(loanPrincipal, interestRate, mortgageYears);
     const mortgageAnnual = monthlyPayment * 12;
     const purchaseOutflow = downPayment + purchaseCosts;
-    
-    const totalMortgagePayments = monthlyPayment * 12 * mortgageYears;
-    const totalOwnerCosts = ownerAnnualCost * 40;
-    const buyTotal40 = purchaseOutflow + totalMortgagePayments + totalOwnerCosts;
-    
+
+    // Compute yearly housing cost schedule with rate steps + escalation
+    const buySchedule = computeYearlyHousingCosts(buyNowParams, totalYears);
+    const buyTotal40 = purchaseOutflow + buySchedule.slice(0, 40).reduce((s, c) => s + c, 0);
+
     let buyProfile: Profile;
-    
+    let effectiveSchedule: number[];
+
     if (buyAfterYears === 0) {
       buyProfile = applyPurchaseOutflow(
         {
@@ -515,7 +691,21 @@ export function runHousingScenarios(
         },
         purchaseOutflow
       );
+      effectiveSchedule = buySchedule;
     } else {
+      // Composite schedule: rent for buyAfterYears, then purchase schedule
+      effectiveSchedule = [];
+      for (let y = 0; y < totalYears; y++) {
+        if (y < buyAfterYears) {
+          // Rent period: use rentInflationRate
+          effectiveSchedule.push(rentAnnual * Math.pow(1 + rentInflation, y));
+        } else {
+          // Purchase period: offset into buy schedule
+          const buyYear = y - buyAfterYears;
+          effectiveSchedule.push(buySchedule[buyYear] ?? 0);
+        }
+      }
+
       buyProfile = {
         ...baseProfile,
         homeStatus: 'planning',
@@ -538,28 +728,28 @@ export function runHousingScenarios(
         ],
       };
     }
-    
-    const buySim = runSimulationWithSeed(buyProfile, BASE_SEED);
-    const buySafeAge = computeSafeFireAge(buyProfile, BASE_SEED);
-    
+
+    const buySim = runSimulationWithSeed(buyProfile, BASE_SEED, effectiveSchedule);
+    const buySafeAge = computeSafeFireAge(buyProfile, BASE_SEED, effectiveSchedule);
+
     const buyAssetsAt60 = buySim.paths.yearlyData[age60Index]?.assets ?? 0;
-    
+
     results.push({
       type: 'BUY_NOW',
       scenarioProfile: buyProfile,
       simulation: buySim,
       safeFireAge: buySafeAge,
       monthlyPayment: monthlyPayment + ownerAnnualCost / 12,
-      totalCost40Years: buyTotal40,
+      totalCost40Years: Math.round(buyTotal40),
       assetsAt60: buyAssetsAt60,
     });
   }
-  
+
   // === 3. Relocate Scenario (for existing homeowners) ===
   if (relocateParams) {
     const relocateResult = runRelocateScenario(baseProfile, relocateParams);
     results.push(relocateResult);
   }
-  
+
   return results;
 }
