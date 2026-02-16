@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Exit Readiness OS v2 - DecisionHost
+ * YOHACK v2 - DecisionHost
  * 意思決定の主画面（結論→理由→次の一手）
  */
 
@@ -54,9 +54,8 @@ export function DecisionHost() {
     : [];
   
   // 戦略を適用するハンドラー
-  const handleApplyStrategy = (lever: StrategyLever) => {
-    // TODO: 新しい世界線を作成して比較
-    console.log('Apply strategy:', lever);
+  const handleApplyStrategy = (_lever: StrategyLever) => {
+    // 世界線テンプレートでの比較はダッシュボードから実行
   };
 
   if (!profile) {

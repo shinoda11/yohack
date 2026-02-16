@@ -206,7 +206,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     onFocus={selectAll}
                     min={18}
                     max={80}
-                    className="mt-1"
+                    className="mt-1 min-h-[44px]"
                   />
                 </div>
                 <div>
@@ -216,7 +216,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       <button
                         key={m}
                         type="button"
-                        className={`flex-1 rounded-md border px-4 py-2 text-sm transition-colors ${
+                        className={`flex-1 rounded-md border px-4 py-2.5 text-sm min-h-[44px] transition-colors ${
                           formData.mode === m
                             ? 'border-[#C8B89A] bg-[#C8B89A]/15 text-foreground font-medium'
                             : 'border-border text-muted-foreground hover:border-foreground/30'
@@ -238,7 +238,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     onFocus={selectAll}
                     min={formData.currentAge + 1}
                     max={80}
-                    className="mt-1"
+                    className="mt-1 min-h-[44px]"
                   />
                 </div>
               </div>
@@ -269,7 +269,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       onChange={numChange('grossIncome')}
                       onFocus={selectAll}
                       min={0}
-                      className="pr-12"
+                      className="pr-12 min-h-[44px]"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">万円</span>
                   </div>
@@ -285,7 +285,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                         onChange={numChange('partnerGrossIncome')}
                         onFocus={selectAll}
                         min={0}
-                        className="pr-12"
+                        className="pr-12 min-h-[44px]"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">万円</span>
                     </div>
@@ -301,7 +301,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       onChange={numChange('housingCostMonthly')}
                       onFocus={selectAll}
                       min={0}
-                      className="pr-12"
+                      className="pr-12 min-h-[44px]"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">万円</span>
                   </div>
@@ -334,7 +334,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       onChange={numChange('totalAssets')}
                       onFocus={selectAll}
                       min={0}
-                      className="pr-12"
+                      className="pr-12 min-h-[44px]"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">万円</span>
                   </div>

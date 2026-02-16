@@ -1,5 +1,5 @@
 /**
- * Exit Readiness OS - Zustand State Management Store
+ * YOHACK - Zustand State Management Store
  * 
  * ============================================================
  * SINGLE SOURCE OF TRUTH (SoT) - 状態管理の唯一の場所

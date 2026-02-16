@@ -15,7 +15,9 @@ import {
   Save,
   Columns,
   Info,
+  Plus,
 } from 'lucide-react';
+import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
 
 interface V2ComparisonViewProps {
@@ -192,8 +194,17 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
   const rowHasDiff = (metric: MetricKey) =>
     scenarios.slice(0, 2).some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
 
+  // Unused worldline templates (for add-worldline prompt)
+  const usedNames = new Set(scenarios.map(s => s.name));
+  const unusedTemplates = worldlineTemplates.filter(t =>
+    t.isRelevant(profile) &&
+    !usedNames.has(t.baselineName) &&
+    !usedNames.has(t.variantName)
+  );
+
   // --- Comparison table (1+ scenarios) ---
   return (
+    <>
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
@@ -206,6 +217,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
       </CardHeader>
       <CardContent>
         {/* 比較表 */}
+        <p className="text-xs text-muted-foreground mb-2 sm:hidden">← 横スクロールできます</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -590,5 +602,29 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
         </div>
       </CardContent>
     </Card>
+
+    {/* 世界線追加プレースホルダー（シナリオ2本のときのみ） */}
+    {scenarios.length === 2 && (
+      <div className="rounded-lg border-2 border-dashed border-[#C8B89A]/40 hover:border-[#C8B89A] p-6 transition-colors">
+        <div className="flex flex-col items-center text-center gap-3">
+          <Plus className="h-6 w-6 text-[#8A7A62]" />
+          <p className="text-sm font-medium text-[#8A7A62]">世界線を追加</p>
+          <Link href="/">
+            <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
+              ダッシュボードで条件を変えて保存
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
+          {unusedTemplates.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              おすすめ: {unusedTemplates.slice(0, 3).map((t, i) => (
+                <span key={t.id}>{i > 0 ? '、' : ''}{t.icon} {t.label}</span>
+              ))}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
