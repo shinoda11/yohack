@@ -166,7 +166,7 @@ export function formatCurrency(value: number | null | undefined): string {
     const oku = abs / 10000;
     return `${sign}${oku % 1 === 0 ? oku.toFixed(0) : oku.toFixed(1)}億円`;
   }
-  return `${sign}${abs.toLocaleString()}万円`;
+  return `${sign}${Math.round(abs).toLocaleString()}万円`;
 }
 
 export function formatPercent(value: number | null | undefined): string {
