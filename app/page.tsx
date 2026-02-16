@@ -4,6 +4,19 @@ import { LPClient } from './lp-client'
 export default function LandingPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#FAF9F7' }}>
+      {/* Header */}
+      <header className="border-b bg-white/80 backdrop-blur-sm" style={{ borderColor: '#E8E4DE' }}>
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-2">
+          <svg width="24" height="24" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="90" y1="94" x2="42" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+            <line x1="90" y1="94" x2="138" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+            <line x1="90" y1="94" x2="90" y2="156" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+            <circle cx="90" cy="94" r="9" fill="#C8B89A" />
+          </svg>
+          <span className="text-lg font-semibold" style={{ color: '#1A1916' }}>YOHACK</span>
+        </div>
+      </header>
+
       {/* S1: Hero */}
       <section className="py-20 sm:py-28 px-4">
         <div className="max-w-3xl mx-auto text-center">
@@ -16,12 +29,12 @@ export default function LandingPage() {
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <line x1="90" y1="94" x2="42" y2="34" stroke="#5A5550" strokeWidth="7" strokeLinecap="round" />
-              <line x1="90" y1="94" x2="138" y2="34" stroke="#5A5550" strokeWidth="7" strokeLinecap="round" />
-              <line x1="90" y1="94" x2="90" y2="156" stroke="#5A5550" strokeWidth="7" strokeLinecap="round" />
+              <line x1="90" y1="94" x2="42" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+              <line x1="90" y1="94" x2="138" y2="34" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
+              <line x1="90" y1="94" x2="90" y2="156" stroke="#C8B89A" strokeWidth="7" strokeLinecap="round" />
               <circle cx="90" cy="94" r="9" fill="#C8B89A" />
-              <circle cx="42" cy="34" r="6" fill="#5A5550" />
-              <circle cx="138" cy="34" r="6" fill="#5A5550" />
+              <circle cx="42" cy="34" r="6" fill="#C8B89A" />
+              <circle cx="138" cy="34" r="6" fill="#C8B89A" />
             </svg>
           </div>
 

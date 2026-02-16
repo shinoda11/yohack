@@ -10,22 +10,54 @@ function ResultContent() {
   const searchParams = useSearchParams()
   const judgment = searchParams.get('judgment') as 'ready' | 'prep' | null
   const prepBucket = searchParams.get('prepBucket') as 'near' | 'notyet' | null
+  const isDev = searchParams.get('dev') === '1'
 
   if (judgment === 'ready') return <ReadyResult />
   if (judgment === 'prep') return <PrepResult prepBucket={prepBucket} />
 
   // Fallback
+  if (!judgment) {
+    if (isDev) {
+      return <DevPreview />
+    }
+    return (
+      <Card className="p-8 border-0 shadow-sm text-center">
+        <p style={{ color: '#5A5550' }}>判定結果が見つかりません。</p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => window.location.href = '/fit'}
+        >
+          適合チェックをやり直す
+        </Button>
+      </Card>
+    )
+  }
+
+  return null
+}
+
+function DevPreview() {
   return (
-    <Card className="p-8 border-0 shadow-sm text-center">
-      <p style={{ color: '#5A5550' }}>判定結果が見つかりません。</p>
-      <Button
-        variant="outline"
-        className="mt-4"
-        onClick={() => window.location.href = '/fit'}
-      >
-        適合チェックをやり直す
-      </Button>
-    </Card>
+    <div className="space-y-8">
+      <div className="text-center">
+        <p className="text-sm font-semibold" style={{ color: '#8A7A62' }}>
+          開発プレビュー — 全判定パターン
+        </p>
+      </div>
+      <div>
+        <p className="text-xs font-semibold mb-2" style={{ color: '#4A7C59' }}>Ready</p>
+        <ReadyResult />
+      </div>
+      <div>
+        <p className="text-xs font-semibold mb-2" style={{ color: '#C8B89A' }}>Prep (near)</p>
+        <PrepResult prepBucket="near" />
+      </div>
+      <div>
+        <p className="text-xs font-semibold mb-2" style={{ color: '#8A7A62' }}>Prep (notyet)</p>
+        <PrepResult prepBucket="notyet" />
+      </div>
+    </div>
   )
 }
 
@@ -56,7 +88,7 @@ function ReadyResult() {
           適合しました
         </h2>
         <p style={{ color: '#5A5550' }}>
-          YOHACKを使い始められる状態です。まずは無料でシミュレーションをお試しください。
+          YOHACKを使い始められる状態です。まずはシミュレーションをお試しください。
         </p>
       </div>
 
@@ -147,19 +179,19 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
               <ul className="space-y-2 text-xs" style={{ color: '#8A7A62' }}>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>□</span>
-                  <span><strong>意思決定期限</strong>：3か月以内に具体化</span>
+                  <span>検討の期限やエリアがある程度見えている</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>□</span>
-                  <span><strong>価格帯レンジ</strong>：「7,000万～9,999万」以上に絞り込む</span>
+                  <span>物件価格帯の目安が絞れている</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>□</span>
-                  <span><strong>数字入力許容</strong>：年収/資産/支出/物件価格を入力できる状態にする</span>
+                  <span>世帯の収支や資産を把握している</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>□</span>
-                  <span><strong>予算感</strong>：「3万～4.9万なら検討」以上に引き上げる</span>
+                  <span>意思決定ツールへの投資に前向き</span>
                 </li>
               </ul>
             </div>

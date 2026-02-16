@@ -1,5 +1,7 @@
 'use client'
 
+// TODO: モバイル最適化 — 12問を1問ずつ表示するステップ式UIに変更する
+
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,8 +11,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, Suspense } from 'react'
 import { judgeFitGate, saveFitGateAnswers } from '@/lib/fitgate'
 
 const fitGateSchema = z.object({
@@ -94,7 +96,17 @@ const questions = [
 ]
 
 export default function FitGatePage() {
+  return (
+    <Suspense fallback={null}>
+      <FitGateForm />
+    </Suspense>
+  )
+}
+
+function FitGateForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const hasTokenParam = searchParams.get('token') !== null
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 12
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -238,19 +250,21 @@ export default function FitGatePage() {
             )}
           </div>
 
-          {/* Invitation token */}
-          <div className="space-y-2 pt-4 border-t">
-            <Label htmlFor="token" style={{ color: '#5A5550' }}>招待トークン（任意）</Label>
-            <Input
-              id="token"
-              type="text"
-              placeholder="INV-XXXXXX"
-              {...register('invitationToken')}
-            />
-            <p className="text-xs" style={{ color: '#8A7A62' }}>
-              招待トークンをお持ちの場合は入力してください
-            </p>
-          </div>
+          {/* Invitation token — only shown when ?token= is in URL */}
+          {hasTokenParam && (
+            <div className="space-y-2 pt-4 border-t">
+              <Label htmlFor="token" style={{ color: '#5A5550' }}>招待トークン（任意）</Label>
+              <Input
+                id="token"
+                type="text"
+                placeholder="INV-XXXXXX"
+                {...register('invitationToken')}
+              />
+              <p className="text-xs" style={{ color: '#8A7A62' }}>
+                招待トークンをお持ちの場合は入力してください
+              </p>
+            </div>
+          )}
 
           {/* Submit */}
           <div className="pt-4">
