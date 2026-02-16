@@ -54,9 +54,13 @@ export default function LandingPage() {
           </p>
 
           <p className="mt-8 text-sm sm:text-base leading-relaxed" style={{ color: '#8A7A62' }}>
-            YOHACK は、人生の選択肢を「世界線」として並べ、
-            <br className="hidden sm:block" />
-            安心ラインと余白を見える化する意思決定シミュレーターです。
+            YOHACK は、
+            <br className="sm:hidden" />
+            人生の選択肢を「世界線」として並べ、
+            <br />
+            安心ラインと余白を見える化する
+            <br className="sm:hidden" />
+            意思決定シミュレーターです。
           </p>
 
           <div className="mt-10">
@@ -103,11 +107,19 @@ export default function LandingPage() {
               <h3 className="text-base font-semibold mb-2" style={{ color: '#1A1916' }}>
                 世帯年収 2,400万・家賃 32万の夫婦
               </h3>
-              <p className="text-sm mb-4" style={{ color: '#8A7A62' }}>
-                外資 IT ＋メガバンク。都心 8,500万の 2LDK を検討中。海外転職も視野。
+              <p className="text-sm mb-4 leading-relaxed" style={{ color: '#8A7A62' }}>
+                外資 IT ＋メガバンク。
+                <br className="sm:hidden" />
+                都心 8,500万の 2LDK を検討中。
+                <br className="sm:hidden" />
+                海外転職も視野。
               </p>
-              <p className="text-sm font-medium" style={{ color: '#5A5550' }}>
-                「家を買う / 買わない」より「駐在を取るかどうか」の方が、全体の余白に効いていた。
+              <p className="text-sm font-medium leading-relaxed" style={{ color: '#5A5550' }}>
+                「家を買う / 買わない」より
+                <br className="sm:hidden" />
+                「駐在を取るかどうか」の方が、
+                <br />
+                全体の余白に効いていた。
               </p>
               <p className="mt-4 text-xs" style={{ color: '#8A7A62' }}>
                 → 詳細は YOHACK 本体で確認できます
@@ -122,11 +134,19 @@ export default function LandingPage() {
               <h3 className="text-base font-semibold mb-2" style={{ color: '#1A1916' }}>
                 世帯年収 2,400万・コンサル × 事業会社
               </h3>
-              <p className="text-sm mb-4" style={{ color: '#8A7A62' }}>
-                ペースダウンしたい気持ちはあるが、今のうちに買うべきか迷っている。
+              <p className="text-sm mb-4 leading-relaxed" style={{ color: '#8A7A62' }}>
+                ペースダウンしたい気持ちはあるが、
+                <br className="sm:hidden" />
+                今のうちに買うべきか迷っている。
               </p>
-              <p className="text-sm font-medium" style={{ color: '#5A5550' }}>
-                年収 1,800万 → 1,200万のペースダウンを織り込んでも、8,000万ラインなら安心ラインを割らなかった。
+              <p className="text-sm font-medium leading-relaxed" style={{ color: '#5A5550' }}>
+                年収 1,800万 → 1,200万の
+                <br className="sm:hidden" />
+                ペースダウンを織り込んでも、
+                <br />
+                8,000万ラインなら
+                <br className="sm:hidden" />
+                安心ラインを割らなかった。
               </p>
               <p className="mt-4 text-xs" style={{ color: '#8A7A62' }}>
                 → 詳細は YOHACK 本体で確認できます
@@ -164,7 +184,16 @@ export default function LandingPage() {
                 世界線
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: '#5A5550' }}>
-                同じ前提で、異なる選択肢を並べて比較する。「家を買う世界線」と「買わない世界線」を、100歳まで並走させる。
+                同じ前提で、異なる選択肢を
+                <br className="sm:hidden" />
+                並べて比較する。
+              </p>
+              <p className="text-sm leading-relaxed mt-2" style={{ color: '#8A7A62' }}>
+                「家を買う世界線」と
+                <br className="sm:hidden" />
+                「買わない世界線」を、
+                <br className="sm:hidden" />
+                100歳まで並走させる。
               </p>
             </div>
 
@@ -183,7 +212,14 @@ export default function LandingPage() {
                 安心ライン
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: '#5A5550' }}>
-                「ここを割ると厳しい」の下限を見える化する。生存率と資産推移から、あなたの安心ラインを算出する。
+                「ここを割ると厳しい」の
+                <br className="sm:hidden" />
+                下限を見える化する。
+              </p>
+              <p className="text-sm leading-relaxed mt-2" style={{ color: '#8A7A62' }}>
+                生存率と資産推移から、
+                <br className="sm:hidden" />
+                あなたの安心ラインを算出する。
               </p>
             </div>
 
@@ -202,7 +238,14 @@ export default function LandingPage() {
                 余白
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: '#5A5550' }}>
-                その差分を「どの年代にどれだけ余裕が残るか」に翻訳する。お金・時間・リスクの3軸で、人生の余白を定量化する。
+                その差分を「どの年代に
+                <br className="sm:hidden" />
+                どれだけ余裕が残るか」に翻訳する。
+              </p>
+              <p className="text-sm leading-relaxed mt-2" style={{ color: '#8A7A62' }}>
+                お金・時間・リスクの 3 軸で、
+                <br className="sm:hidden" />
+                人生の余白を定量化する。
               </p>
             </div>
           </div>
@@ -211,15 +254,21 @@ export default function LandingPage() {
 
       {/* S4: Flat stance */}
       <section className="py-20 px-4" style={{ backgroundColor: '#F5F3EF' }}>
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-xl mx-auto text-center">
           <p className="text-base sm:text-lg leading-loose" style={{ color: '#5A5550' }}>
-            YOHACK は、物件も保険も投資商品も売りません。
+            YOHACK は、物件も保険も
+            <br className="sm:hidden" />
+            投資商品も売りません。
           </p>
           <p className="text-base sm:text-lg leading-loose mt-2" style={{ color: '#5A5550' }}>
-            どの世界線を選んでも、この OS の利益は変わりません。
+            どの世界線を選んでも、
+            <br className="sm:hidden" />
+            この OS の利益は変わりません。
           </p>
           <p className="text-base sm:text-lg leading-loose mt-2" style={{ color: '#5A5550' }}>
-            返すのは結論ではなく、比較と判断の土台です。
+            返すのは結論ではなく、
+            <br className="sm:hidden" />
+            比較と判断の土台です。
           </p>
         </div>
       </section>
@@ -246,7 +295,7 @@ export default function LandingPage() {
               <ul className="space-y-3 text-sm" style={{ color: '#5A5550' }}>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>—</span>
-                  <span>世帯年収 1,000〜3,000万で、7,000〜10,000万クラスの物件を本気で検討している</span>
+                  <span>世帯年収 1,000〜3,000万で、<br className="sm:hidden" />7,000〜10,000万クラスの物件を<br className="sm:hidden" />本気で検討している</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#C8B89A' }}>—</span>
@@ -274,7 +323,7 @@ export default function LandingPage() {
               <ul className="space-y-3 text-sm" style={{ color: '#5A5550' }}>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#8A7A62' }}>—</span>
-                  <span>予算 5,000万以下 or 1.5億以上（レンジ外）</span>
+                  <span>予算 5,000万以下 or 1.5億以上<br className="sm:hidden" />（レンジ外）</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span style={{ color: '#8A7A62' }}>—</span>
@@ -311,7 +360,9 @@ export default function LandingPage() {
       <section className="py-20 sm:py-28 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-base sm:text-lg leading-relaxed" style={{ color: '#5A5550' }}>
-            あなたのケースで、世界線比較が意味を持つかどうか。
+            あなたのケースで、
+            <br className="sm:hidden" />
+            世界線比較が意味を持つかどうか。
           </p>
           <p className="text-base sm:text-lg leading-relaxed mt-1" style={{ color: '#5A5550' }}>
             12問のチェックで確認できます。
@@ -333,7 +384,11 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t" style={{ borderColor: '#E8E4DE' }}>
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xs leading-relaxed" style={{ color: '#8A7A62' }}>
-            ※ YOHACK はファイナンシャルアドバイスではありません。シミュレーション結果は参考値であり、将来の成果を保証するものではありません。
+            ※ YOHACK はファイナンシャルアドバイスではありません。
+            <br />
+            シミュレーション結果は参考値であり、
+            <br className="sm:hidden" />
+            将来の成果を保証するものではありません。
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap mt-4">
             <Link href="/legal/terms" className="text-xs transition-colors hover:underline" style={{ color: '#8A7A62' }}>
