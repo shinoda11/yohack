@@ -83,6 +83,21 @@ export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isBrandDialogOpen, setIsBrandDialogOpen] = useState(false);
 
+  // Auto-open brand story on first visit
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!localStorage.getItem('yohack-brand-story-seen')) {
+      setIsBrandDialogOpen(true);
+    }
+  }, []);
+
+  const handleBrandDialogChange = (open: boolean) => {
+    setIsBrandDialogOpen(open);
+    if (!open && typeof window !== 'undefined') {
+      localStorage.setItem('yohack-brand-story-seen', '1');
+    }
+  };
+
   // Close sidebar when route changes (mobile)
   useEffect(() => {
     setIsOpen(false);
@@ -193,7 +208,7 @@ export function Sidebar() {
       </aside>
 
       {/* Brand Story Modal */}
-      <BrandStoryDialog open={isBrandDialogOpen} onOpenChange={setIsBrandDialogOpen} />
+      <BrandStoryDialog open={isBrandDialogOpen} onOpenChange={handleBrandDialogChange} />
     </>
   );
 }

@@ -5,7 +5,7 @@ import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, X } from 'lucide-react';
 
 // Dashboard input cards
 import { BasicInfoCard } from '@/components/dashboard/basic-info-card';
@@ -54,6 +54,7 @@ export default function DashboardPage() {
 
   const [activeTab, setActiveTab] = useState('summary');
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showFirstVisitBanner, setShowFirstVisitBanner] = useState(false);
 
   // Check for first-time visit
   useEffect(() => {
@@ -61,6 +62,9 @@ export default function DashboardPage() {
     const status = localStorage.getItem('yohack-onboarding-complete');
     if (!status) {
       setShowWelcome(true);
+    }
+    if (!localStorage.getItem('yohack-profile-edited')) {
+      setShowFirstVisitBanner(true);
     }
   }, []);
 
@@ -75,6 +79,18 @@ export default function DashboardPage() {
   });
 
   const { getFieldError } = useValidation(profile);
+
+  // Dismiss first-visit banner when profile is edited
+  const profileFingerprint = `${profile.currentAge}-${profile.targetRetireAge}-${profile.grossIncome}-${profile.livingCostAnnual}-${profile.assetCash}-${profile.assetInvest}`;
+  const initialFingerprint = useRef(profileFingerprint);
+  useEffect(() => {
+    if (profileFingerprint !== initialFingerprint.current && showFirstVisitBanner) {
+      setShowFirstVisitBanner(false);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('yohack-profile-edited', '1');
+      }
+    }
+  }, [profileFingerprint, showFirstVisitBanner]);
 
   // 旧版の強み「即座のフィードバックループ」を実現
   // パラメータ変更後3秒以内に結果が更新される
@@ -226,6 +242,28 @@ export default function DashboardPage() {
 
           {/* Profile Completeness - shown after onboarding */}
           <ProfileCompleteness profile={profile} onOpenCard={handleOpenCard} />
+
+          {/* First-visit banner */}
+          {showFirstVisitBanner && (
+            <div className="mb-6 flex items-start gap-3 rounded-lg border-l-4 border-l-[#C8B89A] bg-[#C8B89A]/10 p-4 dark:bg-[#C8B89A]/5">
+              <div className="flex-1 text-sm text-[#8A7A62] dark:text-[#C8B89A]">
+                <p className="font-medium">現在はサンプルデータでシミュレーションしています。</p>
+                <p className="mt-1 text-[#8A7A62]/80 dark:text-[#C8B89A]/80">左のパネルからあなたの条件を入力すると、結果が自動で更新されます。</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowFirstVisitBanner(false);
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('yohack-profile-edited', '1');
+                  }
+                }}
+                className="flex-shrink-0 rounded p-1 text-[#8A7A62]/60 hover:text-[#8A7A62] dark:text-[#C8B89A]/60 dark:hover:text-[#C8B89A] transition-colors"
+                aria-label="閉じる"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
 
           {/* Conclusion Summary - Always visible at top */}
           <div className="mb-6">
