@@ -15,6 +15,7 @@ export type LifeEventType =
   | 'income_decrease'
   | 'expense_increase'
   | 'expense_decrease'
+  | 'asset_gain'
   | 'asset_purchase'
   | 'child_birth'
   | 'education'

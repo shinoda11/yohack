@@ -311,7 +311,15 @@ function runSingleSimulationSeeded(
     const yearReturn = nominalReturn + rng.nextGaussian() * profile.volatility;
     const investmentGain = totalAssets * yearReturn;
 
-    totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain;
+    // One-time asset events (inheritance, gifts, severance, etc.)
+    let assetGain = 0;
+    for (const event of profile.lifeEvents) {
+      if (event.type === 'asset_gain' && age === event.age) {
+        assetGain += event.amount;
+      }
+    }
+
+    totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain + assetGain;
 
     if (totalAssets < -10000) {
       totalAssets = -10000;

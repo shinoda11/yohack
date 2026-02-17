@@ -27,6 +27,7 @@ import {
   Save,
   AlertCircle,
   ArrowRight,
+  Gift,
   GitBranch,
   Globe,
   Package,
@@ -86,7 +87,7 @@ interface PresetEvent {
   amount: number;
   duration: number;
   isRecurring: boolean;
-  category: 'family' | 'career' | 'lifestyle';
+  category: 'family' | 'career' | 'lifestyle' | 'asset';
   defaultTarget?: 'self' | 'partner';
 }
 
@@ -114,6 +115,13 @@ const presetEvents: PresetEvent[] = [
   { id: 'renovation', label: 'リフォーム', description: '住宅リフォーム 500万円', icon: <Home className="h-4 w-4" />, type: 'asset_purchase', ageOffset: 20, amount: 500, duration: 1, isRecurring: false, category: 'lifestyle' },
   { id: 'travel', label: '海外旅行（年1回）', description: '年間50万円 x 10年', icon: <Plane className="h-4 w-4" />, type: 'expense_increase', ageOffset: 5, amount: 50, duration: 10, isRecurring: true, category: 'lifestyle' },
   { id: 'expense_cut', label: '支出見直し', description: '節約で年間-60万円', icon: <Heart className="h-4 w-4" />, type: 'expense_decrease', ageOffset: 1, amount: 60, duration: 20, isRecurring: true, category: 'lifestyle' },
+  // Asset (相続・贈与・退職金)
+  { id: 'inheritance', label: '相続', description: '親からの相続（税引後）', icon: <Gift className="h-4 w-4" />, type: 'asset_gain', ageOffset: 30, amount: 2000, duration: 1, isRecurring: false, category: 'asset' },
+  { id: 'housing_gift', label: '住宅資金贈与', description: '親からの住宅購入援助', icon: <Home className="h-4 w-4" />, type: 'asset_gain', ageOffset: 0, amount: 1000, duration: 1, isRecurring: false, category: 'asset' },
+  { id: 'severance', label: '退職金', description: '退職時の一時金', icon: <Briefcase className="h-4 w-4" />, type: 'asset_gain', ageOffset: 15, amount: 3000, duration: 1, isRecurring: false, category: 'asset' },
+  // Family (介護)
+  { id: 'nursing_care_parent', label: '親の介護費用', description: '月10万×10年', icon: <Heart className="h-4 w-4" />, type: 'expense_increase', ageOffset: 25, amount: 120, duration: 10, isRecurring: true, category: 'family' },
+  { id: 'nursing_care_self', label: '自身の介護費用', description: '月15万×5年（80歳〜）', icon: <Heart className="h-4 w-4" />, type: 'expense_increase', ageOffset: 45, amount: 180, duration: 5, isRecurring: true, category: 'family' },
 ];
 
 // 未対応イベント
@@ -135,7 +143,7 @@ interface BundlePreset {
   label: string;
   description: string;
   icon: React.ReactNode;
-  category: 'family' | 'career' | 'lifestyle';
+  category: 'family' | 'career' | 'lifestyle' | 'asset';
   defaultAgeOffset: number;
   events: BundlePresetEvent[];
   coupleOnly?: boolean;
@@ -335,6 +343,7 @@ export function TimelineContent() {
   const familyPresets = presetEvents.filter((p) => p.category === 'family');
   const careerPresets = presetEvents.filter((p) => p.category === 'career' && (!p.defaultTarget || p.defaultTarget === 'self' || profile.mode === 'couple'));
   const lifestylePresets = presetEvents.filter((p) => p.category === 'lifestyle');
+  const assetPresets = presetEvents.filter((p) => p.category === 'asset');
 
   const addPresetEvent = (preset: PresetEvent) => {
     setSelectedPreset(preset);
@@ -610,6 +619,35 @@ export function TimelineContent() {
             </p>
             <div className="flex flex-wrap gap-2">
               {lifestylePresets.map((preset) => (
+                <TooltipProvider key={preset.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-auto py-2 px-3 bg-transparent"
+                        onClick={() => addPresetEvent(preset)}
+                      >
+                        {preset.icon}
+                        <span className="ml-1.5">{preset.label}</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{preset.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+              <Gift className="h-3 w-3" />
+              相続・贈与・退職金
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {assetPresets.map((preset) => (
                 <TooltipProvider key={preset.id}>
                   <Tooltip>
                     <TooltipTrigger asChild>

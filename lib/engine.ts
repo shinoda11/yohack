@@ -467,8 +467,16 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
     const yearReturn = randomNormal(nominalReturn, profile.volatility);
     const investmentGain = totalAssets * yearReturn;
 
+    // One-time asset events (inheritance, gifts, severance, etc.)
+    let assetGain = 0;
+    for (const event of profile.lifeEvents) {
+      if (event.type === 'asset_gain' && age === event.age) {
+        assetGain += event.amount;
+      }
+    }
+
     // Update total assets
-    totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain;
+    totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain + assetGain;
 
     // Assets can go negative (debt), but we track it
     if (totalAssets < -10000) {

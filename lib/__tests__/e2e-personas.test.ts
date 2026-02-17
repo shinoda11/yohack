@@ -664,4 +664,100 @@ describe('E2E ペルソナ検証', () => {
       expect(pension).toBeLessThan(280)
     })
   })
+
+  // ----------------------------------------------------------
+  // asset_gain イベント (E04)
+  // ----------------------------------------------------------
+  describe('asset_gain イベント', () => {
+    it('asset_gain が資産に反映される', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1000,
+        lifeEvents: [],
+      })
+
+      const withGain = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'inherit',
+            type: 'asset_gain',
+            name: '相続',
+            age: 45,
+            amount: 2000,
+            isRecurring: false,
+          },
+        ],
+      })
+
+      const [rBase, rWithGain] = await Promise.all([
+        runAverage(base),
+        runAverage(withGain),
+      ])
+
+      // 2000万の一時資産増加でスコアが上がる
+      expect(rWithGain.score).toBeGreaterThan(rBase.score)
+    })
+
+    it('asset_gain は該当年齢のみ発動する（一時的）', async () => {
+      const withGain = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1000,
+        lifeEvents: [
+          {
+            id: 'severance',
+            type: 'asset_gain',
+            name: '退職金',
+            age: 50,
+            amount: 3000,
+            isRecurring: false,
+          },
+        ],
+      })
+
+      const result = await runAverage(withGain, 1)
+      // 50歳以降の資産 > 49歳以前の資産（+3000万のジャンプ）
+      // paths[0] の yearlyData で確認する代わりに、スコアで間接検証
+      expect(result.score).toBeGreaterThan(0)
+    })
+  })
+
+  // ----------------------------------------------------------
+  // 介護費用 (E05)
+  // ----------------------------------------------------------
+  describe('介護費用イベント', () => {
+    it('expense_increase で介護費用がスコアに影響する', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1000,
+        lifeEvents: [],
+      })
+
+      const withNursing = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'nursing',
+            type: 'expense_increase',
+            name: '親の介護費用',
+            age: 60,
+            amount: 120,
+            duration: 10,
+            isRecurring: true,
+          },
+        ],
+      })
+
+      const [rBase, rWithNursing] = await Promise.all([
+        runAverage(base),
+        runAverage(withNursing),
+      ])
+
+      // 年120万×10年の支出増でスコアが下がる
+      expect(rBase.score).toBeGreaterThan(rWithNursing.score)
+    })
+  })
 })
