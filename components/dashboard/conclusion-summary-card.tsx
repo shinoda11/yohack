@@ -437,6 +437,11 @@ export function ConclusionSummaryCard({
                       );
                     })}
                 </div>
+                <Link href="/app/branch" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors pt-1">
+                  <GitBranch className="h-4 w-4" />
+                  分岐ビルダーを使う
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
             )}
           </div>

@@ -12,6 +12,8 @@ const tabs = [
   { href: '/app/settings', label: '設定', icon: Settings },
 ] as const;
 
+// Note: /app/profile is not in the bottom nav; it's accessed from the sidebar on desktop
+
 export function BottomNav() {
   const pathname = usePathname();
 
@@ -19,10 +21,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t bg-[#F0ECE4]/95 backdrop-blur-sm" style={{ borderColor: '#E8E4DE' }}>
       <div className="flex h-16 items-stretch" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         {tabs.map(({ href, label, icon: Icon }) => {
-          const isActive =
-            href === '/app'
-              ? pathname === '/app' || pathname === '/app/profile'
-              : pathname === href;
+          const isActive = pathname === href;
           return (
             <Link
               key={href}

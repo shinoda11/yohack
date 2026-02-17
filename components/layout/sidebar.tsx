@@ -61,7 +61,7 @@ interface NavItemWithBadge extends NavItem {
 const navItems: NavItemWithBadge[] = [
   {
     href: '/app',
-    label: 'ホーム',
+    label: 'ダッシュボード',
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
@@ -71,7 +71,7 @@ const navItems: NavItemWithBadge[] = [
   },
   {
     href: '/app/branch',
-    label: '分岐',
+    label: '分岐ビルダー',
     icon: <GitBranch className="h-5 w-5" />,
   },
   {
@@ -120,8 +120,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
-            || (item.href === '/app' && pathname === '/app/profile');
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}

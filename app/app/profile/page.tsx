@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, ArrowLeft } from 'lucide-react';
 
 // Input cards
 import { BasicInfoCard } from '@/components/dashboard/basic-info-card';
@@ -162,10 +163,11 @@ export default function ProfilePage() {
       <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-6">
           <div>
+            <Link href="/app" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-0.5">
+              <ArrowLeft className="h-3 w-3" />
+              ダッシュボードに戻る
+            </Link>
             <h1 className="text-xl font-semibold text-foreground">プロファイル</h1>
-            <p className="text-sm text-muted-foreground">
-              あなたの現在の状況を設定します
-            </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm">
