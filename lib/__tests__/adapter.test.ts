@@ -184,6 +184,7 @@ describe('calculateMoneyMargin', () => {
       metrics: { fireAge: 50, assetAt100: 5000, survivalRate: 80, yearsToFire: 15 },
       cashFlow: { income: 1000, pension: 0, dividends: 0, expenses: 0, netCashFlow: 1000 },
       score: { overall: 70, level: 'YELLOW', survival: 80, lifestyle: 60, risk: 70, liquidity: 50 },
+      engineVersion: '1.0.0',
     }
     const money = calculateMoneyMargin(profile, mockResult)
 

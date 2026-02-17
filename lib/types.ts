@@ -146,6 +146,7 @@ export interface SimulationResult {
   metrics: KeyMetrics;
   cashFlow: CashFlowBreakdown;
   score: ExitScoreDetail;
+  engineVersion: string;
 }
 
 // Scenario for comparison

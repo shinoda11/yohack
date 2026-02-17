@@ -14,6 +14,8 @@ import type {
 } from './types';
 import { getScoreLevel } from './types';
 
+export const ENGINE_VERSION = '1.0.0';
+
 const SIMULATION_RUNS = 1000;
 const MAX_AGE = 100;
 
@@ -749,7 +751,8 @@ export async function runSimulation(profile: Profile): Promise<SimulationResult>
       paths,
       metrics,
       cashFlow,
-      score
+      score,
+      engineVersion: ENGINE_VERSION,
     };
   } catch (error) {
     // Re-throw validation errors as-is
