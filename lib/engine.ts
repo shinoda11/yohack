@@ -4,6 +4,7 @@
 import type {
   Profile,
   LifeEvent,
+  HomeStatus,
   SimulationResult,
   AssetPoint,
   SimulationPath,
@@ -399,17 +400,24 @@ function calculateNetIncome(profile: Profile, age: number): number {
 
 // Calculate annual expenses with inflation
 // inflationFactor: (1 + rate)^yearsElapsed — applied to living costs & rent, not mortgage
-function calculateExpenses(profile: Profile, age: number, inflationFactor: number = 1): number {
+function calculateExpenses(
+  profile: Profile,
+  age: number,
+  inflationFactor: number = 1,
+  housingOverrides?: { homeStatus: HomeStatus; housingCostAnnual: number }
+): number {
   const isRetired = age >= profile.targetRetireAge;
 
   // Housing cost: rent inflates at rentInflationRate, mortgage stays nominal
-  const isOwner = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
+  const homeStatus = housingOverrides?.homeStatus ?? profile.homeStatus;
+  const housingCostBase = housingOverrides?.housingCostAnnual ?? profile.housingCostAnnual;
+  const isOwner = homeStatus === 'owner' || homeStatus === 'relocating';
   const yearsElapsed = age - profile.currentAge;
   const rentInflation = profile.rentInflationRate ?? profile.inflationRate;
   const rentInflationFactor = Math.pow(1 + rentInflation / 100, yearsElapsed);
   const housingCost = isOwner
-    ? profile.housingCostAnnual                         // Mortgage: nominal fixed
-    : profile.housingCostAnnual * rentInflationFactor;  // Rent: inflates at rentInflationRate
+    ? housingCostBase                         // Mortgage+maintenance: nominal fixed
+    : housingCostBase * rentInflationFactor;  // Rent: inflates at rentInflationRate
 
   // Living costs inflate
   let baseExpenses = profile.livingCostAnnual * inflationFactor + housingCost;
@@ -447,9 +455,59 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
   const nominalReturn = profile.expectedReturn / 100;
   const inflationRate = profile.inflationRate / 100;
 
+  // Housing purchase transition state
+  let purchaseOccurred = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
+  let housingOverrides: { homeStatus: HomeStatus; housingCostAnnual: number } | undefined;
+  let mortgageEndAge = 0;
+  let ownerAnnualCost = 0;
+
   for (let age = profile.currentAge; age <= MAX_AGE; age++) {
     // Record current state
     path.push({ age, assets: Math.round(totalAssets) });
+
+    // Housing purchase event check (once per simulation)
+    if (!purchaseOccurred) {
+      for (const event of profile.lifeEvents) {
+        if (event.type === 'housing_purchase' && age === event.age && event.purchaseDetails) {
+          const d = event.purchaseDetails;
+
+          // 1. Deduct down payment + purchase costs from assets
+          const purchaseCosts = d.propertyPrice * (d.purchaseCostRate / 100);
+          const totalUpfront = d.downPayment + purchaseCosts;
+          totalAssets -= totalUpfront;
+
+          // 2. Calculate annual mortgage payment
+          const loanPrincipal = Math.max(0, d.propertyPrice - d.downPayment);
+          let mortgagePaymentAnnual = 0;
+          if (loanPrincipal > 0 && d.mortgageYears > 0) {
+            const monthlyRate = d.interestRate / 100 / 12;
+            const numPayments = d.mortgageYears * 12;
+            if (monthlyRate === 0) {
+              mortgagePaymentAnnual = (loanPrincipal / numPayments) * 12;
+            } else {
+              const monthlyPayment = loanPrincipal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)
+                / (Math.pow(1 + monthlyRate, numPayments) - 1);
+              mortgagePaymentAnnual = monthlyPayment * 12;
+            }
+          }
+
+          // 3. Switch housing costs
+          ownerAnnualCost = d.ownerAnnualCost;
+          mortgageEndAge = age + d.mortgageYears;
+          housingOverrides = {
+            homeStatus: 'owner',
+            housingCostAnnual: mortgagePaymentAnnual + ownerAnnualCost,
+          };
+          purchaseOccurred = true;
+          break;
+        }
+      }
+    }
+
+    // After mortgage payoff, only maintenance costs remain
+    if (housingOverrides && age >= mortgageEndAge) {
+      housingOverrides = { homeStatus: 'owner', housingCostAnnual: ownerAnnualCost };
+    }
 
     // Inflation factor: compound from start year
     const yearsElapsed = age - profile.currentAge;
@@ -457,7 +515,7 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
 
     // Calculate cash flow for this year
     const income = calculateNetIncome(profile, age);
-    const expenses = calculateExpenses(profile, age, inflationFactor);
+    const expenses = calculateExpenses(profile, age, inflationFactor, housingOverrides);
     const netCashFlow = income - expenses;
 
     // Add DC contribution if working
@@ -480,7 +538,6 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
 
     // Assets can go negative (debt), but we track it
     if (totalAssets < -10000) {
-      // Cap negative at -1億 for practical purposes
       totalAssets = -10000;
     }
   }

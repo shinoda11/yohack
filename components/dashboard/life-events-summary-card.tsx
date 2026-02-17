@@ -12,6 +12,7 @@ const EVENT_ICONS: Record<LifeEventType, string> = {
   expense_increase: '💸',
   expense_decrease: '✂️',
   asset_gain: '🎁',
+  housing_purchase: '🏠',
   asset_purchase: '🏠',
   child_birth: '👶',
   education: '🎓',
@@ -22,6 +23,9 @@ const EVENT_ICONS: Record<LifeEventType, string> = {
 function formatAmount(type: LifeEventType, amount: number): string {
   if (type === 'asset_gain') {
     return `+${amount}万円`;
+  }
+  if (type === 'housing_purchase') {
+    return `${amount.toLocaleString()}万円`;
   }
   const isPositiveExpense =
     type === 'expense_increase' ||

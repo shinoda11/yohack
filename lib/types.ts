@@ -17,12 +17,22 @@ export type LifeEventType =
   | 'expense_decrease'
   | 'asset_gain'
   | 'asset_purchase'
+  | 'housing_purchase'
   | 'child_birth'
   | 'education'
   | 'retirement_partial'
   | 'rental_income';
 
 // Life event definition
+export interface HousingPurchaseDetails {
+  propertyPrice: number;      // 物件価格（万円）
+  downPayment: number;        // 頭金（万円）
+  purchaseCostRate: number;   // 諸費用率（%、デフォルト7）
+  mortgageYears: number;      // ローン年数（デフォルト35）
+  interestRate: number;       // 金利（%、デフォルト0.5）
+  ownerAnnualCost: number;    // 管理費+固定資産税（万円/年、デフォルト40）
+}
+
 export interface LifeEvent {
   id: string;
   type: LifeEventType;
@@ -33,6 +43,7 @@ export interface LifeEvent {
   isRecurring: boolean;
   target?: 'self' | 'partner'; // undefined = 'self'（後方互換）
   bundleId?: string; // バンドルプリセットで一括登録されたイベントの紐づけ用
+  purchaseDetails?: HousingPurchaseDetails; // housing_purchase 専用
 }
 
 // User profile / input data

@@ -48,7 +48,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { LifeEvent, LifeEventType, Profile } from '@/lib/types';
+import type { LifeEvent, LifeEventType, HousingPurchaseDetails, Profile } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 // 落ち着いた配色のアイコン設定
@@ -57,6 +57,8 @@ const eventTypeIcons: Record<string, React.ReactNode> = {
   income_decrease: <TrendingDown className="h-4 w-4" />,
   expense_increase: <TrendingUp className="h-4 w-4" />,
   expense_decrease: <TrendingDown className="h-4 w-4" />,
+  asset_gain: <Gift className="h-4 w-4" />,
+  housing_purchase: <Home className="h-4 w-4" />,
   asset_purchase: <Home className="h-4 w-4" />,
   child_birth: <Baby className="h-4 w-4" />,
   education: <GraduationCap className="h-4 w-4" />,
@@ -69,6 +71,8 @@ const eventTypeLabels: Record<string, string> = {
   income_decrease: '収入減少',
   expense_increase: '支出増加',
   expense_decrease: '支出削減',
+  asset_gain: '一時資産増',
+  housing_purchase: '住宅購入',
   asset_purchase: '資産購入',
   child_birth: '出産',
   education: '教育費',
@@ -87,8 +91,9 @@ interface PresetEvent {
   amount: number;
   duration: number;
   isRecurring: boolean;
-  category: 'family' | 'career' | 'lifestyle' | 'asset';
+  category: 'family' | 'career' | 'lifestyle' | 'asset' | 'housing';
   defaultTarget?: 'self' | 'partner';
+  defaultPurchaseDetails?: HousingPurchaseDetails;
 }
 
 const presetEvents: PresetEvent[] = [
@@ -122,6 +127,8 @@ const presetEvents: PresetEvent[] = [
   // Family (介護)
   { id: 'nursing_care_parent', label: '親の介護費用', description: '月10万×10年', icon: <Heart className="h-4 w-4" />, type: 'expense_increase', ageOffset: 25, amount: 120, duration: 10, isRecurring: true, category: 'family' },
   { id: 'nursing_care_self', label: '自身の介護費用', description: '月15万×5年（80歳〜）', icon: <Heart className="h-4 w-4" />, type: 'expense_increase', ageOffset: 45, amount: 180, duration: 5, isRecurring: true, category: 'family' },
+  // Housing
+  { id: 'housing_purchase', label: '住宅購入', description: '賃貸→持ち家に切り替え', icon: <Home className="h-4 w-4" />, type: 'housing_purchase', ageOffset: 3, amount: 8000, duration: 1, isRecurring: false, category: 'housing', defaultPurchaseDetails: { propertyPrice: 8000, downPayment: 800, purchaseCostRate: 7, mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 40 } },
 ];
 
 // 未対応イベント
@@ -216,6 +223,14 @@ export function TimelineContent() {
   // Target selector state (self/partner)
   const [customTargetInput, setCustomTargetInput] = useState<'self' | 'partner'>('self');
 
+  // Purchase details state (for housing_purchase preset)
+  const [purchasePropertyPrice, setPurchasePropertyPrice] = useState('8000');
+  const [purchaseDownPayment, setPurchaseDownPayment] = useState('800');
+  const [purchaseCostRate, setPurchaseCostRate] = useState('7');
+  const [purchaseMortgageYears, setPurchaseMortgageYears] = useState('35');
+  const [purchaseInterestRate, setPurchaseInterestRate] = useState('0.5');
+  const [purchaseOwnerAnnualCost, setPurchaseOwnerAnnualCost] = useState('40');
+
   // Edit dialog state
   const [editingEvent, setEditingEvent] = useState<LifeEvent | null>(null);
   const [editAgeInput, setEditAgeInput] = useState('');
@@ -239,6 +254,14 @@ export function TimelineContent() {
     setEditAmountInput(String(event.amount));
     setEditDurationInput(String(event.duration || 1));
     setEditTargetInput(event.target || 'self');
+    if (event.purchaseDetails) {
+      setPurchasePropertyPrice(String(event.purchaseDetails.propertyPrice));
+      setPurchaseDownPayment(String(event.purchaseDetails.downPayment));
+      setPurchaseCostRate(String(event.purchaseDetails.purchaseCostRate));
+      setPurchaseMortgageYears(String(event.purchaseDetails.mortgageYears));
+      setPurchaseInterestRate(String(event.purchaseDetails.interestRate));
+      setPurchaseOwnerAnnualCost(String(event.purchaseDetails.ownerAnnualCost));
+    }
   };
 
   const handleSaveEdit = () => {
@@ -250,6 +273,17 @@ export function TimelineContent() {
       duration: editingEvent.isRecurring ? editDuration : 1,
       target: editTargetInput !== 'self' ? editTargetInput : undefined,
     };
+    if (editingEvent.type === 'housing_purchase') {
+      updated.purchaseDetails = {
+        propertyPrice: Number(purchasePropertyPrice) || 0,
+        downPayment: Number(purchaseDownPayment) || 0,
+        purchaseCostRate: Number(purchaseCostRate) || 7,
+        mortgageYears: Number(purchaseMortgageYears) || 35,
+        interestRate: Number(purchaseInterestRate) || 0.5,
+        ownerAnnualCost: Number(purchaseOwnerAnnualCost) || 40,
+      };
+      updated.amount = updated.purchaseDetails.propertyPrice;
+    }
     updateProfile({
       lifeEvents: lifeEvents.map((e) => (e.id === updated.id ? updated : e)),
     });
@@ -344,6 +378,7 @@ export function TimelineContent() {
   const careerPresets = presetEvents.filter((p) => p.category === 'career' && (!p.defaultTarget || p.defaultTarget === 'self' || profile.mode === 'couple'));
   const lifestylePresets = presetEvents.filter((p) => p.category === 'lifestyle');
   const assetPresets = presetEvents.filter((p) => p.category === 'asset');
+  const housingPresets = presetEvents.filter((p) => p.category === 'housing' && profile.homeStatus === 'renter');
 
   const addPresetEvent = (preset: PresetEvent) => {
     setSelectedPreset(preset);
@@ -362,6 +397,17 @@ export function TimelineContent() {
       amount = Math.round(profile.partnerGrossIncome * 0.5);
     }
     setCustomAmountInput(String(amount));
+
+    // Populate purchase details state
+    if (preset.defaultPurchaseDetails) {
+      const d = preset.defaultPurchaseDetails;
+      setPurchasePropertyPrice(String(d.propertyPrice));
+      setPurchaseDownPayment(String(d.downPayment));
+      setPurchaseCostRate(String(d.purchaseCostRate));
+      setPurchaseMortgageYears(String(d.mortgageYears));
+      setPurchaseInterestRate(String(d.interestRate));
+      setPurchaseOwnerAnnualCost(String(d.ownerAnnualCost));
+    }
 
     setIsPresetDialogOpen(true);
   };
@@ -409,6 +455,19 @@ export function TimelineContent() {
       isRecurring: selectedPreset.isRecurring,
       target: customTargetInput !== 'self' ? customTargetInput : undefined,
     };
+
+    // Attach purchaseDetails for housing_purchase
+    if (selectedPreset.type === 'housing_purchase') {
+      event.purchaseDetails = {
+        propertyPrice: Number(purchasePropertyPrice) || 0,
+        downPayment: Number(purchaseDownPayment) || 0,
+        purchaseCostRate: Number(purchaseCostRate) || 7,
+        mortgageYears: Number(purchaseMortgageYears) || 35,
+        interestRate: Number(purchaseInterestRate) || 0.5,
+        ownerAnnualCost: Number(purchaseOwnerAnnualCost) || 40,
+      };
+      event.amount = event.purchaseDetails.propertyPrice;
+    }
 
     updateProfile({
       lifeEvents: [...lifeEvents, event],
@@ -669,6 +728,37 @@ export function TimelineContent() {
               ))}
             </div>
           </div>
+
+          {housingPresets.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <Home className="h-3 w-3" />
+                住宅購入
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {housingPresets.map((preset) => (
+                  <TooltipProvider key={preset.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-auto py-2 px-3 bg-transparent"
+                          onClick={() => addPresetEvent(preset)}
+                        >
+                          {preset.icon}
+                          <span className="ml-1.5">{preset.label}</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{preset.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </SectionCard>
 
@@ -724,7 +814,12 @@ export function TimelineContent() {
                                 )}
                               </span>
                             </div>
-                            {event.amount > 0 && (
+                            {event.type === 'housing_purchase' && event.purchaseDetails ? (
+                              <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                                <p>物件価格: {event.purchaseDetails.propertyPrice.toLocaleString()}万円 / 頭金: {event.purchaseDetails.downPayment.toLocaleString()}万円</p>
+                                <p>ローン: {Math.max(0, event.purchaseDetails.propertyPrice - event.purchaseDetails.downPayment).toLocaleString()}万円 / {event.purchaseDetails.mortgageYears}年 / 金利{event.purchaseDetails.interestRate}%</p>
+                              </div>
+                            ) : event.amount > 0 && (
                               <p className={cn(
                                 'mt-1 text-sm font-medium',
                                 isExpense ? 'text-muted-foreground' : 'text-foreground'
@@ -944,6 +1039,7 @@ export function TimelineContent() {
                 </div>
               </div>
 
+              {selectedPreset.type !== 'housing_purchase' && (
               <div className="space-y-2">
                 <Label htmlFor="preset-amount">
                   {selectedPreset.isRecurring ? '年間金額' : '金額（一括）'}
@@ -978,6 +1074,7 @@ export function TimelineContent() {
                   </span>
                 </div>
               </div>
+              )}
 
               {selectedPreset.isRecurring && (
                 <div className="space-y-2">
@@ -1043,6 +1140,75 @@ export function TimelineContent() {
                 </div>
               )}
 
+              {selectedPreset.type === 'housing_purchase' && (
+                <div className="space-y-3 rounded-lg border p-3">
+                  <p className="text-xs font-medium text-muted-foreground">住宅ローン設定</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-price" className="text-xs">物件価格</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-price" type="text" inputMode="numeric" value={purchasePropertyPrice} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchasePropertyPrice(e.target.value); }} className="w-20 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-down" className="text-xs">頭金</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-down" type="text" inputMode="numeric" value={purchaseDownPayment} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseDownPayment(e.target.value); }} className="w-20 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-cost-rate" className="text-xs">諸費用率</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-cost-rate" type="text" inputMode="decimal" value={purchaseCostRate} onChange={(e) => { if (/^\d*\.?\d*$/.test(e.target.value)) setPurchaseCostRate(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-years" className="text-xs">ローン年数</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-years" type="text" inputMode="numeric" value={purchaseMortgageYears} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseMortgageYears(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">年</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-rate" className="text-xs">金利</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-rate" type="text" inputMode="decimal" value={purchaseInterestRate} onChange={(e) => { if (/^\d*\.?\d*$/.test(e.target.value)) setPurchaseInterestRate(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="purchase-annual-cost" className="text-xs">管理費+税</Label>
+                      <div className="flex items-center gap-1">
+                        <Input id="purchase-annual-cost" type="text" inputMode="numeric" value={purchaseOwnerAnnualCost} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseOwnerAnnualCost(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円/年</span>
+                      </div>
+                    </div>
+                  </div>
+                  {(() => {
+                    const pp = Number(purchasePropertyPrice) || 0;
+                    const dp = Number(purchaseDownPayment) || 0;
+                    const cr = Number(purchaseCostRate) || 0;
+                    const loan = Math.max(0, pp - dp);
+                    const costs = pp * (cr / 100);
+                    const ir = (Number(purchaseInterestRate) || 0) / 100 / 12;
+                    const np = (Number(purchaseMortgageYears) || 1) * 12;
+                    const monthly = loan > 0 && ir > 0
+                      ? loan * ir * Math.pow(1 + ir, np) / (Math.pow(1 + ir, np) - 1)
+                      : loan / np;
+                    return (
+                      <div className="text-xs text-muted-foreground space-y-0.5 pt-1 border-t">
+                        <p>借入額: {loan.toLocaleString()}万円 / 諸費用: {Math.round(costs).toLocaleString()}万円</p>
+                        <p>初期費用: {(dp + Math.round(costs)).toLocaleString()}万円 / 月々返済: {Math.round(monthly).toLocaleString()}万円</p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {selectedPreset.type !== 'housing_purchase' && (
               <div className="rounded-lg bg-muted/50 p-3">
                 <p className="text-sm">
                   <span className="font-medium">{customAge}歳</span>
@@ -1063,6 +1229,7 @@ export function TimelineContent() {
                   </span>
                 </p>
               </div>
+              )}
             </div>
 
             <DialogFooter>
@@ -1180,6 +1347,56 @@ export function TimelineContent() {
                   </p>
                 )}
               </div>
+
+              {editingEvent.type === 'housing_purchase' && (
+                <div className="space-y-3 rounded-lg border p-3">
+                  <p className="text-xs font-medium text-muted-foreground">住宅ローン設定</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">物件価格</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="numeric" value={purchasePropertyPrice} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchasePropertyPrice(e.target.value); }} className="w-20 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">頭金</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="numeric" value={purchaseDownPayment} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseDownPayment(e.target.value); }} className="w-20 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">諸費用率</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="decimal" value={purchaseCostRate} onChange={(e) => { if (/^\d*\.?\d*$/.test(e.target.value)) setPurchaseCostRate(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">ローン年数</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="numeric" value={purchaseMortgageYears} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseMortgageYears(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">年</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">金利</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="decimal" value={purchaseInterestRate} onChange={(e) => { if (/^\d*\.?\d*$/.test(e.target.value)) setPurchaseInterestRate(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">%</span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">管理費+税</Label>
+                      <div className="flex items-center gap-1">
+                        <Input type="text" inputMode="numeric" value={purchaseOwnerAnnualCost} onChange={(e) => { if (/^\d*$/.test(e.target.value)) setPurchaseOwnerAnnualCost(e.target.value); }} className="w-16 h-8 text-sm" />
+                        <span className="text-xs text-muted-foreground">万円/年</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {profile.mode === 'couple' && (editingEvent.type === 'income_increase' || editingEvent.type === 'income_decrease') && (
                 <div className="space-y-2">

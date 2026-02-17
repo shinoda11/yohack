@@ -760,4 +760,140 @@ describe('E2E ペルソナ検証', () => {
       expect(rBase.score).toBeGreaterThan(rWithNursing.score)
     })
   })
+
+  // ----------------------------------------------------------
+  // 住宅購入イベント (E01)
+  // ----------------------------------------------------------
+  describe('住宅購入イベント', () => {
+    it('housing_purchase で初期費用が資産から差し引かれる', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1000,
+        homeStatus: 'renter',
+        housingCostAnnual: 180,
+        assetCash: 2000,
+        assetInvest: 3000,
+        lifeEvents: [],
+      })
+
+      const withPurchase = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'house-buy',
+            type: 'housing_purchase',
+            name: '住宅購入',
+            age: 38,
+            amount: 6000,
+            isRecurring: false,
+            purchaseDetails: {
+              propertyPrice: 6000,
+              downPayment: 600,
+              purchaseCostRate: 7,
+              mortgageYears: 35,
+              interestRate: 0.5,
+              ownerAnnualCost: 40,
+            },
+          },
+        ],
+      })
+
+      const [rBase, rWithPurchase] = await Promise.all([
+        runAverage(base),
+        runAverage(withPurchase),
+      ])
+
+      // 頭金600万+諸費用420万=1020万が差し引かれるのでスコアが下がる
+      expect(rBase.score).toBeGreaterThan(rWithPurchase.score)
+    })
+
+    it('housing_purchase で住居費がローン+管理費に切り替わる', async () => {
+      // 高家賃 → 安いローンへの切り替えでスコアが上がるケース
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1500,
+        homeStatus: 'renter',
+        housingCostAnnual: 300, // 高い家賃（月25万）
+        assetCash: 5000,
+        assetInvest: 5000,
+        lifeEvents: [],
+      })
+
+      const withPurchase = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'house-buy-2',
+            type: 'housing_purchase',
+            name: '住宅購入',
+            age: 36,
+            amount: 5000,
+            isRecurring: false,
+            purchaseDetails: {
+              propertyPrice: 5000,
+              downPayment: 2000,
+              purchaseCostRate: 7,
+              mortgageYears: 35,
+              interestRate: 0.5,
+              ownerAnnualCost: 30,
+            },
+          },
+        ],
+      })
+
+      const [rBase, rWithPurchase] = await Promise.all([
+        runAverage(base),
+        runAverage(withPurchase),
+      ])
+
+      // 3000万ローン@0.5%/35年 = 月約7.8万 + 管理費2.5万 = 月約10.3万 (年123万)
+      // vs 家賃300万/年 → 住居費が大幅に下がるので生存率が改善する
+      expect(rWithPurchase.survivalRate).toBeGreaterThan(rBase.survivalRate)
+    })
+
+    it('既に持ち家の場合は housing_purchase イベントが無視される', async () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 55,
+        grossIncome: 1000,
+        homeStatus: 'owner',
+        housingCostAnnual: 100,
+        assetCash: 2000,
+        assetInvest: 3000,
+        lifeEvents: [],
+      })
+
+      const withPurchase = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'house-buy-3',
+            type: 'housing_purchase',
+            name: '住宅購入',
+            age: 38,
+            amount: 6000,
+            isRecurring: false,
+            purchaseDetails: {
+              propertyPrice: 6000,
+              downPayment: 600,
+              purchaseCostRate: 7,
+              mortgageYears: 35,
+              interestRate: 0.5,
+              ownerAnnualCost: 40,
+            },
+          },
+        ],
+      })
+
+      const [rBase, rWithPurchase] = await Promise.all([
+        runAverage(base, 5),
+        runAverage(withPurchase, 5),
+      ])
+
+      // 既に owner なので housing_purchase は無視、スコアはほぼ同じ
+      expect(Math.abs(rBase.score - rWithPurchase.score)).toBeLessThanOrEqual(5)
+    })
+  })
 })

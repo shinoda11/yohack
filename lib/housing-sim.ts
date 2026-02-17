@@ -295,8 +295,24 @@ function runSingleSimulationSeeded(
   const nominalReturn = profile.expectedReturn / 100;
   const inflationRate = profile.inflationRate / 100;
 
+  // Housing purchase transition (for non-housing-comparison simulations)
+  let hpHandled = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
+
   for (let age = profile.currentAge; age <= MAX_AGE; age++) {
     path.push({ age, assets: Math.round(totalAssets) });
+
+    // housing_purchase: deduct upfront costs (housing cost schedule handles ongoing costs)
+    if (!hpHandled) {
+      for (const event of profile.lifeEvents) {
+        if (event.type === 'housing_purchase' && age === event.age && event.purchaseDetails) {
+          const d = event.purchaseDetails;
+          const totalUpfront = d.downPayment + d.propertyPrice * (d.purchaseCostRate / 100);
+          totalAssets -= totalUpfront;
+          hpHandled = true;
+          break;
+        }
+      }
+    }
 
     const yearsElapsed = age - profile.currentAge;
     const inflationFactor = Math.pow(1 + inflationRate, yearsElapsed);
