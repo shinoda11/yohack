@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import type { Profile, SimulationResult } from '@/lib/types';
-import type { MoneyMargin, TimeMargin } from '@/lib/v2/margin';
+import type { MoneyMargin } from '@/lib/v2/margin';
 import type { WorldLine } from '@/lib/v2/worldline';
 import type { MoneyMarginV2, TimeMarginV2, RiskMarginV2 } from '@/hooks/useMargin';
 

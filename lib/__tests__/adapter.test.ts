@@ -3,9 +3,6 @@ import {
   adaptV1ProfileToV2WorldLine,
   extractKpisFromSimulation,
   calculateMoneyMargin,
-  calculateTimeMargin,
-  calculateEnergyMargin,
-  calculateMargin,
   updateWorldLineWithResults,
 } from '../v2/adapter'
 import { createDefaultProfile } from '../engine'
@@ -193,134 +190,7 @@ describe('calculateMoneyMargin', () => {
 })
 
 // ============================================================
-// 4. calculateTimeMargin
-// ============================================================
-
-describe('calculateTimeMargin', () => {
-  it('solo モードと couple モードで weeklyFreeHours が異なる', () => {
-    const solo = calculateTimeMargin(profileWith({ mode: 'solo' }))
-    const couple = calculateTimeMargin(profileWith({ mode: 'couple' }))
-
-    expect(solo.weeklyFreeHours).toBeGreaterThan(couple.weeklyFreeHours)
-    // solo = 40, couple = 40 - 5 = 35
-    expect(solo.weeklyFreeHours).toBe(40)
-    expect(couple.weeklyFreeHours).toBe(35)
-  })
-
-  it('careerFlexibilityScore が年齢に応じて変化する', () => {
-    const young = calculateTimeMargin(profileWith({ currentAge: 30 }))
-    const mid = calculateTimeMargin(profileWith({ currentAge: 45 }))
-    const senior = calculateTimeMargin(profileWith({ currentAge: 55 }))
-
-    // 若いほどスコアが高い
-    expect(young.careerFlexibilityScore).toBeGreaterThan(mid.careerFlexibilityScore)
-    expect(mid.careerFlexibilityScore).toBeGreaterThan(senior.careerFlexibilityScore)
-
-    // 具体値の検証
-    expect(young.careerFlexibilityScore).toBe(70)   // < 40
-    expect(mid.careerFlexibilityScore).toBe(60)      // 40-49
-    expect(senior.careerFlexibilityScore).toBe(50)   // >= 50
-  })
-
-  it('annualVacationDays が 20 である', () => {
-    const time = calculateTimeMargin(createDefaultProfile())
-
-    expect(time.annualVacationDays).toBe(20)
-  })
-})
-
-// ============================================================
-// 5. calculateEnergyMargin
-// ============================================================
-
-describe('calculateEnergyMargin', () => {
-  it('高収入・低支出プロファイルで stressLevel が低い', () => {
-    const highSaver = calculateEnergyMargin(profileWith({
-      grossIncome: 2000,
-      rsuAnnual: 500,
-      livingCostAnnual: 200,
-      housingCostAnnual: 100,
-    }))
-    const lowSaver = calculateEnergyMargin(profileWith({
-      grossIncome: 500,
-      rsuAnnual: 0,
-      livingCostAnnual: 300,
-      housingCostAnnual: 150,
-    }))
-
-    expect(highSaver.stressLevel).toBeLessThan(lowSaver.stressLevel)
-  })
-
-  it('年齢が高いほど physicalHealthScore が下がる', () => {
-    const young = calculateEnergyMargin(profileWith({ currentAge: 25 }))
-    const mid = calculateEnergyMargin(profileWith({ currentAge: 45 }))
-    const senior = calculateEnergyMargin(profileWith({ currentAge: 60 }))
-
-    expect(young.physicalHealthScore).toBeGreaterThan(mid.physicalHealthScore)
-    expect(mid.physicalHealthScore).toBeGreaterThan(senior.physicalHealthScore)
-  })
-
-  it('stressLevel が 20〜80 の範囲にクランプされる', () => {
-    // 極端に高貯蓄率
-    const low = calculateEnergyMargin(profileWith({
-      grossIncome: 10000,
-      rsuAnnual: 0,
-      livingCostAnnual: 100,
-      housingCostAnnual: 50,
-    }))
-    // 極端に低貯蓄率
-    const high = calculateEnergyMargin(profileWith({
-      grossIncome: 100,
-      rsuAnnual: 0,
-      livingCostAnnual: 300,
-      housingCostAnnual: 200,
-    }))
-
-    expect(low.stressLevel).toBeGreaterThanOrEqual(20)
-    expect(high.stressLevel).toBeLessThanOrEqual(80)
-  })
-
-  it('physicalHealthScore の下限が 50 である', () => {
-    // 非常に高齢
-    const energy = calculateEnergyMargin(profileWith({ currentAge: 99 }))
-
-    expect(energy.physicalHealthScore).toBeGreaterThanOrEqual(50)
-  })
-})
-
-// ============================================================
-// 6. calculateMargin
-// ============================================================
-
-describe('calculateMargin', () => {
-  it('返り値が money, time, energy の3つを含む', async () => {
-    const profile = createDefaultProfile()
-    const simResult = await runSimulation(profile)
-    const margin = calculateMargin(profile, simResult)
-
-    expect(margin).toHaveProperty('money')
-    expect(margin).toHaveProperty('time')
-    expect(margin).toHaveProperty('energy')
-  })
-
-  it('simResult が null でも money 以外はクラッシュしない', () => {
-    const profile = createDefaultProfile()
-    const margin = calculateMargin(profile, null)
-
-    expect(margin).toHaveProperty('money')
-    expect(margin).toHaveProperty('time')
-    expect(margin).toHaveProperty('energy')
-
-    // money は NaN（0埋め禁止）
-    expect(margin.money.monthlyDisposableIncome).toBeNaN()
-    // time, energy は通常の値
-    expect(Number.isFinite(margin.time.weeklyFreeHours)).toBe(true)
-    expect(Number.isFinite(margin.energy.stressLevel)).toBe(true)
-  })
-})
-
-// ============================================================
-// 7. updateWorldLineWithResults
+// 4. updateWorldLineWithResults
 // ============================================================
 
 describe('updateWorldLineWithResults', () => {

@@ -28,7 +28,7 @@ interface V2ComparisonViewProps {
   toggleComparisonId: (id: string) => void;
   clearComparisonIds: () => void;
   loadScenario: (id: string) => void;
-  setActiveTab: (tab: 'margins' | 'allocation' | 'decision' | 'worldlines' | 'strategy') => void;
+  setActiveTab: (tab: 'worldlines' | 'margins' | 'strategy') => void;
 }
 
 /** Y-branch symbol for the empty state */
@@ -579,23 +579,23 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
           </Link>
         </div>
 
-        {/* Step 2: 比較後 → 余白の使い道へ */}
+        {/* Step 2: 比較後 → 余白を確認 */}
         <div className="mt-4 rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Badge variant="outline" className="text-xs">ステップ2</Badge>
-                <h4 className="font-medium text-sm">余白の使い道を決める</h4>
+                <h4 className="font-medium text-sm">余白を確認する</h4>
               </div>
               <p className="text-xs text-muted-foreground">
-                差分を確認したら、その余白をどう使うか配分を検討します
+                差分を確認したら、各世界線の余白を比較します
               </p>
             </div>
             <Button
-              onClick={() => setActiveTab('allocation')}
+              onClick={() => setActiveTab('margins')}
               size="sm"
             >
-              使い道へ
+              余白へ
               <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

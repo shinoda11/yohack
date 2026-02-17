@@ -21,7 +21,7 @@ YOHACK — 人生の余白（お金・時間・体力）で人生の選択を比
 - Zustand 5（状態管理）、Recharts（グラフ）
 - shadcn/ui + Tailwind CSS 4（UI）
 - Vercel（デプロイ、GitHub main ブランチ連携）
-- テスト: vitest 169本（`lib/__tests__/` に5ファイル）
+- テスト: vitest 160本（`lib/__tests__/` に5ファイル）
 - **未導入**: Supabase（認証）、Stripe（決済）、SendGrid（メール）→ すべて Phase 2-3
 
 ## 現在のルート構成
@@ -44,7 +44,7 @@ YOHACK — 人生の余白（お金・時間・体力）で人生の選択を比
 | `/app` | メインダッシュボード（入力カード + 結果タブ） | 576 |
 | `/app/branch` | 分岐ビルダー（ツリー + カテゴリ選択 + 世界線プレビュー） | 235 |
 | `/app/profile` | プロファイル入力（単カラム） | 283 |
-| `/app/worldline` | 世界線比較（旧 /v2） | 185 |
+| `/app/worldline` | 世界線比較（3タブ: 世界線比較/余白/戦略） | 140 |
 | `/app/settings` | 設定（データ管理・バージョン情報） | 279 |
 
 ### リダイレクト（スタブ）
@@ -75,7 +75,7 @@ app/
 
 components/
   dashboard/            ← 19ファイル（入力カード・結果カード・オンボーディング）
-  v2/                   ← 4ファイル（V2ResultSection, V2InputSection, V2ComparisonView, MoneyMarginCard）
+  v2/                   ← 3ファイル（V2ResultSection, V2ComparisonView, MoneyMarginCard）
   branch/               ← 6ファイル（branch-tree-viz, branch-category, branch-node, worldline-preview, event-picker-dialog, event-customize-dialog）
   layout/               ← 3ファイル（sidebar, bottom-nav, brand-story-dialog）
   plan/                 ← 1ファイル（rsu-content）
@@ -264,7 +264,7 @@ docs/
 | `pnpm dev` | 開発サーバー |
 | `pnpm build` | ビルド |
 | `pnpm lint` | ESLint |
-| `pnpm test` | vitest実行（169本） |
+| `pnpm test` | vitest実行（160本） |
 | `pnpm test:watch` | vitestウォッチ |
 | `pnpm run case-sim` | ケース台帳シミュレーション（C01-C18） |
 | `npm run check:store` | SoTガードレールチェック |

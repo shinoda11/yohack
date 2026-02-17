@@ -4,7 +4,7 @@
  */
 
 import type { Profile, SimulationResult } from '@/lib/types';
-import type { Margin } from './margin';
+import type { MoneyMargin } from './margin';
 
 /**
  * 主要KPI
@@ -38,7 +38,7 @@ export type WorldLine = {
  */
 export type WorldLineResult = {
   simulation: SimulationResult | null;  // 金融シミュレーション結果
-  margin: Margin | null;                // この世界線における余白
+  margin: MoneyMargin | null;           // この世界線における余白（MoneyMarginのみ）
   kpis: KeyPerformanceIndicators | null; // 主要KPI
   isCalculating: boolean;               // 計算中フラグ
   lastCalculatedAt: Date | null;        // 最終計算日時

@@ -5,7 +5,7 @@
 
 import type { Profile, SimulationResult } from '@/lib/types';
 import type { WorldLine, KeyPerformanceIndicators } from './worldline';
-import type { Margin, MoneyMargin, TimeMargin, EnergyMargin } from './margin';
+import type { MoneyMargin } from './margin';
 import { createWorldLine } from './worldline';
 
 /**
@@ -27,7 +27,7 @@ export function extractKpisFromSimulation(
   profile: Profile
 ): KeyPerformanceIndicators {
   const { score, paths, metrics } = result;
-  
+
   // 90%サバイバル率でのFIRE年齢を計算
   // (paths.lowerPath が10パーセンタイルで資産0を下回る年齢)
   let safeFireAge: number | null = null;
@@ -44,13 +44,13 @@ export function extractKpisFromSimulation(
       safeFireAge = profile.targetRetireAge;
     }
   }
-  
+
   // 60歳時点の中央値資産
   const assetsAt60 = paths.yearlyData?.find(p => p.age === 60)?.assets ?? 0;
-  
+
   // 100歳時点の中央値資産
   const assetsAt100 = paths.yearlyData?.[paths.yearlyData.length - 1]?.assets ?? 0;
-  
+
   // 40-50代の年間余裕額を計算
   const midlifePoints = paths.yearlyData?.filter(p => p.age >= 40 && p.age < 60) ?? [];
   let midlifeSurplus = 0;
@@ -61,7 +61,7 @@ export function extractKpisFromSimulation(
     }, 0);
     midlifeSurplus = assetGrowth / (midlifePoints.length - 1);
   }
-  
+
   return {
     safeFireAge,
     assetsAt60,
@@ -75,7 +75,7 @@ export function extractKpisFromSimulation(
 /**
  * v1のProfileとSimulationResultからv2のMoneyMarginを計算
  * ダッシュボードのSoT（simResult.cashFlow）から参照する
- * 
+ *
  * 重要: NaNは「未計算」を意味する。0埋めは禁止。
  * UI側でNaNをチェックし「—」表示 + 理由を表示すること。
  */
@@ -92,7 +92,7 @@ export function calculateMoneyMargin(
       annualDisposableIncome: NaN,
     };
   }
-  
+
   // cashFlowがない場合も未計算
   if (!result.cashFlow) {
     return {
@@ -102,91 +102,36 @@ export function calculateMoneyMargin(
       annualDisposableIncome: NaN,
     };
   }
-  
+
   const { cashFlow } = result;
-  
+
   // SoTから年間可処分所得を取得（収入合計）
   const annualIncome = (cashFlow.income ?? 0) + (cashFlow.pension ?? 0) + (cashFlow.dividends ?? 0);
-  
+
   // SoTから年間支出を取得
   const annualExpense = cashFlow.expenses ?? 0;
-  
+
   // 年間純収支（SoTのnetCashFlow）
   const annualNetCashFlow = cashFlow.netCashFlow ?? (annualIncome - annualExpense);
-  
+
   // 月次換算（万円単位、端数は切り捨て）
   const monthlyDisposableIncome = Math.floor(annualIncome / 12);
   const monthlyNetSavings = Math.floor(annualNetCashFlow / 12);
-  
+
   // 月次支出
   const monthlyExpense = annualExpense / 12;
-  
+
   // 緊急資金カバー月数（現金資産 / 月次支出）
   // 支出が0の場合は無限大ではなく、現金資産を表示（12ヶ月分と仮定）
-  const emergencyFundCoverage = monthlyExpense > 0 
-    ? profile.assetCash / monthlyExpense 
+  const emergencyFundCoverage = monthlyExpense > 0
+    ? profile.assetCash / monthlyExpense
     : (profile.assetCash > 0 ? 12 : 0);
-  
+
   return {
     monthlyDisposableIncome,
     monthlyNetSavings,
     emergencyFundCoverage,
     annualDisposableIncome: annualIncome,
-  };
-}
-
-/**
- * v1のProfileからv2のTimeMarginを計算（デフォルト値ベース）
- */
-export function calculateTimeMargin(profile: Profile): TimeMargin {
-  // 働いている場合のデフォルト値
-  const baseWeeklyFreeHours = 40; // 週40時間の自由時間
-  
-  // 世帯人数による調整
-  const householdAdjustment = profile.mode === 'couple' ? -5 : 0;
-  
-  // キャリア柔軟性スコア（年齢とスキルで概算）
-  const ageFactor = profile.currentAge < 40 ? 70 : profile.currentAge < 50 ? 60 : 50;
-  const careerFlexibilityScore = ageFactor;
-  
-  return {
-    weeklyFreeHours: baseWeeklyFreeHours + householdAdjustment,
-    annualVacationDays: 20, // 標準的な有給
-    careerFlexibilityScore,
-  };
-}
-
-/**
- * v1のProfileからv2のEnergyMarginを計算（デフォルト値ベース）
- */
-export function calculateEnergyMargin(profile: Profile): EnergyMargin {
-  // 年齢による健康スコアの調整
-  const ageHealthFactor = Math.max(100 - (profile.currentAge - 30) * 1.5, 50);
-  
-  // ストレスレベルの概算（貯蓄率が低いとストレス高）
-  const grossAnnual = profile.grossIncome + (profile.rsuAnnual ?? 0);
-  const expenseAnnual = profile.livingCostAnnual + profile.housingCostAnnual;
-  const savingsRate = grossAnnual > 0 ? (grossAnnual - expenseAnnual) / grossAnnual : 0;
-  const stressLevel = Math.max(20, Math.min(80, 60 - savingsRate * 100));
-  
-  return {
-    stressLevel,
-    physicalHealthScore: ageHealthFactor,
-    mentalHealthScore: Math.max(50, 80 - stressLevel / 2),
-  };
-}
-
-/**
- * v1のProfileとSimulationResultからv2のMarginを計算
- */
-export function calculateMargin(
-  profile: Profile,
-  result: SimulationResult | null
-): Margin {
-  return {
-    money: calculateMoneyMargin(profile, result),
-    time: calculateTimeMargin(profile),
-    energy: calculateEnergyMargin(profile),
   };
 }
 
@@ -197,9 +142,9 @@ export function updateWorldLineWithResults(
   worldLine: WorldLine,
   simulation: SimulationResult
 ): WorldLine {
-  const margin = calculateMargin(worldLine.baseProfile, simulation);
+  const margin = calculateMoneyMargin(worldLine.baseProfile, simulation);
   const kpis = extractKpisFromSimulation(simulation, worldLine.baseProfile);
-  
+
   return {
     ...worldLine,
     result: {

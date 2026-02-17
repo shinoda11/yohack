@@ -4,18 +4,15 @@ import type { SimulationResult, Profile } from '@/lib/types';
 import type { SavedScenario } from '@/lib/store';
 import type { OverallAssessment, StrategyRecommendation, StrategicInsight } from '@/hooks/useStrategy';
 import type { MoneyMargin } from '@/lib/v2/margin';
-import type { TimeMarginV2, RiskMarginV2 } from '@/hooks/useMargin';
 
 import { MoneyMarginCard } from '@/components/v2/MoneyMarginCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import {
   Target,
   TrendingUp,
   Shield,
-  Clock,
   ArrowRight,
   Sparkles,
   CheckCircle2,
@@ -23,6 +20,7 @@ import {
   GitBranch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { calculateMoneyMargin } from '@/lib/v2/adapter';
 
 interface V2ResultSectionProps {
   renderMode: 'hero' | 'margins' | 'strategy';
@@ -38,8 +36,6 @@ interface V2ResultSectionProps {
   // margins
   moneyMargin: MoneyMargin | null;
   moneyHealth: 'excellent' | 'good' | 'fair' | 'poor' | null;
-  timeMargin: TimeMarginV2 | null;
-  riskMargin: RiskMarginV2 | null;
   // strategy
   primaryStrategy: StrategyRecommendation;
   strategicInsights: StrategicInsight[];
@@ -58,8 +54,6 @@ export function V2ResultSection(props: V2ResultSectionProps) {
     onViewStrategy,
     moneyMargin,
     moneyHealth,
-    timeMargin,
-    riskMargin,
     primaryStrategy,
     strategicInsights,
   } = props;
@@ -167,122 +161,96 @@ export function V2ResultSection(props: V2ResultSectionProps) {
   }
 
   if (renderMode === 'margins') {
+    // 世界線間の余白比較用データ
+    const comparisonScenarios = scenarios.filter(s => selectedComparisonIds.includes(s.id));
+    const hasComparison = comparisonScenarios.length > 0;
+
     return (
-      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-6">
+        {/* MoneyMargin カード */}
         <MoneyMarginCard
           moneyMargin={moneyMargin}
           health={moneyHealth}
           isLoading={isLoading}
         />
 
-        {/* Time Margin Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Clock className="h-5 w-5 text-[#8A7A62]" />
-              時間の余白
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              目標達成への時間的な見通し（断定ではなく目安）
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center">
-              <div className="text-4xl font-bold text-[#5A5550]">
-                {timeMargin?.yearsToTarget ?? '—'}
-              </div>
-              <div className="text-sm text-muted-foreground">
-                目標達成まで（年）
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>進捗</span>
-                <span>{timeMargin ? `${timeMargin.progressPercent.toFixed(0)}%` : '—'}</span>
-              </div>
-              <Progress value={timeMargin?.progressPercent ?? 0} />
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="rounded-lg bg-muted/50 p-2 text-center">
-                <div className="font-medium">{timeMargin?.workingYearsLeft ?? '—'}</div>
-                <div className="text-xs text-muted-foreground">労働可能年数</div>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-2 text-center">
-                <div className="font-medium">{timeMargin?.bufferYears ?? '—'}</div>
-                <div className="text-xs text-muted-foreground">バッファ年数</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* 世界線間の余白比較（2つ以上ある場合） */}
+        {hasComparison && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <GitBranch className="h-5 w-5 text-[#8A7A62]" />
+                世界線間の余白比較
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-2 pr-4 font-medium text-muted-foreground">指標</th>
+                      <th className="text-right py-2 px-4 font-medium">現在</th>
+                      {comparisonScenarios.map(s => (
+                        <th key={s.id} className="text-right py-2 px-4 font-medium">{s.name}</th>
+                      ))}
+                      {comparisonScenarios.length === 1 && (
+                        <th className="text-right py-2 pl-4 font-medium text-muted-foreground">差分</th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      const baseMargin = moneyMargin;
+                      const scenarioMargins = comparisonScenarios.map(s =>
+                        s.result ? calculateMoneyMargin(profile, s.result) : null
+                      );
 
-        {/* Risk Tolerance Card */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Shield className="h-5 w-5 text-[#8A7A62]" />
-              リスク耐性
-            </CardTitle>
-            <p className="text-xs text-muted-foreground mt-1">
-              市場が下落したときの耐久力
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Drawdown capacity */}
-            <div className="rounded-lg bg-muted/50 p-4 text-center">
-              <div className="text-4xl font-bold text-[#5A5550]">
-                {riskMargin ? `${riskMargin.drawdownCapacity.toFixed(0)}%` : '—'}
-              </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {riskMargin
-                  ? `資産が${riskMargin.drawdownCapacity.toFixed(0)}%下落しても安心ラインを維持`
-                  : '許容下落率'}
-              </p>
-            </div>
+                      const rows = [
+                        {
+                          label: '月次貯蓄',
+                          unit: '万円',
+                          base: baseMargin?.monthlyNetSavings,
+                          scenarios: scenarioMargins.map(m => m?.monthlyNetSavings),
+                        },
+                        {
+                          label: '緊急資金',
+                          unit: 'ヶ月',
+                          base: baseMargin?.emergencyFundCoverage,
+                          scenarios: scenarioMargins.map(m => m?.emergencyFundCoverage),
+                        },
+                        {
+                          label: '年間可処分所得',
+                          unit: '万円',
+                          base: baseMargin?.annualDisposableIncome,
+                          scenarios: scenarioMargins.map(m => m?.annualDisposableIncome),
+                        },
+                      ];
 
-            {/* Emergency fund coverage */}
-            {(() => {
-              const months = riskMargin?.emergencyFundCoverage ?? 0;
-              const hasData = riskMargin !== null;
-              let colorClass = 'bg-[#FAF9F7] text-[#8A7A62]';
-              if (hasData) {
-                if (months >= 12) colorClass = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400';
-                else if (months >= 6) colorClass = 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400';
-                else if (months >= 3) colorClass = 'bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:text-orange-400';
-                else colorClass = 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400';
-              }
-              return (
-                <div className={cn('rounded-lg p-3 flex items-center gap-3', colorClass)}>
-                  <Shield className="h-5 w-5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {hasData
-                        ? `収入ゼロでも${Math.floor(months)}ヶ月暮らせる`
-                        : '緊急資金カバー率: —'}
-                    </p>
-                    {hasData && months < 6 && (
-                      <p className="text-xs mt-0.5 opacity-80">6ヶ月以上の緊急資金が理想です</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Sequence risk */}
-            <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3">
-              <div>
-                <p className="text-sm font-medium">退職直後の暴落リスク</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  退職直後に市場が下落すると、資産の減りが加速します
-                </p>
+                      return rows.map(row => (
+                        <tr key={row.label} className="border-b last:border-b-0">
+                          <td className="py-2 pr-4 text-muted-foreground">{row.label}</td>
+                          <td className="py-2 px-4 text-right tabular-nums">
+                            {formatValue(row.base, row.unit)}
+                          </td>
+                          {row.scenarios.map((val, i) => (
+                            <td key={i} className="py-2 px-4 text-right tabular-nums">
+                              {formatValue(val, row.unit)}
+                            </td>
+                          ))}
+                          {comparisonScenarios.length === 1 && (
+                            <td className="py-2 pl-4 text-right tabular-nums">
+                              {formatDiff(row.base, row.scenarios[0], row.unit)}
+                            </td>
+                          )}
+                        </tr>
+                      ));
+                    })()}
+                  </tbody>
+                </table>
               </div>
-              <Badge variant={riskMargin && riskMargin.sequenceRisk < 0.3 ? 'default' : 'destructive'}>
-                {riskMargin
-                  ? (riskMargin.sequenceRisk < 0.3 ? '低' : riskMargin.sequenceRisk < 0.6 ? '中' : '高')
-                  : '—'}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
   }
@@ -404,4 +372,18 @@ export function V2ResultSection(props: V2ResultSectionProps) {
       </Card>
     </>
   );
+}
+
+function formatValue(val: number | undefined | null, unit: string): string {
+  if (val == null || Number.isNaN(val)) return '—';
+  if (unit === 'ヶ月') return `${Math.floor(val)}${unit}`;
+  return `${Math.floor(val)}${unit}`;
+}
+
+function formatDiff(base: number | undefined | null, target: number | undefined | null, unit: string): string {
+  if (base == null || target == null || Number.isNaN(base) || Number.isNaN(target)) return '—';
+  const diff = Math.floor(target) - Math.floor(base);
+  if (diff === 0) return '±0';
+  const sign = diff > 0 ? '+' : '';
+  return `${sign}${diff}${unit}`;
 }

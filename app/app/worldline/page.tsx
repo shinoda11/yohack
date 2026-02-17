@@ -5,24 +5,20 @@ import { useProfileStore } from '@/lib/store';
 import { useV2Store } from '@/lib/v2/store';
 import { useMargin } from '@/hooks/useMargin';
 import { useStrategy } from '@/hooks/useStrategy';
-import { useToast } from '@/hooks/use-toast';
 import { readinessConfig } from '@/lib/v2/readinessConfig';
 import { Button } from '@/components/ui/button';
 import { GitBranch } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { V2ResultSection } from '@/components/v2/V2ResultSection';
-import { V2InputSection } from '@/components/v2/V2InputSection';
 import { V2ComparisonView } from '@/components/v2/V2ComparisonView';
 
 export default function WorldlinePage() {
-  const { profile, simResult, isLoading, scenarios, loadScenario, saveAllocationAsScenario } = useProfileStore();
-  const { toast } = useToast();
+  const { profile, simResult, isLoading, scenarios, loadScenario } = useProfileStore();
 
   const {
     selectedComparisonIds, toggleComparisonId, clearComparisonIds, setSelectedComparisonIds,
-    allocation, setAllocation, allocationDirty, resetAllocation, markAllocationSaved,
-    bridges, setHousingBridge, setChildrenBridge, setActiveTab, activeTab
+    setActiveTab, activeTab
   } = useV2Store();
 
   const margins = useMargin({ profile, simResult });
@@ -91,30 +87,9 @@ export default function WorldlinePage() {
     selectedComparisonIds,
     moneyMargin: margins.moneyMargin,
     moneyHealth: margins.moneyHealth,
-    timeMargin: margins.time,
-    riskMargin: margins.risk,
     primaryStrategy: strategy.primaryStrategy,
     strategicInsights: strategy.strategicInsights,
     onViewStrategy: () => setActiveTab('strategy'),
-  };
-
-  const inputProps = {
-    scenarios,
-    selectedComparisonIds,
-    setSelectedComparisonIds,
-    simResult,
-    profile,
-    allocation,
-    setAllocation,
-    allocationDirty,
-    resetAllocation,
-    markAllocationSaved,
-    saveAllocationAsScenario,
-    toast,
-    bridges,
-    setHousingBridge,
-    setChildrenBridge,
-    setActiveTab,
   };
 
   const comparisonProps = {
@@ -150,31 +125,23 @@ export default function WorldlinePage() {
           {/* Overall Assessment Hero + Current World Line */}
           <V2ResultSection {...resultProps} renderMode="hero" />
 
-          {/* Main Content Tabs */}
+          {/* Main Content Tabs: 3タブ */}
           <Tabs
             value={activeTab}
-            onValueChange={(v) => setActiveTab(v as 'margins' | 'allocation' | 'decision' | 'worldlines' | 'strategy')}
+            onValueChange={(v) => setActiveTab(v as 'worldlines' | 'margins' | 'strategy')}
             className="space-y-6"
           >
-            <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 p-1">
-              <TabsTrigger value="margins" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">余白</TabsTrigger>
-              <TabsTrigger value="allocation" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">使い道</TabsTrigger>
-              <TabsTrigger value="decision" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">意思決定</TabsTrigger>
-              <TabsTrigger value="worldlines" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">世界線</TabsTrigger>
-              <TabsTrigger value="strategy" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">戦略</TabsTrigger>
+            <TabsList className="flex w-full gap-1 p-1">
+              <TabsTrigger value="worldlines" className="flex-1 text-xs sm:text-sm px-3 py-2">世界線比較</TabsTrigger>
+              <TabsTrigger value="margins" className="flex-1 text-xs sm:text-sm px-3 py-2">余白</TabsTrigger>
+              <TabsTrigger value="strategy" className="flex-1 text-xs sm:text-sm px-3 py-2">戦略</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="margins" className="space-y-6">
-              <V2ResultSection {...resultProps} renderMode="margins" />
-            </TabsContent>
-            <TabsContent value="allocation" className="space-y-6">
-              <V2InputSection {...inputProps} renderMode="allocation" />
-            </TabsContent>
-            <TabsContent value="decision" className="space-y-6">
-              <V2InputSection {...inputProps} renderMode="decision" />
-            </TabsContent>
             <TabsContent value="worldlines" className="space-y-6">
               <V2ComparisonView {...comparisonProps} />
+            </TabsContent>
+            <TabsContent value="margins" className="space-y-6">
+              <V2ResultSection {...resultProps} renderMode="margins" />
             </TabsContent>
             <TabsContent value="strategy" className="space-y-6">
               <V2ResultSection {...resultProps} renderMode="strategy" />
