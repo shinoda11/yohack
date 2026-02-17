@@ -5,11 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
-import { createDefaultBranches, findMostImpactfulBranch, type WorldlineCandidate } from '@/lib/branch';
+import { createDefaultBranches, type WorldlineCandidate } from '@/lib/branch';
 import { BranchTreeViz } from '@/components/branch/branch-tree-viz';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, GitBranch, Scale } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ExitReadinessCard } from '@/components/dashboard/exit-readiness-card';
+import { KeyMetricsCard } from '@/components/dashboard/key-metrics-card';
+import { AssetProjectionChart } from '@/components/dashboard/asset-projection-chart';
+import { ConclusionSummaryCard } from '@/components/dashboard/conclusion-summary-card';
 
 // Y-branch symbol (large, for intro screen)
 function YBranchSymbol() {
@@ -98,7 +101,10 @@ function IntroState() {
 }
 
 // State 2: Profile set, no worldlines yet
-function NoBranchState({ currentAge }: { currentAge: number }) {
+function NoBranchState() {
+  const { profile, simResult, isLoading } = useProfileStore();
+  useMainSimulation();
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
       <div>
@@ -108,7 +114,16 @@ function NoBranchState({ currentAge }: { currentAge: number }) {
         </p>
       </div>
 
-      <BranchTreeViz currentAge={currentAge} selectedBranches={[]} />
+      {/* Dashboard summary */}
+      <ExitReadinessCard score={simResult?.score ?? null} isLoading={isLoading} />
+      <KeyMetricsCard
+        metrics={simResult?.metrics ?? null}
+        currentAge={profile.currentAge}
+        targetRetireAge={profile.targetRetireAge}
+        isLoading={isLoading}
+      />
+
+      <BranchTreeViz currentAge={profile.currentAge} selectedBranches={[]} />
 
       <div className="flex flex-col items-center text-center py-4 space-y-3">
         <p className="text-sm text-muted-foreground">
@@ -133,7 +148,7 @@ function NoBranchState({ currentAge }: { currentAge: number }) {
 
 // State 3: Has worldlines
 function WorldlineState() {
-  const { profile, scenarios, selectedBranchIds } = useProfileStore();
+  const { profile, simResult, isLoading, scenarios, selectedBranchIds } = useProfileStore();
   useMainSimulation();
 
   // Reconstruct branches from stored selectedBranchIds
@@ -195,6 +210,21 @@ function WorldlineState() {
         </p>
       </div>
 
+      {/* Dashboard summary */}
+      <ExitReadinessCard score={simResult?.score ?? null} isLoading={isLoading} />
+      <KeyMetricsCard
+        metrics={simResult?.metrics ?? null}
+        currentAge={profile.currentAge}
+        targetRetireAge={profile.targetRetireAge}
+        isLoading={isLoading}
+      />
+      <AssetProjectionChart
+        data={simResult?.paths ?? null}
+        targetRetireAge={profile.targetRetireAge}
+        lifeEvents={profile.lifeEvents}
+        isLoading={isLoading}
+      />
+
       {/* Tree visualization */}
       <BranchTreeViz
         currentAge={profile.currentAge}
@@ -229,6 +259,16 @@ function WorldlineState() {
           </div>
         </div>
       )}
+
+      {/* Conclusion */}
+      <ConclusionSummaryCard
+        score={simResult?.score ?? null}
+        metrics={simResult?.metrics ?? null}
+        isLoading={isLoading}
+        targetRetireAge={profile.targetRetireAge}
+        profile={profile}
+        hasScenarios={branchScenarios.length > 0}
+      />
 
       {/* Action buttons */}
       <div className="flex gap-3">
@@ -283,7 +323,7 @@ export default function HomePage() {
   }
 
   if (!hasBranchScenarios) {
-    return <NoBranchState currentAge={profile.currentAge} />;
+    return <NoBranchState />;
   }
 
   return <WorldlineState />;
