@@ -125,9 +125,9 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             </div>
 
             {/* CTA */}
-            <Link href="/app/plan" className="mt-8">
+            <Link href="/app/branch" className="mt-8">
               <Button className="bg-[#C8B89A] hover:bg-[#8A7A62] text-white gap-2">
-                ライフプランでシナリオを作成する
+                分岐ビルダーでシナリオを作成する
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -534,9 +534,9 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </Link>
-                  <Link href="/app/plan">
+                  <Link href="/app/branch">
                     <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
-                      ライフプランへ
+                      分岐ビルダーへ
                       <ArrowRight className="h-3 w-3" />
                     </Button>
                   </Link>
@@ -571,7 +571,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             ))}
           </div>
           <Link
-            href="/app/plan"
+            href="/app/branch"
             className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
           >
             <span>新しいシナリオを作成</span>

@@ -1,8 +1,8 @@
-// Readiness level colors and labels - 統一カラーパレット（落ち着いたトーン）
+// Readiness level colors and labels - YOHACKパレット準拠
 export const readinessConfig = {
-  excellent: { color: 'bg-gray-700', textColor: 'text-gray-700', label: '万全' },
-  ready: { color: 'bg-gray-600', textColor: 'text-gray-600', label: '準備完了' },
-  on_track: { color: 'bg-gray-500', textColor: 'text-gray-600', label: '順調' },
-  needs_work: { color: 'bg-gray-500', textColor: 'text-gray-600', label: '要改善' },
-  not_ready: { color: 'bg-gray-600', textColor: 'text-gray-700', label: '要対策' },
+  excellent: { color: 'bg-[#4A7C59]', textColor: 'text-white', label: '万全' },
+  ready: { color: 'bg-[#C8B89A]', textColor: 'text-white', label: '準備OK' },
+  on_track: { color: 'bg-[#8A7A62]', textColor: 'text-white', label: '順調' },
+  needs_work: { color: 'bg-[#5A5550]', textColor: 'text-white', label: '要改善' },
+  not_ready: { color: 'bg-red-700', textColor: 'text-white', label: '要対策' },
 };

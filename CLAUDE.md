@@ -75,8 +75,8 @@ app/
 
 components/
   dashboard/            ← 19ファイル（入力カード・結果カード・オンボーディング）
-  v2/                   ← 10ファイル（世界線比較コンポーネント）
-  branch/               ← 4ファイル（branch-tree-viz, branch-category, branch-node, worldline-preview）
+  v2/                   ← 4ファイル（V2ResultSection, V2InputSection, V2ComparisonView, MoneyMarginCard）
+  branch/               ← 6ファイル（branch-tree-viz, branch-category, branch-node, worldline-preview, event-picker-dialog, event-customize-dialog）
   layout/               ← 3ファイル（sidebar, bottom-nav, brand-story-dialog）
   plan/                 ← 1ファイル（rsu-content）
   ui/                   ← 24ファイル（shadcn/ui）
@@ -95,7 +95,8 @@ lib/
   plan.ts               ← ライフプラン計算（16行）
   glossary.ts           ← 用語集（14行）
   utils.ts              ← ユーティリティ（6行）
-  v2/                   ← 7ファイル（世界線比較ロジック: adapter, events, margin, strategy, store, worldline, readinessConfig）
+  v2/                   ← 5ファイル（世界線比較ロジック: adapter, margin, store, worldline, readinessConfig）
+  event-catalog.ts      ← ライフイベントプリセット23種 + バンドル3種
   __tests__/            ← 5テストファイル（169テスト）
     engine.test.ts, adapter.test.ts, housing-sim.test.ts, e2e-personas.test.ts, e02-regression.test.ts
 

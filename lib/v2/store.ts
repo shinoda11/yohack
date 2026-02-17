@@ -1,10 +1,10 @@
 /**
  * Exit Readiness OS v2 - Zustand Store (UI State Only)
- * 
+ *
  * 重要: このストアはUI状態のみを管理する。
  * データの SoT（Source of Truth）は useProfileStore に一本化。
  * 世界線/シナリオのデータは useProfileStore.scenarios を参照すること。
- * 
+ *
  * localStorage永続化なし（UI状態は揮発性）
  */
 
@@ -16,21 +16,17 @@ import { create } from 'zustand';
 interface V2State {
   // UI状態
   activeTab: 'margins' | 'allocation' | 'decision' | 'worldlines' | 'strategy';
-  showV2UI: boolean;
-  
-  // 目標設定（表示用）
-  goalLens: 'stability' | 'growth' | 'balance';
-  
+
   // 世界線比較（UI状態のみ - データはuseProfileStore.scenariosを参照）
   selectedComparisonIds: string[]; // 比較対象として選択されたシナリオID（最大2つ）
-  
+
   // 余白の配分（翻訳レイヤー - KPIには影響しない）
   allocation: {
     travel: number;    // 旅・ライフスタイル (%)
     invest: number;    // 投資 (%)
     freeTime: number;  // 自由時間 (%)
   };
-  
+
   // 配分の変更追跡
   allocationDirty: boolean;
   allocationBase: {
@@ -38,7 +34,7 @@ interface V2State {
     invest: number;
     freeTime: number;
   };
-  
+
   // 意思決定ブリッジ（v0.1は2ブリッジ固定）
   bridges: {
     housing: 'rent' | 'buy' | 'buy_later' | null;
@@ -52,27 +48,20 @@ interface V2State {
 interface V2Actions {
   // タブ切り替え
   setActiveTab: (tab: V2State['activeTab']) => void;
-  
-  // 目標レンズ切り替え
-  setGoalLens: (lens: V2State['goalLens']) => void;
-  
-  // UI表示切り替え
-  toggleV2UI: () => void;
-  setShowV2UI: (show: boolean) => void;
-  
+
   // 世界線比較
   toggleComparisonId: (id: string) => void;
   clearComparisonIds: () => void;
   setSelectedComparisonIds: (ids: string[]) => void;
-  
+
   // 配分設定（合計100%を保証）
   setAllocation: (key: 'travel' | 'invest' | 'freeTime', value: number) => void;
-  
+
   // 配分の変更追跡
   resetAllocation: () => void;
   markAllocationSaved: () => void;
   setAllocationBase: (base: { travel: number; invest: number; freeTime: number }) => void;
-  
+
   // 意思決定ブリッジ
   setHousingBridge: (value: 'rent' | 'buy' | 'buy_later' | null) => void;
   setChildrenBridge: (value: 0 | 1 | 2 | null) => void;
@@ -87,8 +76,6 @@ export type V2Store = V2State & V2Actions;
 export const useV2Store = create<V2Store>()((set, get) => ({
   // 初期状態
   activeTab: 'worldlines',
-  showV2UI: false,
-  goalLens: 'balance',
   selectedComparisonIds: [],
   allocation: { travel: 40, invest: 40, freeTime: 20 },
   allocationDirty: false,
@@ -97,41 +84,31 @@ export const useV2Store = create<V2Store>()((set, get) => ({
 
   // アクション
   setActiveTab: (tab) => set({ activeTab: tab }),
-  
-  setGoalLens: (lens) => set({ goalLens: lens }),
-  
-  toggleV2UI: () => set((state) => ({ showV2UI: !state.showV2UI })),
-  
-  setShowV2UI: (show) => set({ showV2UI: show }),
-  
+
   toggleComparisonId: (id) => {
     const { selectedComparisonIds } = get();
     if (selectedComparisonIds.includes(id)) {
-      // Remove
       set({ selectedComparisonIds: selectedComparisonIds.filter(cid => cid !== id) });
     } else if (selectedComparisonIds.length < 2) {
-      // Add (max 2)
       set({ selectedComparisonIds: [...selectedComparisonIds, id] });
     }
   },
-  
+
   clearComparisonIds: () => set({ selectedComparisonIds: [] }),
-  
+
   setSelectedComparisonIds: (ids) => set({ selectedComparisonIds: ids.slice(0, 2) }),
-  
+
   // 配分設定（合計100%を保証）
   setAllocation: (key, value) => {
     const { allocation, allocationBase } = get();
     const clampedValue = Math.max(0, Math.min(100, value));
     const others = Object.entries(allocation).filter(([k]) => k !== key);
     const otherTotal = others.reduce((sum, [, v]) => sum + v, 0);
-    
-    // 残りを按分して合計100%に
+
     const remaining = 100 - clampedValue;
     let newAllocation: typeof allocation;
-    
+
     if (otherTotal === 0) {
-      // 他が全て0の場合は均等配分
       const perOther = remaining / others.length;
       newAllocation = {
         ...allocation,
@@ -140,12 +117,10 @@ export const useV2Store = create<V2Store>()((set, get) => ({
         [others[1][0]]: perOther,
       } as typeof allocation;
     } else {
-      // 按分
       newAllocation = { ...allocation, [key]: clampedValue };
       for (const [k, v] of others) {
         newAllocation[k as keyof typeof allocation] = Math.round((v / otherTotal) * remaining);
       }
-      // 丸め誤差補正
       const total = Object.values(newAllocation).reduce((a, b) => a + b, 0);
       if (total !== 100) {
         const diff = 100 - total;
@@ -153,36 +128,32 @@ export const useV2Store = create<V2Store>()((set, get) => ({
         newAllocation[firstOtherKey] += diff;
       }
     }
-    
-    // dirty判定（ベースと比較）
+
     const isDirty = newAllocation.travel !== allocationBase.travel ||
                     newAllocation.invest !== allocationBase.invest ||
                     newAllocation.freeTime !== allocationBase.freeTime;
-    
+
     set({ allocation: newAllocation, allocationDirty: isDirty });
   },
-  
-  // 配分をベースにリセット
+
   resetAllocation: () => {
     const { allocationBase } = get();
     set({ allocation: { ...allocationBase }, allocationDirty: false });
   },
-  
-  // 保存完了時にdirtyをクリア＆現在の配分をベースに設定
+
   markAllocationSaved: () => {
     const { allocation } = get();
     set({ allocationDirty: false, allocationBase: { ...allocation } });
   },
-  
-  // ベース配分を設定（シナリオ選択時など）
+
   setAllocationBase: (base) => {
-    set({ 
-      allocation: { ...base }, 
-      allocationBase: { ...base }, 
-      allocationDirty: false 
+    set({
+      allocation: { ...base },
+      allocationBase: { ...base },
+      allocationDirty: false
     });
   },
-  
+
   // 意思決定ブリッジ
   setHousingBridge: (value) => {
     set((state) => ({ bridges: { ...state.bridges, housing: value } }));

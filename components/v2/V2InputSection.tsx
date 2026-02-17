@@ -280,9 +280,9 @@ export function V2InputSection(props: V2InputSectionProps) {
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </Link>
-                      <Link href="/app/plan">
+                      <Link href="/app/branch">
                         <Button variant="outline" size="sm" className="gap-2 bg-transparent">
-                          ライフプランでシナリオを作成
+                          分岐ビルダーでシナリオを作成
                           <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </Link>

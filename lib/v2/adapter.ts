@@ -7,7 +7,6 @@ import type { Profile, SimulationResult } from '@/lib/types';
 import type { WorldLine, KeyPerformanceIndicators } from './worldline';
 import type { Margin, MoneyMargin, TimeMargin, EnergyMargin } from './margin';
 import { createWorldLine } from './worldline';
-import { createDefaultMargin } from './margin';
 
 /**
  * v1のProfileをv2のWorldLineに変換
