@@ -23,38 +23,48 @@ interface Baseline {
 }
 
 const BASELINES: Record<string, Baseline> = {
-  'C01-base':         { score: 73, survivalRate: 65 },
-  'C01-buy':          { score: 81, survivalRate: 81 },
-  'C01-pacedown':     { score: 70, survivalRate: 60 },
-  'C01-buy-pacedown': { score: 78, survivalRate: 75 },
-  'C06-base':         { score: 67, survivalRate: 53 },
-  'C06-buy':          { score: 81, survivalRate: 80 },
-  'C11-base':         { score: 79, survivalRate: 75 },
+  'C01-base':         { score: 74, survivalRate: 66 },
+  'C01-buy':          { score: 80, survivalRate: 79 },
+  'C01-pacedown':     { score: 69, survivalRate: 59 },
+  'C01-buy-pacedown': { score: 79, survivalRate: 76 },
+  'C06-base':         { score: 68, survivalRate: 55 },
+  'C06-buy':          { score: 82, survivalRate: 79 },
+  'C11-base':         { score: 79, survivalRate: 74 },
   'C11-buy':          { score: 82, survivalRate: 81 },
-  'C04-base':         { score: 67, survivalRate: 55 },
-  'C04-abroad':       { score: 71, survivalRate: 64 },
-  'C04-inherit':      { score: 70, survivalRate: 61 },
+  'C04-base':         { score: 66, survivalRate: 55 },
+  'C04-abroad':       { score: 72, survivalRate: 66 },
+  'C04-inherit':      { score: 69, survivalRate: 60 },
   'C03-base':         { score: 72, survivalRate: 63 },
   'C03-child':        { score: 64, survivalRate: 49 },
-  'C03-child-buy':    { score: 70, survivalRate: 60 },
-  'C05-base':         { score: 80, survivalRate: 79 },
-  'C05-buy-max':      { score: 86, survivalRate: 89 },
-  'C02-base':         { score: 62, survivalRate: 46 },
-  'C07-base':         { score: 79, survivalRate: 75 },
+  'C03-child-buy':    { score: 71, survivalRate: 61 },
+  'C03-nursing':      { score: 69, survivalRate: 59 },
+  'C03-child-nursing': { score: 62, survivalRate: 44 },
+  'C05-base':         { score: 81, survivalRate: 80 },
+  'C05-buy-max':      { score: 86, survivalRate: 90 },
+  'C02-base':         { score: 63, survivalRate: 46 },
+  'C07-base':         { score: 78, survivalRate: 74 },
   'C08-base':         { score: 61, survivalRate: 42 },
   'C09-base':         { score: 75, survivalRate: 69 },
-  'C10-base':         { score: 79, survivalRate: 75 },
+  'C10-base':         { score: 79, survivalRate: 76 },
   'C12-base':         { score: 76, survivalRate: 71 },
-  'C13-base':         { score: 79, survivalRate: 73 },
-  'C14-base':         { score: 74, survivalRate: 68 },
+  'C13-base':         { score: 78, survivalRate: 72 },
+  'C14-base':         { score: 73, survivalRate: 67 },
   'C15-base':         { score: 83, survivalRate: 81 },
   'C16-base':         { score: 82, survivalRate: 83 },
-  'C17-base':         { score: 80, survivalRate: 77 },
-  'C18-base':         { score: 77, survivalRate: 65 },
+  'C17-base':         { score: 80, survivalRate: 78 },
+  'C18-base':         { score: 76, survivalRate: 64 },
+  'C19-base':         { score: 93, survivalRate: 92 },
+  'C19-partner-quit': { score: 83, survivalRate: 75 },
+  'C20-base':         { score: 76, survivalRate: 71 },
+  'C20-rsu-halved':   { score: 73, survivalRate: 65 },
+  'C21-base':         { score: 67, survivalRate: 55 },
+  'C22-base':         { score: 91, survivalRate: 98 },
+  'C23-base':         { score: 89, survivalRate: 85 },
+  'C24-base':         { score: 82, survivalRate: 86 },
 }
 
 // ============================================================
-// Case definitions (same as case-catalog-sim.ts)
+// Case definitions (mirrors case-catalog-sim.ts)
 // ============================================================
 
 interface CaseDef {
@@ -65,6 +75,15 @@ interface CaseDef {
   targetRetireAge: number
   cashRatio: number; investRatio: number; dcRatio: number
   mode?: 'solo' | 'couple'
+  livingCostMonthly?: number
+  homeStatus?: 'renter' | 'owner'
+  mortgagePrincipal?: number
+  mortgageMonthlyPayment?: number
+  mortgageYearsRemaining?: number
+  ownerAnnualCost?: number
+  rsuAnnual?: number
+  sideIncomeNet?: number
+  expectedReturn?: number
 }
 
 const CASES: CaseDef[] = [
@@ -85,10 +104,17 @@ const CASES: CaseDef[] = [
   { id: 'C15', husbandAge: 38, wifeAge: 36, husbandIncome: 800, wifeIncome: 400, rentMonthly: 12, totalSavings: 1000, targetRetireAge: 60, cashRatio: 0.35, investRatio: 0.45, dcRatio: 0.20 },
   { id: 'C16', husbandAge: 40, wifeAge: 0, husbandIncome: 1800, wifeIncome: 0, rentMonthly: 20, totalSavings: 8000, targetRetireAge: 50, cashRatio: 0.20, investRatio: 0.70, dcRatio: 0.10, mode: 'solo' },
   { id: 'C17', husbandAge: 35, wifeAge: 33, husbandIncome: 1200, wifeIncome: 800, rentMonthly: 25, totalSavings: 2500, targetRetireAge: 52, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+  // C19-C24: 拡張ペルソナ
+  { id: 'C19', husbandAge: 38, wifeAge: 36, husbandIncome: 1600, wifeIncome: 700, rentMonthly: 0, totalSavings: 3500, targetRetireAge: 55, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15, livingCostMonthly: 35, homeStatus: 'owner', mortgagePrincipal: 4000, mortgageMonthlyPayment: 12, mortgageYearsRemaining: 25, ownerAnnualCost: 40 },
+  { id: 'C20', husbandAge: 33, wifeAge: 31, husbandIncome: 1800, wifeIncome: 800, rentMonthly: 35, totalSavings: 4500, targetRetireAge: 48, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15, livingCostMonthly: 38, rsuAnnual: 300, sideIncomeNet: 100 },
+  { id: 'C21', husbandAge: 35, wifeAge: 33, husbandIncome: 1500, wifeIncome: 700, rentMonthly: 28, totalSavings: 3500, targetRetireAge: 55, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15, livingCostMonthly: 32, expectedReturn: 3 },
+  { id: 'C22', husbandAge: 35, wifeAge: 33, husbandIncome: 1500, wifeIncome: 700, rentMonthly: 28, totalSavings: 3500, targetRetireAge: 55, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15, livingCostMonthly: 32, expectedReturn: 7 },
+  { id: 'C23', husbandAge: 36, wifeAge: 34, husbandIncome: 1600, wifeIncome: 600, rentMonthly: 26, totalSavings: 4000, targetRetireAge: 55, cashRatio: 0.70, investRatio: 0.20, dcRatio: 0.10, livingCostMonthly: 33 },
+  { id: 'C24', husbandAge: 36, wifeAge: 34, husbandIncome: 1600, wifeIncome: 600, rentMonthly: 26, totalSavings: 4000, targetRetireAge: 55, cashRatio: 0.10, investRatio: 0.80, dcRatio: 0.10, livingCostMonthly: 33 },
 ]
 
 // ============================================================
-// Scenario life events (same as case-catalog-sim.ts)
+// Scenario life events (mirrors case-catalog-sim.ts)
 // ============================================================
 
 interface ScenarioDef {
@@ -137,6 +163,13 @@ const SCENARIOS: ScenarioDef[] = [
     { type: 'housing_purchase', name: '住宅購入', age: 36, amount: 8000, isRecurring: false,
       purchaseDetails: { propertyPrice: 8000, downPayment: 800, purchaseCostRate: 7, mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 35 } },
   ]},
+  { caseId: 'C03', scenarioId: 'C03-nursing', lifeEvents: [
+    { type: 'expense_increase', name: '親の介護', age: 55, amount: 120, duration: 10, isRecurring: true },
+  ]},
+  { caseId: 'C03', scenarioId: 'C03-child-nursing', lifeEvents: [
+    { type: 'expense_increase', name: '子ども', age: 35, amount: 150, duration: 22, isRecurring: true },
+    { type: 'expense_increase', name: '親の介護', age: 55, amount: 120, duration: 10, isRecurring: true },
+  ]},
   { caseId: 'C05', scenarioId: 'C05-base', lifeEvents: [] },
   { caseId: 'C05', scenarioId: 'C05-buy-max', lifeEvents: [
     { type: 'housing_purchase', name: '住宅購入', age: 38, amount: 10000, isRecurring: false,
@@ -154,6 +187,22 @@ const SCENARIOS: ScenarioDef[] = [
   { caseId: 'C16', scenarioId: 'C16-base', lifeEvents: [] },
   { caseId: 'C17', scenarioId: 'C17-base', lifeEvents: [] },
   { caseId: 'C18', scenarioId: 'C18-base', lifeEvents: [] },
+  // C19: 持ち家ローン残 → パートナー離職リスク
+  { caseId: 'C19', scenarioId: 'C19-base', lifeEvents: [] },
+  { caseId: 'C19', scenarioId: 'C19-partner-quit', lifeEvents: [
+    { type: 'income_decrease', name: '妻離職', age: 40, amount: 700, isRecurring: false, target: 'partner' },
+  ]},
+  // C20: RSU持ち → RSU半減リスク
+  { caseId: 'C20', scenarioId: 'C20-base', lifeEvents: [] },
+  { caseId: 'C20', scenarioId: 'C20-rsu-halved', lifeEvents: [
+    { type: 'income_decrease', name: 'RSU半減+副業停止', age: 36, amount: 250, isRecurring: false, target: 'self' },
+  ]},
+  // C21 vs C22: 投資リターン差
+  { caseId: 'C21', scenarioId: 'C21-base', lifeEvents: [] },
+  { caseId: 'C22', scenarioId: 'C22-base', lifeEvents: [] },
+  // C23 vs C24: ポートフォリオ差
+  { caseId: 'C23', scenarioId: 'C23-base', lifeEvents: [] },
+  { caseId: 'C24', scenarioId: 'C24-base', lifeEvents: [] },
 ]
 
 // ============================================================
@@ -170,8 +219,21 @@ function caseToProfile(c: CaseDef): Profile {
   const base = createDefaultProfile()
   const mode = c.mode ?? 'couple'
   const householdIncome = c.husbandIncome + c.wifeIncome
-  const rawLivingCost = estimateLivingCost(householdIncome)
-  const livingCost = mode === 'solo' ? Math.round(rawLivingCost * 0.7) : rawLivingCost
+
+  let livingCostAnnual: number
+  if (c.livingCostMonthly != null) {
+    livingCostAnnual = c.livingCostMonthly * 12
+  } else {
+    const rawLivingCost = estimateLivingCost(householdIncome)
+    livingCostAnnual = mode === 'solo' ? Math.round(rawLivingCost * 0.7) : rawLivingCost
+  }
+
+  let housingCostAnnual: number
+  if (c.homeStatus === 'owner') {
+    housingCostAnnual = (c.mortgageMonthlyPayment ?? 0) * 12 + (c.ownerAnnualCost ?? 0)
+  } else {
+    housingCostAnnual = c.rentMonthly * 12
+  }
 
   return {
     ...base,
@@ -180,22 +242,22 @@ function caseToProfile(c: CaseDef): Profile {
     mode,
     grossIncome: c.husbandIncome,
     partnerGrossIncome: c.wifeIncome,
-    rsuAnnual: 0,
+    rsuAnnual: c.rsuAnnual ?? 0,
     partnerRsuAnnual: 0,
-    sideIncomeNet: 0,
-    housingCostAnnual: c.rentMonthly * 12,
-    livingCostAnnual: livingCost,
-    homeStatus: 'renter',
-    homeMarketValue: 0,
-    mortgagePrincipal: 0,
+    sideIncomeNet: c.sideIncomeNet ?? 0,
+    housingCostAnnual,
+    livingCostAnnual,
+    homeStatus: c.homeStatus ?? 'renter',
+    homeMarketValue: c.homeStatus === 'owner' ? 9000 : 0, // C19 propertyMid
+    mortgagePrincipal: c.mortgagePrincipal ?? 0,
     mortgageInterestRate: 1.0,
-    mortgageYearsRemaining: 0,
-    mortgageMonthlyPayment: 0,
+    mortgageYearsRemaining: c.mortgageYearsRemaining ?? 0,
+    mortgageMonthlyPayment: c.mortgageMonthlyPayment ?? 0,
     assetCash: Math.round(c.totalSavings * c.cashRatio),
     assetInvest: Math.round(c.totalSavings * c.investRatio),
     assetDefinedContributionJP: Math.round(c.totalSavings * c.dcRatio),
     dcContributionAnnual: 66,
-    expectedReturn: 5,
+    expectedReturn: c.expectedReturn ?? 5,
     inflationRate: 2,
     rentInflationRate: 0.5,
     volatility: 0.15,
@@ -305,7 +367,7 @@ describe('E02 Regression — ENGINE_VERSION 1.0.0', () => {
     }
   })
 
-  // 28シナリオを動的生成
+  // 38シナリオを動的生成
   for (const scenario of SCENARIOS) {
     const expected = BASELINES[scenario.scenarioId]
     if (!expected) continue

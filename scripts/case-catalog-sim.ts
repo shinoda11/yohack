@@ -1,4 +1,4 @@
-// ケース台帳シミュレーション (C01-C18) + ライフイベントシナリオ
+// ケース台帳シミュレーション (C01-C24) + ライフイベントシナリオ
 // ENGINE_VERSION 1.0.0 ベースライン確定用
 //
 // 出力:
@@ -20,22 +20,31 @@ const RUNS = 5
 // Types
 // ------------------------------------------------------------------
 
-interface CaseDefinition {
+interface CaseData {
   id: string
-  name: string
-  husbandAge: number
-  wifeAge: number
-  husbandIncome: number   // 万円/年
-  wifeIncome: number      // 万円/年
+  label: string
+  ageHusband: number
+  ageWife: number
+  incomeHusband: number   // 万円/年
+  incomeWife: number      // 万円/年
   rentMonthly: number     // 万円/月
   totalSavings: number    // 貯蓄+投資 万円
-  propertyMin: number     // 物件下限 万円
-  propertyMax: number     // 物件上限 万円
+  propertyMid: number     // 検討物件 万円
   targetRetireAge: number
-  cashRatio: number       // 現金比率
-  investRatio: number     // 投資比率
-  dcRatio: number         // DC比率
-  mode?: 'solo' | 'couple' // デフォルト: couple
+  livingCostMonthly: number // 万円/月
+  tags: string
+  // 拡張フィールド（optional）
+  homeStatus?: 'renter' | 'owner'
+  mortgagePrincipal?: number
+  mortgageMonthlyPayment?: number
+  mortgageYearsRemaining?: number
+  ownerAnnualCost?: number
+  rsuAnnual?: number
+  sideIncomeNet?: number
+  expectedReturn?: number
+  cashRatio?: number
+  investRatio?: number
+  dcRatio?: number
 }
 
 interface RentResult {
@@ -61,7 +70,7 @@ interface HousingResult {
 }
 
 interface CaseResult {
-  case: CaseDefinition
+  case: CaseData
   rent: RentResult
   housing: HousingResult
 }
@@ -96,115 +105,152 @@ interface ScenarioResult {
 }
 
 // ------------------------------------------------------------------
-// Case Definitions (C01-C17)
+// Case Definitions (C01-C17, C19-C24)
+// C18 は main() 内で特別処理
 // ------------------------------------------------------------------
 
-const CASES: CaseDefinition[] = [
-  {
-    id: 'C01', name: '王道DINK都心マンション検討',
-    husbandAge: 35, wifeAge: 33, husbandIncome: 1600, wifeIncome: 800,
-    rentMonthly: 32, totalSavings: 4000, propertyMin: 8000, propertyMax: 9500,
-    targetRetireAge: 50, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C02', name: '高負荷キャリア×ペースダウン不安',
-    husbandAge: 37, wifeAge: 35, husbandIncome: 1800, wifeIncome: 600,
-    rentMonthly: 30, totalSavings: 3500, propertyMin: 7000, propertyMax: 8500,
-    targetRetireAge: 48, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C03', name: 'DINK前提から子ども1人ありかも',
-    husbandAge: 34, wifeAge: 32, husbandIncome: 1500, wifeIncome: 700,
-    rentMonthly: 28, totalSavings: 3000, propertyMin: 7500, propertyMax: 9000,
-    targetRetireAge: 50, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C04', name: '海外転職オプション強めDINK',
-    husbandAge: 33, wifeAge: 31, husbandIncome: 1400, wifeIncome: 900,
-    rentMonthly: 29, totalSavings: 5000, propertyMin: 8000, propertyMax: 10000,
-    targetRetireAge: 45, cashRatio: 0.20, investRatio: 0.70, dcRatio: 0.10,
-  },
-  {
-    id: 'C05', name: '事前審査MAXで揺れるケース',
-    husbandAge: 36, wifeAge: 34, husbandIncome: 1700, wifeIncome: 700,
-    rentMonthly: 31, totalSavings: 2800, propertyMin: 9000, propertyMax: 12000,
-    targetRetireAge: 55, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C06', name: '高家賃ハイパフォーマーDINK',
-    husbandAge: 32, wifeAge: 30, husbandIncome: 1800, wifeIncome: 600,
-    rentMonthly: 40, totalSavings: 2500, propertyMin: 7500, propertyMax: 9000,
-    targetRetireAge: 50, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15,
-  },
-  {
-    id: 'C07', name: '片働きリスク顕在夫婦',
-    husbandAge: 35, wifeAge: 33, husbandIncome: 1500, wifeIncome: 500,
-    rentMonthly: 26, totalSavings: 3200, propertyMin: 7000, propertyMax: 8000,
-    targetRetireAge: 52, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15,
-  },
-  {
-    id: 'C08', name: 'メンタルダウンリスク意識',
-    husbandAge: 38, wifeAge: 36, husbandIncome: 1600, wifeIncome: 600,
-    rentMonthly: 27, totalSavings: 3800, propertyMin: 8000, propertyMax: 9000,
-    targetRetireAge: 48, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15,
-  },
-  {
-    id: 'C09', name: 'リモート前提崩壊リスク',
-    husbandAge: 34, wifeAge: 32, husbandIncome: 1400, wifeIncome: 800,
-    rentMonthly: 24, totalSavings: 3000, propertyMin: 7000, propertyMax: 8500,
-    targetRetireAge: 50, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C10', name: '9,000〜10,000ラインで迷う',
-    husbandAge: 33, wifeAge: 33, husbandIncome: 1500, wifeIncome: 900,
-    rentMonthly: 29, totalSavings: 4500, propertyMin: 9000, propertyMax: 10000,
-    targetRetireAge: 50, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
-  {
-    id: 'C11', name: '堅実1馬力＋時短妻',
-    husbandAge: 34, wifeAge: 32, husbandIncome: 1200, wifeIncome: 300,
-    rentMonthly: 18, totalSavings: 2000, propertyMin: 5500, propertyMax: 7000,
-    targetRetireAge: 55, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15,
-  },
-  {
-    id: 'C12', name: '共働き中堅×第2子タイミング',
-    husbandAge: 33, wifeAge: 31, husbandIncome: 1100, wifeIncome: 700,
-    rentMonthly: 22, totalSavings: 2500, propertyMin: 6000, propertyMax: 7500,
-    targetRetireAge: 50, cashRatio: 0.25, investRatio: 0.60, dcRatio: 0.15,
-  },
+const CASES: CaseData[] = [
+  // --- C01-C12: 既存DINKs ---
+  { id: 'C01', label: '王道DINK都心マンション検討',
+    ageHusband: 35, ageWife: 33, incomeHusband: 1600, incomeWife: 800,
+    rentMonthly: 32, totalSavings: 4000, propertyMid: 8750,
+    targetRetireAge: 50, livingCostMonthly: 35,
+    tags: '王道DINK・都心マンション' },
+  { id: 'C02', label: '高負荷キャリア×ペースダウン不安',
+    ageHusband: 37, ageWife: 35, incomeHusband: 1800, incomeWife: 600,
+    rentMonthly: 30, totalSavings: 3500, propertyMid: 7750,
+    targetRetireAge: 48, livingCostMonthly: 35,
+    tags: '高負荷キャリア・ペースダウン不安' },
+  { id: 'C03', label: 'DINK前提から子ども1人ありかも',
+    ageHusband: 34, ageWife: 32, incomeHusband: 1500, incomeWife: 700,
+    rentMonthly: 28, totalSavings: 3000, propertyMid: 8250,
+    targetRetireAge: 50, livingCostMonthly: 35,
+    tags: 'DINK→子ども検討' },
+  { id: 'C04', label: '海外転職オプション強めDINK',
+    ageHusband: 33, ageWife: 31, incomeHusband: 1400, incomeWife: 900,
+    rentMonthly: 29, totalSavings: 5000, propertyMid: 9000,
+    targetRetireAge: 45, livingCostMonthly: 35,
+    tags: '海外転職オプション',
+    cashRatio: 0.20, investRatio: 0.70, dcRatio: 0.10 },
+  { id: 'C05', label: '事前審査MAXで揺れるケース',
+    ageHusband: 36, ageWife: 34, incomeHusband: 1700, incomeWife: 700,
+    rentMonthly: 31, totalSavings: 2800, propertyMid: 10500,
+    targetRetireAge: 55, livingCostMonthly: 35,
+    tags: '審査MAX・高額物件' },
+  { id: 'C06', label: '高家賃ハイパフォーマーDINK',
+    ageHusband: 32, ageWife: 30, incomeHusband: 1800, incomeWife: 600,
+    rentMonthly: 40, totalSavings: 2500, propertyMid: 8250,
+    targetRetireAge: 50, livingCostMonthly: 35,
+    tags: '高家賃・ハイパフォーマー',
+    cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+  { id: 'C07', label: '片働きリスク顕在夫婦',
+    ageHusband: 35, ageWife: 33, incomeHusband: 1500, incomeWife: 500,
+    rentMonthly: 26, totalSavings: 3200, propertyMid: 7500,
+    targetRetireAge: 52, livingCostMonthly: 30,
+    tags: '片働きリスク',
+    cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+  { id: 'C08', label: 'メンタルダウンリスク意識',
+    ageHusband: 38, ageWife: 36, incomeHusband: 1600, incomeWife: 600,
+    rentMonthly: 27, totalSavings: 3800, propertyMid: 8500,
+    targetRetireAge: 48, livingCostMonthly: 35,
+    tags: 'メンタルダウンリスク',
+    cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+  { id: 'C09', label: 'リモート前提崩壊リスク',
+    ageHusband: 34, ageWife: 32, incomeHusband: 1400, incomeWife: 800,
+    rentMonthly: 24, totalSavings: 3000, propertyMid: 7750,
+    targetRetireAge: 50, livingCostMonthly: 35,
+    tags: 'リモート前提崩壊' },
+  { id: 'C10', label: '9,000〜10,000ラインで迷う',
+    ageHusband: 33, ageWife: 33, incomeHusband: 1500, incomeWife: 900,
+    rentMonthly: 29, totalSavings: 4500, propertyMid: 9500,
+    targetRetireAge: 50, livingCostMonthly: 35,
+    tags: '9000-10000万ライン' },
+  { id: 'C11', label: '堅実1馬力＋時短妻',
+    ageHusband: 34, ageWife: 32, incomeHusband: 1200, incomeWife: 300,
+    rentMonthly: 18, totalSavings: 2000, propertyMid: 6250,
+    targetRetireAge: 55, livingCostMonthly: 30,
+    tags: '堅実1馬力・時短妻',
+    cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+  { id: 'C12', label: '共働き中堅×第2子タイミング',
+    ageHusband: 33, ageWife: 31, incomeHusband: 1100, incomeWife: 700,
+    rentMonthly: 22, totalSavings: 2500, propertyMid: 6750,
+    targetRetireAge: 50, livingCostMonthly: 30,
+    tags: '共働き中堅・第2子' },
+
   // --- C13-C17: カバレッジ拡張 ---
-  {
-    id: 'C13', name: 'ソロ購入・堅実会社員',
-    husbandAge: 30, wifeAge: 0, husbandIncome: 900, wifeIncome: 0,
-    rentMonthly: 11, totalSavings: 1500, propertyMin: 3000, propertyMax: 4000,
-    targetRetireAge: 55, cashRatio: 0.35, investRatio: 0.50, dcRatio: 0.15,
-    mode: 'solo',
-  },
-  {
-    id: 'C14', name: '高年収若手DINK・タワマン検討',
-    husbandAge: 28, wifeAge: 27, husbandIncome: 2200, wifeIncome: 1000,
-    rentMonthly: 35, totalSavings: 3000, propertyMin: 12000, propertyMax: 15000,
-    targetRetireAge: 45, cashRatio: 0.20, investRatio: 0.65, dcRatio: 0.15,
-  },
-  {
-    id: 'C15', name: '子ども2人・共働き中堅・郊外戸建て',
-    husbandAge: 38, wifeAge: 36, husbandIncome: 800, wifeIncome: 400,
-    rentMonthly: 12, totalSavings: 1000, propertyMin: 4000, propertyMax: 5000,
-    targetRetireAge: 60, cashRatio: 0.35, investRatio: 0.45, dcRatio: 0.20,
-  },
-  {
-    id: 'C16', name: '40歳ソロ・高貯蓄・賃貸継続派',
-    husbandAge: 40, wifeAge: 0, husbandIncome: 1800, wifeIncome: 0,
-    rentMonthly: 20, totalSavings: 8000, propertyMin: 7000, propertyMax: 9000,
-    targetRetireAge: 50, cashRatio: 0.20, investRatio: 0.70, dcRatio: 0.10,
-    mode: 'solo',
-  },
-  {
-    id: 'C17', name: 'フリーランス夫+会社員妻・収入変動大',
-    husbandAge: 35, wifeAge: 33, husbandIncome: 1200, wifeIncome: 800,
-    rentMonthly: 25, totalSavings: 2500, propertyMin: 6500, propertyMax: 8000,
-    targetRetireAge: 52, cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15,
-  },
+  { id: 'C13', label: 'ソロ購入・堅実会社員',
+    ageHusband: 30, ageWife: 0, incomeHusband: 900, incomeWife: 0,
+    rentMonthly: 11, totalSavings: 1500, propertyMid: 3500,
+    targetRetireAge: 55, livingCostMonthly: 21,
+    tags: 'ソロ購入・堅実会社員',
+    cashRatio: 0.35, investRatio: 0.50, dcRatio: 0.15 },
+  { id: 'C14', label: '高年収若手DINK・タワマン検討',
+    ageHusband: 28, ageWife: 27, incomeHusband: 2200, incomeWife: 1000,
+    rentMonthly: 35, totalSavings: 3000, propertyMid: 13500,
+    targetRetireAge: 45, livingCostMonthly: 40,
+    tags: '高年収若手・タワマン',
+    cashRatio: 0.20, investRatio: 0.65, dcRatio: 0.15 },
+  { id: 'C15', label: '子ども2人・共働き中堅・郊外戸建て',
+    ageHusband: 38, ageWife: 36, incomeHusband: 800, incomeWife: 400,
+    rentMonthly: 12, totalSavings: 1000, propertyMid: 4500,
+    targetRetireAge: 60, livingCostMonthly: 30,
+    tags: '子ども2人・郊外戸建て',
+    cashRatio: 0.35, investRatio: 0.45, dcRatio: 0.20 },
+  { id: 'C16', label: '40歳ソロ・高貯蓄・賃貸継続派',
+    ageHusband: 40, ageWife: 0, incomeHusband: 1800, incomeWife: 0,
+    rentMonthly: 20, totalSavings: 8000, propertyMid: 8000,
+    targetRetireAge: 50, livingCostMonthly: 21,
+    tags: 'ソロ高貯蓄・賃貸継続派',
+    cashRatio: 0.20, investRatio: 0.70, dcRatio: 0.10 },
+  { id: 'C17', label: 'フリーランス夫+会社員妻・収入変動大',
+    ageHusband: 35, ageWife: 33, incomeHusband: 1200, incomeWife: 800,
+    rentMonthly: 25, totalSavings: 2500, propertyMid: 7250,
+    targetRetireAge: 52, livingCostMonthly: 30,
+    tags: 'フリーランス夫・収入変動大',
+    cashRatio: 0.30, investRatio: 0.55, dcRatio: 0.15 },
+
+  // --- C19-C24: カバレッジ穴埋め ---
+  { id: 'C19', label: '持ち家ローン残あり住み替え検討',
+    ageHusband: 38, ageWife: 36, incomeHusband: 1600, incomeWife: 700,
+    rentMonthly: 0, totalSavings: 3500, propertyMid: 9000,
+    targetRetireAge: 55, livingCostMonthly: 35,
+    tags: '持ち家・ローン残・住み替え',
+    homeStatus: 'owner',
+    mortgagePrincipal: 4000,
+    mortgageMonthlyPayment: 12,
+    mortgageYearsRemaining: 25,
+    ownerAnnualCost: 40 },
+  { id: 'C20', label: 'RSU+副業持ち外資IT',
+    ageHusband: 33, ageWife: 31, incomeHusband: 1800, incomeWife: 800,
+    rentMonthly: 35, totalSavings: 4500, propertyMid: 9000,
+    targetRetireAge: 48, livingCostMonthly: 38,
+    tags: 'RSU・副業・外資',
+    rsuAnnual: 300,
+    sideIncomeNet: 100 },
+  { id: 'C21', label: '保守的投資リターン3%',
+    ageHusband: 35, ageWife: 33, incomeHusband: 1500, incomeWife: 700,
+    rentMonthly: 28, totalSavings: 3500, propertyMid: 7500,
+    targetRetireAge: 55, livingCostMonthly: 32,
+    tags: '保守的投資・3%',
+    expectedReturn: 3 },
+  { id: 'C22', label: '積極的投資リターン7%',
+    ageHusband: 35, ageWife: 33, incomeHusband: 1500, incomeWife: 700,
+    rentMonthly: 28, totalSavings: 3500, propertyMid: 7500,
+    targetRetireAge: 55, livingCostMonthly: 32,
+    tags: '積極的投資・7%',
+    expectedReturn: 7 },
+  { id: 'C23', label: '現金偏重ポートフォリオ',
+    ageHusband: 36, ageWife: 34, incomeHusband: 1600, incomeWife: 600,
+    rentMonthly: 26, totalSavings: 4000, propertyMid: 7500,
+    targetRetireAge: 55, livingCostMonthly: 33,
+    tags: '現金偏重・低リスク',
+    cashRatio: 0.70, investRatio: 0.20, dcRatio: 0.10 },
+  { id: 'C24', label: '高攻撃ポートフォリオ',
+    ageHusband: 36, ageWife: 34, incomeHusband: 1600, incomeWife: 600,
+    rentMonthly: 26, totalSavings: 4000, propertyMid: 7500,
+    targetRetireAge: 55, livingCostMonthly: 33,
+    tags: '投資偏重・高リスク',
+    cashRatio: 0.10, investRatio: 0.80, dcRatio: 0.10 },
 ]
 
 // ------------------------------------------------------------------
@@ -265,6 +311,13 @@ const SCENARIOS: CaseScenario[] = [
       purchaseDetails: { propertyPrice: 8000, downPayment: 800, purchaseCostRate: 7,
         mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 35 } }
   ]},
+  { caseId: 'C03', scenarioId: 'C03-nursing', label: '55歳から親の介護（月10万×10年）', lifeEvents: [
+    { type: 'expense_increase', name: '親の介護', age: 55, amount: 120, duration: 10, isRecurring: true }
+  ]},
+  { caseId: 'C03', scenarioId: 'C03-child-nursing', label: '子ども+介護ダブル', lifeEvents: [
+    { type: 'expense_increase', name: '子ども', age: 35, amount: 150, duration: 22, isRecurring: true },
+    { type: 'expense_increase', name: '親の介護', age: 55, amount: 120, duration: 10, isRecurring: true }
+  ]},
 
   // --- C05: 審査MAX ---
   { caseId: 'C05', scenarioId: 'C05-base', label: 'ベースライン', lifeEvents: [] },
@@ -287,55 +340,70 @@ const SCENARIOS: CaseScenario[] = [
   { caseId: 'C16', scenarioId: 'C16-base', label: 'ベースライン', lifeEvents: [] },
   { caseId: 'C17', scenarioId: 'C17-base', label: 'ベースライン', lifeEvents: [] },
   { caseId: 'C18', scenarioId: 'C18-base', label: 'ベースライン（持ち家継続）', lifeEvents: [] },
+
+  // --- C19: 持ち家ローン残 → パートナー離職リスク ---
+  { caseId: 'C19', scenarioId: 'C19-base', label: 'ベースライン（持ち家継続）', lifeEvents: [] },
+  { caseId: 'C19', scenarioId: 'C19-partner-quit', label: '40歳で妻離職', lifeEvents: [
+    { type: 'income_decrease', name: '妻離職', age: 40, amount: 700, isRecurring: false, target: 'partner' }
+  ]},
+
+  // --- C20: RSU持ち → RSU半減リスク ---
+  { caseId: 'C20', scenarioId: 'C20-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C20', scenarioId: 'C20-rsu-halved', label: '36歳でRSU半減+副業停止', lifeEvents: [
+    { type: 'income_decrease', name: 'RSU半減+副業停止', age: 36, amount: 250, isRecurring: false, target: 'self' }
+  ]},
+
+  // --- C21 vs C22: 投資リターン差の検証 ---
+  { caseId: 'C21', scenarioId: 'C21-base', label: 'ベースライン（保守的3%）', lifeEvents: [] },
+  { caseId: 'C22', scenarioId: 'C22-base', label: 'ベースライン（積極的7%）', lifeEvents: [] },
+
+  // --- C23 vs C24: ポートフォリオ差の検証 ---
+  { caseId: 'C23', scenarioId: 'C23-base', label: 'ベースライン（現金偏重）', lifeEvents: [] },
+  { caseId: 'C24', scenarioId: 'C24-base', label: 'ベースライン（投資偏重）', lifeEvents: [] },
 ]
 
 // ------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------
 
-/** 世帯年収から生活費を推定（万円/年） */
-function estimateLivingCost(householdIncome: number): number {
-  if (householdIncome <= 2000) return 360
-  if (householdIncome <= 2500) return 420
-  return 480
-}
-
-/** CaseDefinition → Profile 変換 */
-function caseToProfile(c: CaseDefinition): Profile {
+/** CaseData → Profile 変換 */
+function caseToProfile(c: CaseData): Profile {
   const base = createDefaultProfile()
-  const mode = c.mode ?? 'couple'
-  const householdIncome = c.husbandIncome + c.wifeIncome
-  const rawLivingCost = estimateLivingCost(householdIncome)
-  const livingCost = mode === 'solo' ? Math.round(rawLivingCost * 0.7) : rawLivingCost
+  const cashR = c.cashRatio ?? 0.25
+  const investR = c.investRatio ?? 0.60
+  const dcR = c.dcRatio ?? 0.15
+  const mode = c.incomeWife > 0 ? 'couple' as const : 'solo' as const
 
   return {
     ...base,
-    currentAge: c.husbandAge,
+    currentAge: c.ageHusband,
     targetRetireAge: c.targetRetireAge,
     mode,
 
-    grossIncome: c.husbandIncome,
-    partnerGrossIncome: c.wifeIncome,
-    rsuAnnual: 0,
+    grossIncome: c.incomeHusband,
+    partnerGrossIncome: c.incomeWife,
+    rsuAnnual: c.rsuAnnual ?? 0,
     partnerRsuAnnual: 0,
-    sideIncomeNet: 0,
+    sideIncomeNet: c.sideIncomeNet ?? 0,
 
-    housingCostAnnual: c.rentMonthly * 12,
-    livingCostAnnual: livingCost,
+    housingCostAnnual: c.homeStatus === 'owner'
+      ? (c.mortgageMonthlyPayment ?? 0) * 12 + (c.ownerAnnualCost ?? 0)
+      : c.rentMonthly * 12,
+    livingCostAnnual: c.livingCostMonthly * 12,
 
-    homeStatus: 'renter',
-    homeMarketValue: 0,
-    mortgagePrincipal: 0,
+    homeStatus: c.homeStatus ?? 'renter',
+    homeMarketValue: c.homeStatus === 'owner' ? c.propertyMid : 0,
+    mortgagePrincipal: c.mortgagePrincipal ?? 0,
     mortgageInterestRate: 1.0,
-    mortgageYearsRemaining: 0,
-    mortgageMonthlyPayment: 0,
+    mortgageYearsRemaining: c.mortgageYearsRemaining ?? 0,
+    mortgageMonthlyPayment: c.mortgageMonthlyPayment ?? 0,
 
-    assetCash: Math.round(c.totalSavings * c.cashRatio),
-    assetInvest: Math.round(c.totalSavings * c.investRatio),
-    assetDefinedContributionJP: Math.round(c.totalSavings * c.dcRatio),
+    assetCash: Math.round(c.totalSavings * cashR),
+    assetInvest: Math.round(c.totalSavings * investR),
+    assetDefinedContributionJP: Math.round(c.totalSavings * dcR),
     dcContributionAnnual: 66,
 
-    expectedReturn: 5,
+    expectedReturn: c.expectedReturn ?? 5,
     inflationRate: 2,
     rentInflationRate: 0.5,
     volatility: 0.15,
@@ -360,10 +428,11 @@ const DEFAULT_RATE_STEPS: RateStep[] = [
   { year: 30, rate: 2.3 },
 ]
 
-/** CaseDefinition → BuyNowParams 変換 */
-function caseToBuyParams(c: CaseDefinition): BuyNowParams {
-  const propertyPrice = Math.round((c.propertyMin + c.propertyMax) / 2)
-  const cashAvailable = Math.round(c.totalSavings * c.cashRatio)
+/** CaseData → BuyNowParams 変換 */
+function caseToBuyParams(c: CaseData): BuyNowParams {
+  const propertyPrice = c.propertyMid
+  const cashR = c.cashRatio ?? 0.25
+  const cashAvailable = Math.round(c.totalSavings * cashR)
   const rawDown = Math.round(propertyPrice * 0.10)
   const downPayment = Math.min(rawDown, cashAvailable)
 
@@ -395,7 +464,7 @@ function inputsToLifeEvents(inputs: LifeEventInput[]): LifeEvent[] {
   }))
 }
 
-/** runSimulation を複数回実行して平均を取る（拡張版） */
+/** runSimulation を複数回実行して平均を取る */
 async function runAverage(profile: Profile, runs = RUNS): Promise<RentResult> {
   const results = await Promise.all(
     Array.from({ length: runs }, () => runSimulation(profile))
@@ -474,13 +543,14 @@ function generateCatalogMarkdown(results: CaseResult[]): string {
   for (const r of results) {
     const c = r.case
     const rent = r.rent
-    const household = c.husbandIncome + c.wifeIncome
-    const isSolo = c.mode === 'solo'
+    const household = c.incomeHusband + c.incomeWife
+    const isSolo = c.incomeWife === 0
     const isC18 = c.id === 'C18'
-    const ageStr = isSolo ? `${c.husbandAge}歳` : `${c.husbandAge}歳/${c.wifeAge}歳`
-    const rentStr = isC18 ? '※持ち家' : `${c.rentMonthly}万`
+    const isOwner = (c.homeStatus === 'owner') && !isC18
+    const ageStr = isSolo ? `${c.ageHusband}歳` : `${c.ageHusband}歳/${c.ageWife}歳`
+    const rentStr = (isC18 || isOwner) ? '※持ち家' : `${c.rentMonthly}万`
     lines.push(
-      `| ${c.id} | ${c.name} | ${ageStr} | ${fmtMoney(household)} | ${fmtMoney(c.totalSavings)} | ${rentStr} | ${rent.score} | ${rent.survivalRate}% | ${fmtAge(rent.fireAge)} | ${fmtMoney(rent.assetsAt60)} | ${fmtMoney(rent.assetsAt100)} |`
+      `| ${c.id} | ${c.label} | ${ageStr} | ${fmtMoney(household)} | ${fmtMoney(c.totalSavings)} | ${rentStr} | ${rent.score} | ${rent.survivalRate}% | ${fmtAge(rent.fireAge)} | ${fmtMoney(rent.assetsAt60)} | ${fmtMoney(rent.assetsAt100)} |`
     )
   }
 
@@ -495,12 +565,13 @@ function generateCatalogMarkdown(results: CaseResult[]): string {
   for (const r of results) {
     const c = r.case
     const isC18 = c.id === 'C18'
-    const propertyPrice = Math.round((c.propertyMin + c.propertyMax) / 2)
+    const isOwner = (c.homeStatus === 'owner') && !isC18
+    if (isOwner) continue // C19 等のオーナーケースは住宅比較をスキップ
     const h = r.housing
     const rent = r.rent
     const diff = h.score - rent.score
     const diffStr = diff >= 0 ? `+${diff}` : `${diff}`
-    const priceStr = isC18 ? `※売却→賃貸` : fmtMoney(propertyPrice)
+    const priceStr = isC18 ? `※売却→賃貸` : fmtMoney(c.propertyMid)
     lines.push(
       `| ${c.id} | ${priceStr} | ${h.monthlyPayment.toFixed(1)}万 | ${fmtMoney(h.totalCost40Years)} | ${h.score} | ${h.survivalRate}% | ${fmtAge(h.fireAge)} | ${fmtMoney(h.assetsAt60)} | ${rent.score} | ${diffStr} |`
     )
@@ -516,58 +587,79 @@ function generateCatalogMarkdown(results: CaseResult[]): string {
     const c = r.case
     const rent = r.rent
     const h = r.housing
-    const propertyPrice = Math.round((c.propertyMin + c.propertyMax) / 2)
-    const household = c.husbandIncome + c.wifeIncome
-    const isSolo = c.mode === 'solo'
+    const household = c.incomeHusband + c.incomeWife
+    const isSolo = c.incomeWife === 0
     const isC18 = c.id === 'C18'
+    const isOwner = (c.homeStatus === 'owner') && !isC18
 
-    lines.push(`### ${c.id}: ${c.name}`)
+    lines.push(`### ${c.id}: ${c.label}`)
     lines.push('')
     lines.push('**プロフィール**')
 
     if (isSolo) {
-      lines.push(`- ${c.husbandAge}歳（ソロ）`)
-      lines.push(`- 年収: ${fmtMoney(c.husbandIncome)}`)
+      lines.push(`- ${c.ageHusband}歳（ソロ）`)
+      lines.push(`- 年収: ${fmtMoney(c.incomeHusband)}`)
     } else {
-      lines.push(`- 夫${c.husbandAge}歳 / 妻${c.wifeAge}歳`)
-      lines.push(`- 世帯年収: ${fmtMoney(household)}（夫${fmtMoney(c.husbandIncome)} / 妻${fmtMoney(c.wifeIncome)}）`)
+      lines.push(`- 夫${c.ageHusband}歳 / 妻${c.ageWife}歳`)
+      lines.push(`- 世帯年収: ${fmtMoney(household)}（夫${fmtMoney(c.incomeHusband)} / 妻${fmtMoney(c.incomeWife)}）`)
     }
 
     if (isC18) {
-      lines.push(`- 住居: 持ち家（物件${fmtMoney(c.propertyMin)}、残債${fmtMoney(c.propertyMax)}）`)
+      lines.push(`- 住居: 持ち家（物件${fmtMoney(c.propertyMid)}、残債${fmtMoney(c.mortgagePrincipal ?? 0)}）`)
+    } else if (isOwner) {
+      lines.push(`- 住居: 持ち家（残債${fmtMoney(c.mortgagePrincipal ?? 0)}、月${c.mortgageMonthlyPayment ?? 0}万+維持費${c.ownerAnnualCost ?? 0}万/年）`)
     } else {
       lines.push(`- 家賃: ${c.rentMonthly}万/月（年${c.rentMonthly * 12}万）`)
     }
     lines.push(`- 貯蓄+投資: ${fmtMoney(c.totalSavings)}`)
     lines.push(`- 目標退職: ${c.targetRetireAge}歳`)
-    if (!isC18) {
-      lines.push(`- 検討物件: ${fmtMoney(c.propertyMin)}〜${fmtMoney(c.propertyMax)}`)
+    if (!isC18 && !isOwner) {
+      lines.push(`- 検討物件: ${fmtMoney(c.propertyMid)}`)
     }
+    // 特殊フィールド表示
+    if (c.rsuAnnual) lines.push(`- RSU: ${fmtMoney(c.rsuAnnual)}/年`)
+    if (c.sideIncomeNet) lines.push(`- 副業: ${fmtMoney(c.sideIncomeNet)}/年`)
+    if (c.expectedReturn && c.expectedReturn !== 5) lines.push(`- 投資リターン: ${c.expectedReturn}%`)
     lines.push('')
 
-    if (isC18) {
+    if (isOwner) {
+      // オーナーケースは比較なし、ベースラインのみ
+      lines.push('| 指標 | 値 |')
+      lines.push('|:-----|:---|')
+      lines.push(`| スコア | ${rent.score} |`)
+      lines.push(`| 生存率 | ${rent.survivalRate}% |`)
+      lines.push(`| FIRE年齢 | ${fmtAge(rent.fireAge)} |`)
+      lines.push(`| 60歳資産 | ${fmtMoney(rent.assetsAt60)} |`)
+      lines.push(`| 100歳資産 | ${fmtMoney(rent.assetsAt100)} |`)
+    } else if (isC18) {
       lines.push('| 指標 | 持ち家継続 | 売却→賃貸 | diff |')
       lines.push('|:-----|:-----------|:----------|:-----|')
-    } else {
-      lines.push(`| 指標 | 賃貸 | 購入（${fmtMoney(propertyPrice)}） | diff |`)
-      lines.push('|:-----|:-----|:-----|:-----|')
-    }
-
-    const scoreDiff = h.score - rent.score
-    const survDiff = h.survivalRate - rent.survivalRate
-    const a60Diff = h.assetsAt60 - rent.assetsAt60
-
-    lines.push(`| スコア | ${rent.score} | ${h.score} | ${scoreDiff >= 0 ? '+' : ''}${scoreDiff} |`)
-    lines.push(`| 生存率 | ${rent.survivalRate}% | ${h.survivalRate}% | ${survDiff >= 0 ? '+' : ''}${survDiff}% |`)
-    lines.push(`| FIRE年齢 | ${fmtAge(rent.fireAge)} | ${fmtAge(h.fireAge)} | — |`)
-    lines.push(`| 60歳資産 | ${fmtMoney(rent.assetsAt60)} | ${fmtMoney(h.assetsAt60)} | ${fmtMoney(a60Diff)} |`)
-    const a100Diff = h.assetsAt100 - rent.assetsAt100
-    lines.push(`| 100歳資産 | ${fmtMoney(rent.assetsAt100)} | ${fmtMoney(h.assetsAt100)} | ${fmtMoney(a100Diff)} |`)
-
-    if (isC18) {
+      const scoreDiff = h.score - rent.score
+      const survDiff = h.survivalRate - rent.survivalRate
+      const a60Diff = h.assetsAt60 - rent.assetsAt60
+      const a100Diff = h.assetsAt100 - rent.assetsAt100
+      lines.push(`| スコア | ${rent.score} | ${h.score} | ${scoreDiff >= 0 ? '+' : ''}${scoreDiff} |`)
+      lines.push(`| 生存率 | ${rent.survivalRate}% | ${h.survivalRate}% | ${survDiff >= 0 ? '+' : ''}${survDiff}% |`)
+      lines.push(`| FIRE年齢 | ${fmtAge(rent.fireAge)} | ${fmtAge(h.fireAge)} | — |`)
+      lines.push(`| 60歳資産 | ${fmtMoney(rent.assetsAt60)} | ${fmtMoney(h.assetsAt60)} | ${fmtMoney(a60Diff)} |`)
+      lines.push(`| 100歳資産 | ${fmtMoney(rent.assetsAt100)} | ${fmtMoney(h.assetsAt100)} | ${fmtMoney(a100Diff)} |`)
       lines.push(`| 月額支出 | ローン+維持費 | ${h.monthlyPayment.toFixed(1)}万(家賃) | — |`)
       lines.push(`| 40年総コスト | — | ${fmtMoney(h.totalCost40Years)} | — |`)
+      lines.push('')
+      lines.push(`> 売却条件: 物件時価${fmtMoney(c.propertyMid)} / 残債${fmtMoney(c.mortgagePrincipal ?? 0)} / 売却諸費用5% → 売却後賃貸22万/月`)
     } else {
+      lines.push(`| 指標 | 賃貸 | 購入（${fmtMoney(c.propertyMid)}） | diff |`)
+      lines.push('|:-----|:-----|:-----|:-----|')
+      const scoreDiff = h.score - rent.score
+      const survDiff = h.survivalRate - rent.survivalRate
+      const a60Diff = h.assetsAt60 - rent.assetsAt60
+      const a100Diff = h.assetsAt100 - rent.assetsAt100
+      lines.push(`| スコア | ${rent.score} | ${h.score} | ${scoreDiff >= 0 ? '+' : ''}${scoreDiff} |`)
+      lines.push(`| 生存率 | ${rent.survivalRate}% | ${h.survivalRate}% | ${survDiff >= 0 ? '+' : ''}${survDiff}% |`)
+      lines.push(`| FIRE年齢 | ${fmtAge(rent.fireAge)} | ${fmtAge(h.fireAge)} | — |`)
+      lines.push(`| 60歳資産 | ${fmtMoney(rent.assetsAt60)} | ${fmtMoney(h.assetsAt60)} | ${fmtMoney(a60Diff)} |`)
+      lines.push(`| 100歳資産 | ${fmtMoney(rent.assetsAt100)} | ${fmtMoney(h.assetsAt100)} | ${fmtMoney(a100Diff)} |`)
+
       let rentTotal40 = 0
       for (let y = 0; y < 40; y++) {
         rentTotal40 += c.rentMonthly * 12 * Math.pow(1.005, y)
@@ -575,14 +667,9 @@ function generateCatalogMarkdown(results: CaseResult[]): string {
       rentTotal40 = Math.round(rentTotal40)
       lines.push(`| 月額支出 | ${c.rentMonthly}万 | ${h.monthlyPayment.toFixed(1)}万 | — |`)
       lines.push(`| 40年総コスト | ${fmtMoney(rentTotal40)} | ${fmtMoney(h.totalCost40Years)} | — |`)
-    }
-    lines.push('')
-
-    if (isC18) {
-      lines.push(`> 売却条件: 物件時価${fmtMoney(c.propertyMin)} / 残債${fmtMoney(c.propertyMax)} / 売却諸費用5% → 売却後賃貸22万/月`)
-    } else {
+      lines.push('')
       const buyParams = caseToBuyParams(c)
-      lines.push(`> 購入条件: 物件${fmtMoney(propertyPrice)} / 頭金${fmtMoney(buyParams.downPayment)} / ${buyParams.mortgageYears}年ローン 変動${buyParams.interestRate}%→+0.3%/5年 / 諸費用${buyParams.purchaseCostRate}% / 維持費年${fmtMoney(buyParams.ownerAnnualCost)}(+1.5%/年)`)
+      lines.push(`> 購入条件: 物件${fmtMoney(c.propertyMid)} / 頭金${fmtMoney(buyParams.downPayment)} / ${buyParams.mortgageYears}年ローン 変動${buyParams.interestRate}%→+0.3%/5年 / 諸費用${buyParams.purchaseCostRate}% / 維持費年${fmtMoney(buyParams.ownerAnnualCost)}(+1.5%/年)`)
     }
     lines.push('')
     lines.push('---')
@@ -597,19 +684,22 @@ function generateCatalogMarkdown(results: CaseResult[]): string {
 // ------------------------------------------------------------------
 
 async function main() {
+  const renterCases = CASES.filter(c => c.homeStatus !== 'owner')
+  const ownerCases = CASES.filter(c => c.homeStatus === 'owner')
+
   console.log('=== ケース台帳シミュレーション開始 ===')
   console.log(`ENGINE_VERSION: ${ENGINE_VERSION}`)
   console.log(`実行回数: ${RUNS}回/シナリオ`)
-  console.log(`対象: ${CASES.length + 1} ケース（C01-C17 + C18特殊）+ ${SCENARIOS.length} シナリオ`)
+  console.log(`対象: ${renterCases.length} 賃貸ケース + ${ownerCases.length} 持ち家ケース + C18特殊 + ${SCENARIOS.length} シナリオ`)
   console.log('')
 
   // ==================================================================
-  // Part 1: 賃貸 vs 購入 比較（既存ケース台帳）
+  // Part 1: 賃貸 vs 購入 比較（賃貸ケースのみ）
   // ==================================================================
   const caseResults: CaseResult[] = []
 
-  for (const c of CASES) {
-    console.log(`[${c.id}] ${c.name} ...`)
+  for (const c of renterCases) {
+    console.log(`[${c.id}] ${c.label} ...`)
     const profile = caseToProfile(c)
 
     // (A) 賃貸ベースライン
@@ -634,6 +724,20 @@ async function main() {
 
     console.log(`  賃貸: score=${rent.score}, survival=${rent.survivalRate}%, FIRE=${rent.fireAge ?? 'N/A'}`)
     console.log(`  購入: score=${housing.score}, survival=${housing.survivalRate}%, FIRE=${housing.fireAge ?? 'N/A'}`)
+    console.log('')
+  }
+
+  // === オーナーケース（C19等）: ベースラインのみ ===
+  for (const c of ownerCases) {
+    console.log(`[${c.id}] ${c.label} (owner) ...`)
+    const profile = caseToProfile(c)
+    const rent = await runAverage(profile)
+    const dummyHousing: HousingResult = {
+      score: 0, survivalRate: 0, fireAge: null, assetsAt60: 0, assetsAt100: 0,
+      monthlyPayment: 0, totalCost40Years: 0,
+    }
+    caseResults.push({ case: c, rent, housing: dummyHousing })
+    console.log(`  ベースライン: score=${rent.score}, survival=${rent.survivalRate}%, FIRE=${rent.fireAge ?? 'N/A'}`)
     console.log('')
   }
 
@@ -667,7 +771,7 @@ async function main() {
       partnerRsuAnnual: 0,
       sideIncomeNet: 0,
       housingCostAnnual: ownerMonthly * 12 + c18OwnerAnnualCost,
-      livingCostAnnual: estimateLivingCost(2100),
+      livingCostAnnual: 420, // estimateLivingCost(2100) = 420
       homeStatus: 'owner',
       homeMarketValue: c18PropertyValue,
       mortgagePrincipal: c18MortgageRemaining,
@@ -711,15 +815,17 @@ async function main() {
       rentTotal40 += c18SellRentMonthly * 12 * Math.pow(1.005, y)
     }
 
-    const c18Case: CaseDefinition = {
-      id: 'C18', name: '既に購入済み・売却検討',
-      husbandAge: 42, wifeAge: 40, husbandIncome: 1500, wifeIncome: 600,
+    const c18Case: CaseData = {
+      id: 'C18', label: '既に購入済み・売却検討',
+      ageHusband: 42, ageWife: 40, incomeHusband: 1500, incomeWife: 600,
       rentMonthly: 0,
       totalSavings: c18TotalSavings,
-      propertyMin: c18PropertyValue,
-      propertyMax: c18MortgageRemaining,
-      targetRetireAge: 55,
+      propertyMid: c18PropertyValue,
+      targetRetireAge: 55, livingCostMonthly: 35,
+      tags: '持ち家・売却検討',
       cashRatio: c18CashRatio, investRatio: c18InvestRatio, dcRatio: c18DcRatio,
+      homeStatus: 'owner',
+      mortgagePrincipal: c18MortgageRemaining,
     }
     caseResults.push({
       case: c18Case,
@@ -745,9 +851,6 @@ async function main() {
 
   const scenarioResults: ScenarioResult[] = []
 
-  // C18用の特別プロファイル取得ヘルパー
-  const c18CaseResult = caseResults.find(r => r.case.id === 'C18')
-
   for (const scenario of SCENARIOS) {
     let profile: Profile
 
@@ -770,7 +873,7 @@ async function main() {
         grossIncome: 1500,
         partnerGrossIncome: 600,
         housingCostAnnual: ownerMonthly * 12 + c18OwnerAnnualCost,
-        livingCostAnnual: estimateLivingCost(2100),
+        livingCostAnnual: 420,
         homeStatus: 'owner',
         homeMarketValue: c18PropertyValue,
         mortgagePrincipal: c18MortgageRemaining,
@@ -864,26 +967,45 @@ async function main() {
   scenarioMdLines.push('')
 
   // 妥当性チェック結果
+  const findScore = (id: string) => scenarioResults.find(r => r.scenarioId === id)?.score.overall ?? 0
+
   scenarioMdLines.push('## 妥当性チェック')
   scenarioMdLines.push('')
-
-  const findScore = (id: string) => scenarioResults.find(r => r.scenarioId === id)?.score.overall ?? 0
-  const findSurvival = (id: string) => scenarioResults.find(r => r.scenarioId === id)?.metrics.survivalRate ?? 0
+  scenarioMdLines.push('ターゲットDINKs（高家賃 × 低金利0.5%）にとって、住宅購入は住居費を下げる行為。')
+  scenarioMdLines.push('例: 家賃32万/月（384万/年、インフレ付き）→ ローン+維持費（約262万/年、固定）= 年122万の改善。')
+  scenarioMdLines.push('「買うとスコアが上がる」は直感に反するようだが、高家賃×低金利の前提では正しい。')
+  scenarioMdLines.push('')
+  scenarioMdLines.push('### 不等式チェック')
+  scenarioMdLines.push('')
 
   const checks: [string, boolean][] = [
-    ['C01-buy < C01-base（住宅購入でスコアが下がる）', findScore('C01-buy') < findScore('C01-base')],
-    ['C01-pacedown < C01-base（ペースダウンでスコアが下がる）', findScore('C01-pacedown') < findScore('C01-base')],
-    ['C01-buy-pacedown < C01-buy（購入+ペースダウンが最も厳しい）', findScore('C01-buy-pacedown') < findScore('C01-buy')],
-    ['C03-child < C03-base（子ども追加でスコアが下がる）', findScore('C03-child') < findScore('C03-base')],
-    ['C03-child-buy < C03-child（子ども+住宅が最も厳しい）', findScore('C03-child-buy') < findScore('C03-child')],
-    ['C04-abroad > C04-base（海外転職でスコアが上がる）', findScore('C04-abroad') > findScore('C04-base')],
-    ['C04-inherit > C04-base（相続でスコアが上がる）', findScore('C04-inherit') > findScore('C04-base')],
-    ['C05-buy-max < C05-base（高額物件購入は厳しい）', findScore('C05-buy-max') < findScore('C05-base')],
+    ['C01-buy > C01-base（高家賃→低ローンで住居費改善）', findScore('C01-buy') > findScore('C01-base')],
+    ['C01-pacedown < C01-base（収入減でスコア低下）', findScore('C01-pacedown') < findScore('C01-base')],
+    ['C01-buy-pacedown < C01-buy（購入しても収入減の影響は出る）', findScore('C01-buy-pacedown') < findScore('C01-buy')],
+    ['C03-child < C03-base（子ども150万/年×22年の支出増）', findScore('C03-child') < findScore('C03-base')],
+    ['C03-child-buy > C03-child（子ども負担があっても住居費改善効果）', findScore('C03-child-buy') > findScore('C03-child')],
+    ['C04-abroad > C04-base（海外転職で収入+40%）', findScore('C04-abroad') > findScore('C04-base')],
+    ['C04-inherit > C04-base（相続で資産+2000万）', findScore('C04-inherit') > findScore('C04-base')],
+    ['C05-buy-max > C05-base（高額物件でも住居費改善効果が上回る）', findScore('C05-buy-max') > findScore('C05-base')],
+    ['C06-buy > C06-base（家賃40万→ローン+維持費で最大の効果）', findScore('C06-buy') > findScore('C06-base')],
+    // 追加チェック
+    ['C22-base > C21-base（投資リターン7% > 3%）', findScore('C22-base') > findScore('C21-base')],
+    ['C19-partner-quit < C19-base（パートナー離職でスコア低下）', findScore('C19-partner-quit') < findScore('C19-base')],
+    ['C20-rsu-halved < C20-base（RSU半減でスコア低下）', findScore('C20-rsu-halved') < findScore('C20-base')],
+    ['C03-child-nursing < C03-child（介護追加でさらに低下）', findScore('C03-child-nursing') < findScore('C03-child')],
   ]
 
   for (const [desc, pass] of checks) {
     scenarioMdLines.push(`- ${pass ? '✅' : '❌'} ${desc}`)
   }
+  scenarioMdLines.push('')
+
+  scenarioMdLines.push('### 前提条件への依存（注意）')
+  scenarioMdLines.push('')
+  scenarioMdLines.push('上記の結果は以下の前提に強く依存する:')
+  scenarioMdLines.push('- 金利0.5%が固定（変動金利の上振れリスクは未反映）')
+  scenarioMdLines.push('- 売却コスト・含み損は未考慮（純粋キャッシュフローのみ）')
+  scenarioMdLines.push('- 家賃インフレ0.5%/年（これが0%なら差は縮まる）')
   scenarioMdLines.push('')
 
   writeFileSync(resolve(docsDir, 'e02-baseline-v1.0.0.md'), scenarioMdLines.join('\n'), 'utf-8')

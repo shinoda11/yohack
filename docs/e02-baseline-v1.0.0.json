@@ -8,18 +8,18 @@
       "caseId": "C01",
       "label": "ベースライン（賃貸継続）",
       "score": {
-        "overall": 73,
-        "survival": 65,
+        "overall": 74,
+        "survival": 66,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 65,
-        "assetAt100": 35119
+        "survivalRate": 66,
+        "assetAt100": 37108
       },
-      "assetsAt60": 26688,
+      "assetsAt60": 26171,
       "lifeEvents": []
     },
     {
@@ -27,18 +27,18 @@
       "caseId": "C01",
       "label": "38歳で8,500万購入",
       "score": {
-        "overall": 81,
-        "survival": 81,
+        "overall": 80,
+        "survival": 79,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 81,
-        "assetAt100": 61023
+        "survivalRate": 79,
+        "assetAt100": 60354
       },
-      "assetsAt60": 27408,
+      "assetsAt60": 26825,
       "lifeEvents": [
         {
           "type": "housing_purchase",
@@ -62,18 +62,18 @@
       "caseId": "C01",
       "label": "40歳で夫年収20%ダウン",
       "score": {
-        "overall": 70,
-        "survival": 60,
+        "overall": 69,
+        "survival": 59,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 60,
-        "assetAt100": 21419
+        "survivalRate": 59,
+        "assetAt100": 18663
       },
-      "assetsAt60": 22944,
+      "assetsAt60": 22920,
       "lifeEvents": [
         {
           "type": "income_decrease",
@@ -90,18 +90,18 @@
       "caseId": "C01",
       "label": "購入+ペースダウン",
       "score": {
-        "overall": 78,
-        "survival": 75,
+        "overall": 79,
+        "survival": 76,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 75,
-        "assetAt100": 47203
+        "survivalRate": 76,
+        "assetAt100": 49105
       },
-      "assetsAt60": 23897,
+      "assetsAt60": 24536,
       "lifeEvents": [
         {
           "type": "housing_purchase",
@@ -133,18 +133,18 @@
       "caseId": "C06",
       "label": "ベースライン",
       "score": {
-        "overall": 67,
-        "survival": 53,
+        "overall": 68,
+        "survival": 55,
         "lifestyle": 100,
         "risk": 51,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 53,
-        "assetAt100": 7603
+        "survivalRate": 55,
+        "assetAt100": 11574
       },
-      "assetsAt60": 24101,
+      "assetsAt60": 25130,
       "lifeEvents": []
     },
     {
@@ -152,18 +152,18 @@
       "caseId": "C06",
       "label": "35歳で8,000万購入",
       "score": {
-        "overall": 81,
-        "survival": 80,
+        "overall": 82,
+        "survival": 79,
         "lifestyle": 100,
         "risk": 51,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 80,
-        "assetAt100": 68419
+        "survivalRate": 79,
+        "assetAt100": 66679
       },
-      "assetsAt60": 30011,
+      "assetsAt60": 29555,
       "lifeEvents": [
         {
           "type": "housing_purchase",
@@ -188,17 +188,17 @@
       "label": "ベースライン",
       "score": {
         "overall": 79,
-        "survival": 75,
+        "survival": 74,
         "lifestyle": 100,
         "risk": 51,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 54,
-        "survivalRate": 75,
-        "assetAt100": 39449
+        "survivalRate": 74,
+        "assetAt100": 39189
       },
-      "assetsAt60": 22187,
+      "assetsAt60": 22342,
       "lifeEvents": []
     },
     {
@@ -215,9 +215,9 @@
       "metrics": {
         "fireAge": 55,
         "survivalRate": 81,
-        "assetAt100": 45715
+        "assetAt100": 43864
       },
-      "assetsAt60": 20663,
+      "assetsAt60": 20529,
       "lifeEvents": [
         {
           "type": "housing_purchase",
@@ -241,7 +241,7 @@
       "caseId": "C04",
       "label": "ベースライン",
       "score": {
-        "overall": 67,
+        "overall": 66,
         "survival": 55,
         "lifestyle": 100,
         "risk": 42,
@@ -250,9 +250,9 @@
       "metrics": {
         "fireAge": 45,
         "survivalRate": 55,
-        "assetAt100": 12729
+        "assetAt100": 11281
       },
-      "assetsAt60": 22701,
+      "assetsAt60": 22760,
       "lifeEvents": []
     },
     {
@@ -260,18 +260,18 @@
       "caseId": "C04",
       "label": "36歳で海外転職（年収+40%）",
       "score": {
-        "overall": 71,
-        "survival": 64,
+        "overall": 72,
+        "survival": 66,
         "lifestyle": 100,
         "risk": 42,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 44,
-        "survivalRate": 64,
-        "assetAt100": 41373
+        "survivalRate": 66,
+        "assetAt100": 41154
       },
-      "assetsAt60": 28897,
+      "assetsAt60": 29224,
       "lifeEvents": [
         {
           "type": "income_increase",
@@ -288,18 +288,18 @@
       "caseId": "C04",
       "label": "45歳で相続2000万",
       "score": {
-        "overall": 70,
-        "survival": 61,
+        "overall": 69,
+        "survival": 60,
         "lifestyle": 100,
         "risk": 42,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 45,
-        "survivalRate": 61,
-        "assetAt100": 27731
+        "survivalRate": 60,
+        "assetAt100": 21787
       },
-      "assetsAt60": 25717,
+      "assetsAt60": 25594,
       "lifeEvents": [
         {
           "type": "asset_gain",
@@ -324,9 +324,9 @@
       "metrics": {
         "fireAge": 50,
         "survivalRate": 63,
-        "assetAt100": 30103
+        "assetAt100": 27550
       },
-      "assetsAt60": 24665,
+      "assetsAt60": 24343,
       "lifeEvents": []
     },
     {
@@ -335,7 +335,7 @@
       "label": "35歳で子ども（支出+150万/年×22年）",
       "score": {
         "overall": 64,
-        "survival": 50,
+        "survival": 49,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
@@ -343,9 +343,9 @@
       "metrics": {
         "fireAge": null,
         "survivalRate": 49,
-        "assetAt100": -1303
+        "assetAt100": -2073
       },
-      "assetsAt60": 17695,
+      "assetsAt60": 17337,
       "lifeEvents": [
         {
           "type": "expense_increase",
@@ -362,18 +362,18 @@
       "caseId": "C03",
       "label": "子ども+住宅購入",
       "score": {
-        "overall": 70,
-        "survival": 60,
+        "overall": 71,
+        "survival": 61,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": null,
-        "survivalRate": 60,
-        "assetAt100": 17788
+        "survivalRate": 61,
+        "assetAt100": 17695
       },
-      "assetsAt60": 17369,
+      "assetsAt60": 17557,
       "lifeEvents": [
         {
           "type": "expense_increase",
@@ -401,22 +401,86 @@
       ]
     },
     {
-      "scenarioId": "C05-base",
-      "caseId": "C05",
-      "label": "ベースライン",
+      "scenarioId": "C03-nursing",
+      "caseId": "C03",
+      "label": "55歳から親の介護（月10万×10年）",
       "score": {
-        "overall": 80,
-        "survival": 79,
+        "overall": 69,
+        "survival": 59,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
-        "fireAge": 52,
-        "survivalRate": 79,
-        "assetAt100": 68316
+        "fireAge": 50,
+        "survivalRate": 59,
+        "assetAt100": 18537
       },
-      "assetsAt60": 32348,
+      "assetsAt60": 23366,
+      "lifeEvents": [
+        {
+          "type": "expense_increase",
+          "name": "親の介護",
+          "age": 55,
+          "amount": 120,
+          "duration": 10,
+          "isRecurring": true
+        }
+      ]
+    },
+    {
+      "scenarioId": "C03-child-nursing",
+      "caseId": "C03",
+      "label": "子ども+介護ダブル",
+      "score": {
+        "overall": 62,
+        "survival": 44,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": null,
+        "survivalRate": 44,
+        "assetAt100": -8160
+      },
+      "assetsAt60": 16099,
+      "lifeEvents": [
+        {
+          "type": "expense_increase",
+          "name": "子ども",
+          "age": 35,
+          "amount": 150,
+          "duration": 22,
+          "isRecurring": true
+        },
+        {
+          "type": "expense_increase",
+          "name": "親の介護",
+          "age": 55,
+          "amount": 120,
+          "duration": 10,
+          "isRecurring": true
+        }
+      ]
+    },
+    {
+      "scenarioId": "C05-base",
+      "caseId": "C05",
+      "label": "ベースライン",
+      "score": {
+        "overall": 81,
+        "survival": 80,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 53,
+        "survivalRate": 80,
+        "assetAt100": 66550
+      },
+      "assetsAt60": 32148,
       "lifeEvents": []
     },
     {
@@ -432,10 +496,10 @@
       },
       "metrics": {
         "fireAge": 54,
-        "survivalRate": 89,
-        "assetAt100": 80502
+        "survivalRate": 90,
+        "assetAt100": 79113
       },
-      "assetsAt60": 30106,
+      "assetsAt60": 29723,
       "lifeEvents": [
         {
           "type": "housing_purchase",
@@ -459,8 +523,8 @@
       "caseId": "C02",
       "label": "ベースライン",
       "score": {
-        "overall": 62,
-        "survival": 46,
+        "overall": 63,
+        "survival": 47,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
@@ -468,9 +532,9 @@
       "metrics": {
         "fireAge": null,
         "survivalRate": 46,
-        "assetAt100": -6052
+        "assetAt100": -5689
       },
-      "assetsAt60": 16109,
+      "assetsAt60": 16334,
       "lifeEvents": []
     },
     {
@@ -478,18 +542,18 @@
       "caseId": "C07",
       "label": "ベースライン",
       "score": {
-        "overall": 79,
-        "survival": 75,
+        "overall": 78,
+        "survival": 74,
         "lifestyle": 100,
         "risk": 51,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 75,
-        "assetAt100": 50743
+        "survivalRate": 74,
+        "assetAt100": 48834
       },
-      "assetsAt60": 26623,
+      "assetsAt60": 25959,
       "lifeEvents": []
     },
     {
@@ -506,9 +570,9 @@
       "metrics": {
         "fireAge": null,
         "survivalRate": 42,
-        "assetAt100": -8730
+        "assetAt100": -8789
       },
-      "assetsAt60": 13894,
+      "assetsAt60": 13767,
       "lifeEvents": []
     },
     {
@@ -525,9 +589,9 @@
       "metrics": {
         "fireAge": 49,
         "survivalRate": 69,
-        "assetAt100": 38703
+        "assetAt100": 41360
       },
-      "assetsAt60": 26944,
+      "assetsAt60": 26778,
       "lifeEvents": []
     },
     {
@@ -536,17 +600,17 @@
       "label": "ベースライン",
       "score": {
         "overall": 79,
-        "survival": 75,
+        "survival": 76,
         "lifestyle": 100,
         "risk": 47,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 46,
-        "survivalRate": 75,
-        "assetAt100": 76300
+        "survivalRate": 76,
+        "assetAt100": 68622
       },
-      "assetsAt60": 35548,
+      "assetsAt60": 35143,
       "lifeEvents": []
     },
     {
@@ -563,9 +627,9 @@
       "metrics": {
         "fireAge": 49,
         "survivalRate": 71,
-        "assetAt100": 40631
+        "assetAt100": 39740
       },
-      "assetsAt60": 23252,
+      "assetsAt60": 24103,
       "lifeEvents": []
     },
     {
@@ -573,18 +637,18 @@
       "caseId": "C13",
       "label": "ベースライン",
       "score": {
-        "overall": 79,
-        "survival": 73,
+        "overall": 78,
+        "survival": 72,
         "lifestyle": 100,
         "risk": 56,
         "liquidity": 100
       },
       "metrics": {
-        "fireAge": 52,
-        "survivalRate": 73,
-        "assetAt100": 29449
+        "fireAge": 53,
+        "survivalRate": 72,
+        "assetAt100": 30623
       },
-      "assetsAt60": 16829,
+      "assetsAt60": 16835,
       "lifeEvents": []
     },
     {
@@ -592,18 +656,18 @@
       "caseId": "C14",
       "label": "ベースライン",
       "score": {
-        "overall": 74,
-        "survival": 68,
+        "overall": 73,
+        "survival": 67,
         "lifestyle": 100,
         "risk": 43,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 42,
-        "survivalRate": 68,
-        "assetAt100": 69189
+        "survivalRate": 67,
+        "assetAt100": 73725
       },
-      "assetsAt60": 42585,
+      "assetsAt60": 42816,
       "lifeEvents": []
     },
     {
@@ -620,9 +684,9 @@
       "metrics": {
         "fireAge": 60,
         "survivalRate": 81,
-        "assetAt100": 30382
+        "assetAt100": 33110
       },
-      "assetsAt60": 16037,
+      "assetsAt60": 15796,
       "lifeEvents": []
     },
     {
@@ -639,9 +703,9 @@
       "metrics": {
         "fireAge": 45,
         "survivalRate": 83,
-        "assetAt100": 60851
+        "assetAt100": 60637
       },
-      "assetsAt60": 24818,
+      "assetsAt60": 25421,
       "lifeEvents": []
     },
     {
@@ -650,17 +714,17 @@
       "label": "ベースライン",
       "score": {
         "overall": 80,
-        "survival": 77,
+        "survival": 78,
         "lifestyle": 100,
         "risk": 51,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 50,
-        "survivalRate": 77,
-        "assetAt100": 53898
+        "survivalRate": 78,
+        "assetAt100": 57700
       },
-      "assetsAt60": 26043,
+      "assetsAt60": 26109,
       "lifeEvents": []
     },
     {
@@ -668,18 +732,188 @@
       "caseId": "C18",
       "label": "ベースライン（持ち家継続）",
       "score": {
-        "overall": 77,
-        "survival": 65,
+        "overall": 76,
+        "survival": 64,
         "lifestyle": 100,
         "risk": 73,
         "liquidity": 100
       },
       "metrics": {
         "fireAge": 55,
-        "survivalRate": 65,
-        "assetAt100": 18757
+        "survivalRate": 64,
+        "assetAt100": 19041
       },
-      "assetsAt60": 17486,
+      "assetsAt60": 17150,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C19-base",
+      "caseId": "C19",
+      "label": "ベースライン（持ち家継続）",
+      "score": {
+        "overall": 93,
+        "survival": 93,
+        "lifestyle": 100,
+        "risk": 80,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 48,
+        "survivalRate": 92,
+        "assetAt100": 105052
+      },
+      "assetsAt60": 34804,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C19-partner-quit",
+      "caseId": "C19",
+      "label": "40歳で妻離職",
+      "score": {
+        "overall": 83,
+        "survival": 75,
+        "lifestyle": 100,
+        "risk": 80,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 55,
+        "survivalRate": 75,
+        "assetAt100": 37797
+      },
+      "assetsAt60": 21188,
+      "lifeEvents": [
+        {
+          "type": "income_decrease",
+          "name": "妻離職",
+          "age": 40,
+          "amount": 700,
+          "isRecurring": false,
+          "target": "partner"
+        }
+      ]
+    },
+    {
+      "scenarioId": "C20-base",
+      "caseId": "C20",
+      "label": "ベースライン",
+      "score": {
+        "overall": 76,
+        "survival": 71,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 46,
+        "survivalRate": 71,
+        "assetAt100": 61019
+      },
+      "assetsAt60": 36367,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C20-rsu-halved",
+      "caseId": "C20",
+      "label": "36歳でRSU半減+副業停止",
+      "score": {
+        "overall": 73,
+        "survival": 65,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 47,
+        "survivalRate": 65,
+        "assetAt100": 44324
+      },
+      "assetsAt60": 31916,
+      "lifeEvents": [
+        {
+          "type": "income_decrease",
+          "name": "RSU半減+副業停止",
+          "age": 36,
+          "amount": 250,
+          "isRecurring": false,
+          "target": "self"
+        }
+      ]
+    },
+    {
+      "scenarioId": "C21-base",
+      "caseId": "C21",
+      "label": "ベースライン（保守的3%）",
+      "score": {
+        "overall": 67,
+        "survival": 55,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 54,
+        "survivalRate": 55,
+        "assetAt100": 4153
+      },
+      "assetsAt60": 23594,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C22-base",
+      "caseId": "C22",
+      "label": "ベースライン（積極的7%）",
+      "score": {
+        "overall": 91,
+        "survival": 98,
+        "lifestyle": 100,
+        "risk": 47,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 47,
+        "survivalRate": 98,
+        "assetAt100": 403341
+      },
+      "assetsAt60": 52128,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C23-base",
+      "caseId": "C23",
+      "label": "ベースライン（現金偏重）",
+      "score": {
+        "overall": 89,
+        "survival": 85,
+        "lifestyle": 100,
+        "risk": 83,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 50,
+        "survivalRate": 85,
+        "assetAt100": 91097
+      },
+      "assetsAt60": 34581,
+      "lifeEvents": []
+    },
+    {
+      "scenarioId": "C24-base",
+      "caseId": "C24",
+      "label": "ベースライン（投資偏重）",
+      "score": {
+        "overall": 82,
+        "survival": 86,
+        "lifestyle": 100,
+        "risk": 33,
+        "liquidity": 100
+      },
+      "metrics": {
+        "fireAge": 49,
+        "survivalRate": 86,
+        "assetAt100": 93366
+      },
+      "assetsAt60": 35040,
       "lifeEvents": []
     }
   ]
