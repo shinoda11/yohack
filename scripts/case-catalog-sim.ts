@@ -1,13 +1,20 @@
-// ケース台帳シミュレーション (C01-C18)
-// Instagram運用のケース台帳をシミュレーションエンジンに通し、
-// マーケ数字とプロダクト数字を一致させる。
+// ケース台帳シミュレーション (C01-C18) + ライフイベントシナリオ
+// ENGINE_VERSION 1.0.0 ベースライン確定用
+//
+// 出力:
+//   docs/case-catalog-results.md    — 人間可読（賃貸 vs 購入 比較表）
+//   docs/e02-baseline-v1.0.0.json   — 機械可読（リグレッションテスト用）
+//   docs/e02-baseline-v1.0.0.md     — 人間可読（シナリオ別結果）
 
-import { runSimulation, createDefaultProfile } from '../lib/engine'
+import { runSimulation, createDefaultProfile, ENGINE_VERSION } from '../lib/engine'
 import { runHousingScenarios, computeMonthlyPaymentManYen, type BuyNowParams, type RateStep } from '../lib/housing-sim'
-import type { Profile } from '../lib/types'
+import type { Profile, LifeEventType, HousingPurchaseDetails, LifeEvent } from '../lib/types'
 import { writeFileSync, mkdirSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+
+// 5回実行で分散を抑える
+const RUNS = 5
 
 // ------------------------------------------------------------------
 // Types
@@ -33,6 +40,10 @@ interface CaseDefinition {
 
 interface RentResult {
   score: number
+  survival: number
+  lifestyle: number
+  risk: number
+  liquidity: number
   survivalRate: number
   fireAge: number | null
   assetsAt60: number
@@ -55,8 +66,37 @@ interface CaseResult {
   housing: HousingResult
 }
 
+// ライフイベントシナリオ用
+interface LifeEventInput {
+  type: LifeEventType
+  name: string
+  age: number
+  amount: number
+  duration?: number
+  isRecurring: boolean
+  target?: 'self' | 'partner'
+  purchaseDetails?: HousingPurchaseDetails
+}
+
+interface CaseScenario {
+  caseId: string
+  scenarioId: string
+  label: string
+  lifeEvents: LifeEventInput[]
+}
+
+interface ScenarioResult {
+  scenarioId: string
+  caseId: string
+  label: string
+  score: { overall: number; survival: number; lifestyle: number; risk: number; liquidity: number }
+  metrics: { fireAge: number | null; survivalRate: number; assetAt100: number }
+  assetsAt60: number
+  lifeEvents: LifeEventInput[]
+}
+
 // ------------------------------------------------------------------
-// 12 Case Definitions
+// Case Definitions (C01-C17)
 // ------------------------------------------------------------------
 
 const CASES: CaseDefinition[] = [
@@ -168,6 +208,88 @@ const CASES: CaseDefinition[] = [
 ]
 
 // ------------------------------------------------------------------
+// Life Event Scenarios
+// ------------------------------------------------------------------
+
+const SCENARIOS: CaseScenario[] = [
+  // --- C01: 王道DINK ---
+  { caseId: 'C01', scenarioId: 'C01-base', label: 'ベースライン（賃貸継続）', lifeEvents: [] },
+  { caseId: 'C01', scenarioId: 'C01-buy', label: '38歳で8,500万購入', lifeEvents: [
+    { type: 'housing_purchase', name: '住宅購入', age: 38, amount: 8500, isRecurring: false,
+      purchaseDetails: { propertyPrice: 8500, downPayment: 1000, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 40 } }
+  ]},
+  { caseId: 'C01', scenarioId: 'C01-pacedown', label: '40歳で夫年収20%ダウン', lifeEvents: [
+    { type: 'income_decrease', name: '転職ペースダウン', age: 40, amount: 320, isRecurring: false, target: 'self' }
+  ]},
+  { caseId: 'C01', scenarioId: 'C01-buy-pacedown', label: '購入+ペースダウン', lifeEvents: [
+    { type: 'housing_purchase', name: '住宅購入', age: 38, amount: 8500, isRecurring: false,
+      purchaseDetails: { propertyPrice: 8500, downPayment: 1000, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 40 } },
+    { type: 'income_decrease', name: '転職ペースダウン', age: 40, amount: 320, isRecurring: false, target: 'self' }
+  ]},
+
+  // --- C06: 高家賃ハイパフォーマー ---
+  { caseId: 'C06', scenarioId: 'C06-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C06', scenarioId: 'C06-buy', label: '35歳で8,000万購入', lifeEvents: [
+    { type: 'housing_purchase', name: '住宅購入', age: 35, amount: 8000, isRecurring: false,
+      purchaseDetails: { propertyPrice: 8000, downPayment: 800, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 40 } }
+  ]},
+
+  // --- C11: 堅実1馬力 ---
+  { caseId: 'C11', scenarioId: 'C11-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C11', scenarioId: 'C11-buy', label: '37歳で6,000万購入', lifeEvents: [
+    { type: 'housing_purchase', name: '住宅購入', age: 37, amount: 6000, isRecurring: false,
+      purchaseDetails: { propertyPrice: 6000, downPayment: 600, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 30 } }
+  ]},
+
+  // --- C04: 海外転職オプション ---
+  { caseId: 'C04', scenarioId: 'C04-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C04', scenarioId: 'C04-abroad', label: '36歳で海外転職（年収+40%）', lifeEvents: [
+    { type: 'income_increase', name: '海外転職', age: 36, amount: 560, isRecurring: false, target: 'self' }
+  ]},
+  { caseId: 'C04', scenarioId: 'C04-inherit', label: '45歳で相続2000万', lifeEvents: [
+    { type: 'asset_gain', name: '相続', age: 45, amount: 2000, isRecurring: false }
+  ]},
+
+  // --- C03: 子ども1人ありかも ---
+  { caseId: 'C03', scenarioId: 'C03-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C03', scenarioId: 'C03-child', label: '35歳で子ども（支出+150万/年×22年）', lifeEvents: [
+    { type: 'expense_increase', name: '子ども', age: 35, amount: 150, duration: 22, isRecurring: true }
+  ]},
+  { caseId: 'C03', scenarioId: 'C03-child-buy', label: '子ども+住宅購入', lifeEvents: [
+    { type: 'expense_increase', name: '子ども', age: 35, amount: 150, duration: 22, isRecurring: true },
+    { type: 'housing_purchase', name: '住宅購入', age: 36, amount: 8000, isRecurring: false,
+      purchaseDetails: { propertyPrice: 8000, downPayment: 800, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 35 } }
+  ]},
+
+  // --- C05: 審査MAX ---
+  { caseId: 'C05', scenarioId: 'C05-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C05', scenarioId: 'C05-buy-max', label: '38歳で10,000万購入（ギリギリ）', lifeEvents: [
+    { type: 'housing_purchase', name: '住宅購入', age: 38, amount: 10000, isRecurring: false,
+      purchaseDetails: { propertyPrice: 10000, downPayment: 1000, purchaseCostRate: 7,
+        mortgageYears: 35, interestRate: 0.5, ownerAnnualCost: 50 } }
+  ]},
+
+  // --- 他のケースはベースラインのみ ---
+  { caseId: 'C02', scenarioId: 'C02-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C07', scenarioId: 'C07-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C08', scenarioId: 'C08-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C09', scenarioId: 'C09-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C10', scenarioId: 'C10-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C12', scenarioId: 'C12-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C13', scenarioId: 'C13-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C14', scenarioId: 'C14-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C15', scenarioId: 'C15-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C16', scenarioId: 'C16-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C17', scenarioId: 'C17-base', label: 'ベースライン', lifeEvents: [] },
+  { caseId: 'C18', scenarioId: 'C18-base', label: 'ベースライン（持ち家継続）', lifeEvents: [] },
+]
+
+// ------------------------------------------------------------------
 // Helpers
 // ------------------------------------------------------------------
 
@@ -183,7 +305,6 @@ function caseToProfile(c: CaseDefinition): Profile {
   const base = createDefaultProfile()
   const mode = c.mode ?? 'couple'
   const householdIncome = c.husbandIncome + c.wifeIncome
-  // ソロは生活費を0.7倍に調整
   const rawLivingCost = estimateLivingCost(householdIncome)
   const livingCost = mode === 'solo' ? Math.round(rawLivingCost * 0.7) : rawLivingCost
 
@@ -228,7 +349,7 @@ function caseToProfile(c: CaseDefinition): Profile {
   }
 }
 
-/** 変動金利ステップアップスケジュール（+0.3%/5年, cap 2.5%） */
+/** 変動金利ステップアップスケジュール（+0.3%/5年, cap 2.3%） */
 const DEFAULT_RATE_STEPS: RateStep[] = [
   { year: 0, rate: 0.5 },
   { year: 5, rate: 0.8 },
@@ -259,8 +380,23 @@ function caseToBuyParams(c: CaseDefinition): BuyNowParams {
   }
 }
 
-/** runSimulation を複数回実行して平均を取る */
-async function runAverage(profile: Profile, runs = 3): Promise<RentResult> {
+/** LifeEventInput[] → LifeEvent[] 変換 */
+function inputsToLifeEvents(inputs: LifeEventInput[]): LifeEvent[] {
+  return inputs.map((input, i) => ({
+    id: `scenario-event-${i}`,
+    type: input.type,
+    name: input.name,
+    age: input.age,
+    amount: input.amount,
+    duration: input.duration,
+    isRecurring: input.isRecurring,
+    target: input.target,
+    purchaseDetails: input.purchaseDetails,
+  }))
+}
+
+/** runSimulation を複数回実行して平均を取る（拡張版） */
+async function runAverage(profile: Profile, runs = RUNS): Promise<RentResult> {
   const results = await Promise.all(
     Array.from({ length: runs }, () => runSimulation(profile))
   )
@@ -285,6 +421,10 @@ async function runAverage(profile: Profile, runs = 3): Promise<RentResult> {
 
   return {
     score: Math.round(avg(r => r.score.overall)),
+    survival: Math.round(avg(r => r.score.survival)),
+    lifestyle: Math.round(avg(r => r.score.lifestyle)),
+    risk: Math.round(avg(r => r.score.risk)),
+    liquidity: Math.round(avg(r => r.score.liquidity)),
     survivalRate: Math.round(avg(r => r.metrics.survivalRate)),
     fireAge: avgFireAge,
     assetsAt60: avgAssetsAt60,
@@ -293,7 +433,7 @@ async function runAverage(profile: Profile, runs = 3): Promise<RentResult> {
 }
 
 // ------------------------------------------------------------------
-// Markdown generation
+// Markdown generation (legacy format for case-catalog-results.md)
 // ------------------------------------------------------------------
 
 function fmtAge(age: number | null): string {
@@ -311,17 +451,18 @@ function fmtMoney(val: number): string {
   return `${sign}${Math.round(abs).toLocaleString('ja-JP')}万`
 }
 
-function generateMarkdown(results: CaseResult[]): string {
+function generateCatalogMarkdown(results: CaseResult[]): string {
   const now = new Date()
   const ts = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 
   const lines: string[] = []
 
-  lines.push('# ケース台帳シミュレーション結果')
+  lines.push('# YOHACK ケース台帳 × シミュレーション結果')
   lines.push('')
-  lines.push(`> 生成日時: ${ts}`)
+  lines.push(`> ENGINE_VERSION: ${ENGINE_VERSION}`)
+  lines.push(`> 実行日: ${ts}`)
+  lines.push(`> 各シナリオ${RUNS}回実行の平均値`)
   lines.push('> エンジン: Monte Carlo 1000回（賃貸） / 500回シード付き（住宅購入）')
-  lines.push('> 賃貸ベースラインは3回実行の平均値')
   lines.push('')
 
   // --- 賃貸ベースライン一覧 ---
@@ -405,7 +546,6 @@ function generateMarkdown(results: CaseResult[]): string {
     lines.push('')
 
     if (isC18) {
-      // C18: 逆パターン（持ち家継続 vs 売却→賃貸）
       lines.push('| 指標 | 持ち家継続 | 売却→賃貸 | diff |')
       lines.push('|:-----|:-----------|:----------|:-----|')
     } else {
@@ -425,12 +565,9 @@ function generateMarkdown(results: CaseResult[]): string {
     lines.push(`| 100歳資産 | ${fmtMoney(rent.assetsAt100)} | ${fmtMoney(h.assetsAt100)} | ${fmtMoney(a100Diff)} |`)
 
     if (isC18) {
-      // C18: 持ち家継続の月額 vs 売却後家賃
-      // 持ち家月額はhousingCostAnnual/12が正確だが概算値を表示
       lines.push(`| 月額支出 | ローン+維持費 | ${h.monthlyPayment.toFixed(1)}万(家賃) | — |`)
       lines.push(`| 40年総コスト | — | ${fmtMoney(h.totalCost40Years)} | — |`)
     } else {
-      // 賃貸40年総コストをrentInflationRate 0.5%で計算
       let rentTotal40 = 0
       for (let y = 0; y < 40; y++) {
         rentTotal40 += c.rentMonthly * 12 * Math.pow(1.005, y)
@@ -461,17 +598,22 @@ function generateMarkdown(results: CaseResult[]): string {
 
 async function main() {
   console.log('=== ケース台帳シミュレーション開始 ===')
-  console.log(`対象: ${CASES.length + 1} ケース（C01-C17 + C18特殊）`)
+  console.log(`ENGINE_VERSION: ${ENGINE_VERSION}`)
+  console.log(`実行回数: ${RUNS}回/シナリオ`)
+  console.log(`対象: ${CASES.length + 1} ケース（C01-C17 + C18特殊）+ ${SCENARIOS.length} シナリオ`)
   console.log('')
 
-  const results: CaseResult[] = []
+  // ==================================================================
+  // Part 1: 賃貸 vs 購入 比較（既存ケース台帳）
+  // ==================================================================
+  const caseResults: CaseResult[] = []
 
   for (const c of CASES) {
     console.log(`[${c.id}] ${c.name} ...`)
     const profile = caseToProfile(c)
 
     // (A) 賃貸ベースライン
-    const rent = await runAverage(profile, 3)
+    const rent = await runAverage(profile)
 
     // (B) 住宅購入
     const buyParams = caseToBuyParams(c)
@@ -488,7 +630,7 @@ async function main() {
       totalCost40Years: buyResult.totalCost40Years,
     }
 
-    results.push({ case: c, rent, housing })
+    caseResults.push({ case: c, rent, housing })
 
     console.log(`  賃貸: score=${rent.score}, survival=${rent.survivalRate}%, FIRE=${rent.fireAge ?? 'N/A'}`)
     console.log(`  購入: score=${housing.score}, survival=${housing.survivalRate}%, FIRE=${housing.fireAge ?? 'N/A'}`)
@@ -501,17 +643,16 @@ async function main() {
 
     const c18PropertyValue = 8000
     const c18MortgageRemaining = 6000
-    const c18MortgageRate = 0.7    // 購入時0.5%から上昇後の現在レート想定
+    const c18MortgageRate = 0.7
     const c18MortgageYearsRemaining = 25
-    const c18OwnerAnnualCost = 80  // 物件の1%
-    const c18SellingCostRate = 5   // 売却諸費用率
-    const c18SellRentMonthly = 22  // 売却後の家賃
+    const c18OwnerAnnualCost = 80
+    const c18SellingCostRate = 5
+    const c18SellRentMonthly = 22
     const c18TotalSavings = 3000
     const c18CashRatio = 0.30
     const c18InvestRatio = 0.55
     const c18DcRatio = 0.15
 
-    // --- (A) 持ち家継続（ベースライン） ---
     const ownerMonthly = computeMonthlyPaymentManYen(
       c18MortgageRemaining, c18MortgageRate, c18MortgageYearsRemaining
     )
@@ -547,11 +688,10 @@ async function main() {
       retirePassiveIncome: 0,
       lifeEvents: [],
     }
-    const ownerResult = await runAverage(ownerProfile, 3)
+    const ownerResult = await runAverage(ownerProfile)
 
-    // --- (B) 売却→賃貸（代替シナリオ） ---
     const sellingCosts = c18PropertyValue * (c18SellingCostRate / 100)
-    const saleProceeds = c18PropertyValue - c18MortgageRemaining - sellingCosts // 1600万
+    const saleProceeds = c18PropertyValue - c18MortgageRemaining - sellingCosts
 
     const renterProfile: Profile = {
       ...ownerProfile,
@@ -562,39 +702,28 @@ async function main() {
       mortgageYearsRemaining: 0,
       mortgageMonthlyPayment: 0,
       housingCostAnnual: c18SellRentMonthly * 12,
-      // 売却益を現金に加算
       assetCash: Math.round(c18TotalSavings * c18CashRatio) + Math.round(saleProceeds),
     }
-    const renterResult = await runAverage(renterProfile, 3)
+    const renterResult = await runAverage(renterProfile)
 
-    // 40年総コスト計算
-    // 持ち家: ローン返済 + 維持費（逓増1.5%）
-    let ownerTotal40 = 0
-    for (let y = 0; y < 40; y++) {
-      const mortgageCost = y < c18MortgageYearsRemaining ? ownerMonthly * 12 : 0
-      const maintenanceCost = c18OwnerAnnualCost * Math.pow(1.015, y)
-      ownerTotal40 += mortgageCost + maintenanceCost
-    }
-    // 売却→賃貸: 家賃（0.5%インフレ）
     let rentTotal40 = 0
     for (let y = 0; y < 40; y++) {
       rentTotal40 += c18SellRentMonthly * 12 * Math.pow(1.005, y)
     }
 
-    // CaseResult: rent=持ち家継続, housing=売却→賃貸
     const c18Case: CaseDefinition = {
       id: 'C18', name: '既に購入済み・売却検討',
       husbandAge: 42, wifeAge: 40, husbandIncome: 1500, wifeIncome: 600,
-      rentMonthly: 0, // 持ち家なので賃料なし
+      rentMonthly: 0,
       totalSavings: c18TotalSavings,
-      propertyMin: c18PropertyValue, // 物件時価として流用
-      propertyMax: c18MortgageRemaining, // 残債として流用
+      propertyMin: c18PropertyValue,
+      propertyMax: c18MortgageRemaining,
       targetRetireAge: 55,
       cashRatio: c18CashRatio, investRatio: c18InvestRatio, dcRatio: c18DcRatio,
     }
-    results.push({
+    caseResults.push({
       case: c18Case,
-      rent: ownerResult, // 持ち家継続
+      rent: ownerResult,
       housing: {
         ...renterResult,
         monthlyPayment: c18SellRentMonthly,
@@ -608,15 +737,162 @@ async function main() {
     console.log('')
   }
 
-  // Markdown出力
-  const md = generateMarkdown(results)
+  // ==================================================================
+  // Part 2: ライフイベントシナリオ実行
+  // ==================================================================
+  console.log('=== ライフイベントシナリオ実行 ===')
+  console.log('')
+
+  const scenarioResults: ScenarioResult[] = []
+
+  // C18用の特別プロファイル取得ヘルパー
+  const c18CaseResult = caseResults.find(r => r.case.id === 'C18')
+
+  for (const scenario of SCENARIOS) {
+    let profile: Profile
+
+    if (scenario.caseId === 'C18') {
+      // C18は持ち家プロファイルをベースに使う
+      const c18PropertyValue = 8000
+      const c18MortgageRemaining = 6000
+      const c18MortgageRate = 0.7
+      const c18MortgageYearsRemaining = 25
+      const c18OwnerAnnualCost = 80
+      const c18TotalSavings = 3000
+      const ownerMonthly = computeMonthlyPaymentManYen(
+        c18MortgageRemaining, c18MortgageRate, c18MortgageYearsRemaining
+      )
+      profile = {
+        ...createDefaultProfile(),
+        currentAge: 42,
+        targetRetireAge: 55,
+        mode: 'couple',
+        grossIncome: 1500,
+        partnerGrossIncome: 600,
+        housingCostAnnual: ownerMonthly * 12 + c18OwnerAnnualCost,
+        livingCostAnnual: estimateLivingCost(2100),
+        homeStatus: 'owner',
+        homeMarketValue: c18PropertyValue,
+        mortgagePrincipal: c18MortgageRemaining,
+        mortgageInterestRate: c18MortgageRate,
+        mortgageYearsRemaining: c18MortgageYearsRemaining,
+        mortgageMonthlyPayment: ownerMonthly,
+        assetCash: Math.round(c18TotalSavings * 0.30),
+        assetInvest: Math.round(c18TotalSavings * 0.55),
+        assetDefinedContributionJP: Math.round(c18TotalSavings * 0.15),
+        dcContributionAnnual: 66,
+        lifeEvents: inputsToLifeEvents(scenario.lifeEvents),
+      }
+    } else {
+      const caseDef = CASES.find(c => c.id === scenario.caseId)!
+      profile = {
+        ...caseToProfile(caseDef),
+        lifeEvents: inputsToLifeEvents(scenario.lifeEvents),
+      }
+    }
+
+    console.log(`  [${scenario.scenarioId}] ${scenario.label} ...`)
+    const result = await runAverage(profile)
+
+    scenarioResults.push({
+      scenarioId: scenario.scenarioId,
+      caseId: scenario.caseId,
+      label: scenario.label,
+      score: {
+        overall: result.score,
+        survival: result.survival,
+        lifestyle: result.lifestyle,
+        risk: result.risk,
+        liquidity: result.liquidity,
+      },
+      metrics: {
+        fireAge: result.fireAge,
+        survivalRate: result.survivalRate,
+        assetAt100: result.assetsAt100,
+      },
+      assetsAt60: result.assetsAt60,
+      lifeEvents: scenario.lifeEvents,
+    })
+
+    console.log(`    score=${result.score}, survival=${result.survivalRate}%, FIRE=${result.fireAge ?? 'N/A'}`)
+  }
+  console.log('')
+
+  // ==================================================================
+  // Output
+  // ==================================================================
+
   const scriptDir = dirname(fileURLToPath(import.meta.url))
-  const outPath = resolve(scriptDir, '../docs/case-catalog-results.md')
-  mkdirSync(dirname(outPath), { recursive: true })
-  writeFileSync(outPath, md, 'utf-8')
+  const docsDir = resolve(scriptDir, '../docs')
+  mkdirSync(docsDir, { recursive: true })
+
+  // 1. case-catalog-results.md（賃貸 vs 購入 比較表）
+  const catalogMd = generateCatalogMarkdown(caseResults)
+  writeFileSync(resolve(docsDir, 'case-catalog-results.md'), catalogMd, 'utf-8')
+
+  // 2. e02-baseline-v1.0.0.json（リグレッションテスト用）
+  const now = new Date()
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const jsonOutput = {
+    engineVersion: ENGINE_VERSION,
+    runDate: dateStr,
+    runs: RUNS,
+    results: scenarioResults,
+  }
+  writeFileSync(
+    resolve(docsDir, 'e02-baseline-v1.0.0.json'),
+    JSON.stringify(jsonOutput, null, 2),
+    'utf-8'
+  )
+
+  // 3. e02-baseline-v1.0.0.md（人間可読シナリオ別結果）
+  const scenarioMdLines: string[] = []
+  scenarioMdLines.push('# E02: ENGINE_VERSION 1.0.0 ベースライン結果')
+  scenarioMdLines.push('')
+  scenarioMdLines.push(`> ENGINE_VERSION: ${ENGINE_VERSION}`)
+  scenarioMdLines.push(`> 実行日: ${dateStr}`)
+  scenarioMdLines.push(`> 各シナリオ${RUNS}回実行の平均値`)
+  scenarioMdLines.push('')
+  scenarioMdLines.push('| シナリオID | ケース | ラベル | スコア | 生存率 | FIRE年齢 | 60歳資産 | 100歳資産 | イベント数 |')
+  scenarioMdLines.push('|:-----------|:-------|:-------|-------:|-------:|:---------|:---------|:----------|:---------:|')
+
+  for (const r of scenarioResults) {
+    scenarioMdLines.push(
+      `| ${r.scenarioId} | ${r.caseId} | ${r.label} | ${r.score.overall} | ${r.metrics.survivalRate}% | ${fmtAge(r.metrics.fireAge)} | ${fmtMoney(r.assetsAt60)} | ${fmtMoney(r.metrics.assetAt100)} | ${r.lifeEvents.length} |`
+    )
+  }
+  scenarioMdLines.push('')
+
+  // 妥当性チェック結果
+  scenarioMdLines.push('## 妥当性チェック')
+  scenarioMdLines.push('')
+
+  const findScore = (id: string) => scenarioResults.find(r => r.scenarioId === id)?.score.overall ?? 0
+  const findSurvival = (id: string) => scenarioResults.find(r => r.scenarioId === id)?.metrics.survivalRate ?? 0
+
+  const checks: [string, boolean][] = [
+    ['C01-buy < C01-base（住宅購入でスコアが下がる）', findScore('C01-buy') < findScore('C01-base')],
+    ['C01-pacedown < C01-base（ペースダウンでスコアが下がる）', findScore('C01-pacedown') < findScore('C01-base')],
+    ['C01-buy-pacedown < C01-buy（購入+ペースダウンが最も厳しい）', findScore('C01-buy-pacedown') < findScore('C01-buy')],
+    ['C03-child < C03-base（子ども追加でスコアが下がる）', findScore('C03-child') < findScore('C03-base')],
+    ['C03-child-buy < C03-child（子ども+住宅が最も厳しい）', findScore('C03-child-buy') < findScore('C03-child')],
+    ['C04-abroad > C04-base（海外転職でスコアが上がる）', findScore('C04-abroad') > findScore('C04-base')],
+    ['C04-inherit > C04-base（相続でスコアが上がる）', findScore('C04-inherit') > findScore('C04-base')],
+    ['C05-buy-max < C05-base（高額物件購入は厳しい）', findScore('C05-buy-max') < findScore('C05-base')],
+  ]
+
+  for (const [desc, pass] of checks) {
+    scenarioMdLines.push(`- ${pass ? '✅' : '❌'} ${desc}`)
+  }
+  scenarioMdLines.push('')
+
+  writeFileSync(resolve(docsDir, 'e02-baseline-v1.0.0.md'), scenarioMdLines.join('\n'), 'utf-8')
 
   console.log('=== 完了 ===')
-  console.log(`結果: ${outPath}`)
+  console.log(`結果:`)
+  console.log(`  ${resolve(docsDir, 'case-catalog-results.md')}`)
+  console.log(`  ${resolve(docsDir, 'e02-baseline-v1.0.0.json')}`)
+  console.log(`  ${resolve(docsDir, 'e02-baseline-v1.0.0.md')}`)
 }
 
 main().catch(err => {
