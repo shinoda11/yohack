@@ -228,6 +228,10 @@
   .slide-out-to-left-2 { --tw-exit-translate-x: -0.5rem; }
   .slide-out-to-right-2 { --tw-exit-translate-x: 0.5rem; }
 
+  /* Hide scrollbar for touch-swipe tabs */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
   /* Collapsible animations for radix */
   @keyframes collapsible-down {
     from { height: 0; opacity: 0; }

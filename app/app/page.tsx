@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, X, Save, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 // Dashboard input cards
 import { BasicInfoCard } from '@/components/dashboard/basic-info-card';
@@ -58,6 +59,10 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('summary');
   const [showWelcome, setShowWelcome] = useState(false);
   const [showFirstVisitBanner, setShowFirstVisitBanner] = useState(false);
+
+  // Mobile tab state (入力 vs 結果)
+  const isProfileDefault = profile.grossIncome === 1200 && profile.currentAge === 35;
+  const [mobileTab, setMobileTab] = useState<'input' | 'result'>(isProfileDefault ? 'input' : 'result');
 
   // Summary tab save scenario state
   const [savingFromSummary, setSavingFromSummary] = useState(false);
@@ -196,6 +201,7 @@ export default function DashboardPage() {
   const handleOpenCard = useCallback((cardId: string) => {
     const key = cardId as CardKey;
     if (!(key in cardRefs)) return;
+    setMobileTab('input');
     manualToggles.current.add(key);
     setOpenCards(prev => ({ ...prev, [key]: true }));
     setTimeout(() => {
@@ -310,7 +316,7 @@ export default function DashboardPage() {
             <div className="mb-6 flex items-start gap-3 rounded-lg border-l-4 border-l-[#C8B89A] bg-[#C8B89A]/10 p-4 dark:bg-[#C8B89A]/5">
               <div className="flex-1 text-sm text-[#8A7A62] dark:text-[#C8B89A]">
                 <p className="font-medium">現在はサンプルデータでシミュレーションしています。</p>
-                <p className="mt-1 text-[#8A7A62]/80 dark:text-[#C8B89A]/80">左のパネルからあなたの条件を入力すると、結果が自動で更新されます。</p>
+                <p className="mt-1 text-[#8A7A62]/80 dark:text-[#C8B89A]/80">あなたの条件を入力すると、結果が自動で更新されます。</p>
               </div>
               <button
                 onClick={() => {
@@ -345,9 +351,37 @@ export default function DashboardPage() {
             />
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left column: Input cards with Progressive Disclosure */}
-            <div className="space-y-4 lg:col-span-1">
+          {/* Mobile: 入力/結果 Tab Bar */}
+          <div className="md:hidden sticky top-16 z-20 -mx-4 bg-[#FAF9F7] border-b border-border">
+            <div className="flex">
+              <button
+                onClick={() => setMobileTab('input')}
+                className={cn(
+                  'flex-1 py-3 text-sm font-medium text-center transition-colors',
+                  mobileTab === 'input'
+                    ? 'text-[#1A1916] border-b-2 border-[#C8B89A]'
+                    : 'text-[#8A7A62]'
+                )}
+              >
+                入力
+              </button>
+              <button
+                onClick={() => setMobileTab('result')}
+                className={cn(
+                  'flex-1 py-3 text-sm font-medium text-center transition-colors',
+                  mobileTab === 'result'
+                    ? 'text-[#1A1916] border-b-2 border-[#C8B89A]'
+                    : 'text-[#8A7A62]'
+                )}
+              >
+                結果
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-4 md:mt-0 grid gap-6 lg:grid-cols-3">
+            {/* Left column: Input cards — hidden on mobile when result tab active */}
+            <div className={cn("space-y-4 lg:col-span-1", mobileTab === 'result' && 'hidden md:block')}>
               {/* Basic Inputs - Collapsible */}
               <div ref={cardRefs.basicInfo}>
                 <BasicInfoCard
@@ -422,8 +456,53 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Right column: Result cards with tabs */}
-            <div className="space-y-6 lg:col-span-2">
+            {/* Right column: Result cards */}
+            <div className={cn("lg:col-span-2", mobileTab === 'input' && 'hidden md:block')}>
+              {/* Mobile: flat result list (no sub-tabs) */}
+              <div className="md:hidden space-y-6">
+                <div className="grid gap-4">
+                  <ExitReadinessCard
+                    score={simResult?.score ?? null}
+                    isLoading={isLoading && !simResult}
+                  />
+                  <KeyMetricsCard
+                    metrics={simResult?.metrics ?? null}
+                    currentAge={profile.currentAge}
+                    targetRetireAge={profile.targetRetireAge}
+                    isLoading={isLoading}
+                  />
+                </div>
+                <AssetProjectionChart
+                  data={simResult?.paths ?? null}
+                  targetRetireAge={profile.targetRetireAge}
+                  lifeEvents={profile.lifeEvents}
+                  isLoading={isLoading}
+                />
+                <NextBestActionsCard
+                  metrics={simResult?.metrics ?? null}
+                  score={simResult?.score ?? null}
+                  profile={profile}
+                  isLoading={isLoading && !simResult}
+                  onApplyAction={handleApplyAction}
+                />
+                <CashFlowCard
+                  cashFlow={simResult?.cashFlow ?? null}
+                  paths={simResult?.paths ?? null}
+                  metrics={simResult?.metrics ?? null}
+                  targetRetireAge={profile.targetRetireAge}
+                  isLoading={isLoading}
+                />
+                <MonteCarloSimulatorTab
+                  profile={profile}
+                  paths={simResult?.paths ?? null}
+                  isLoading={isLoading}
+                  onVolatilityChange={(volatility) => updateProfile({ volatility })}
+                />
+                <ScenarioComparisonCard currentResult={simResult} />
+              </div>
+
+              {/* Desktop: result tabs */}
+              <div className="hidden md:block space-y-6">
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
@@ -562,6 +641,7 @@ export default function DashboardPage() {
                   </div>
                 </TabsContent>
               </Tabs>
+              </div>
             </div>
           </div>
         </div>

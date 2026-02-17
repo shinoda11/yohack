@@ -155,12 +155,12 @@ export default function WorldlinePage() {
             onValueChange={(v) => setActiveTab(v as 'margins' | 'allocation' | 'decision' | 'worldlines' | 'strategy')}
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="margins" className="text-[10px] sm:text-sm px-1 sm:px-3">余白</TabsTrigger>
-              <TabsTrigger value="allocation" className="text-[10px] sm:text-sm px-1 sm:px-3">使い道</TabsTrigger>
-              <TabsTrigger value="decision" className="text-[10px] sm:text-sm px-1 sm:px-3">意思決定</TabsTrigger>
-              <TabsTrigger value="worldlines" className="text-[10px] sm:text-sm px-1 sm:px-3">世界線</TabsTrigger>
-              <TabsTrigger value="strategy" className="text-[10px] sm:text-sm px-1 sm:px-3">戦略</TabsTrigger>
+            <TabsList className="flex w-full overflow-x-auto no-scrollbar gap-1 p-1">
+              <TabsTrigger value="margins" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">余白</TabsTrigger>
+              <TabsTrigger value="allocation" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">使い道</TabsTrigger>
+              <TabsTrigger value="decision" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">意思決定</TabsTrigger>
+              <TabsTrigger value="worldlines" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">世界線</TabsTrigger>
+              <TabsTrigger value="strategy" className="shrink-0 text-xs sm:text-sm px-3 py-2 whitespace-nowrap">戦略</TabsTrigger>
             </TabsList>
 
             <TabsContent value="margins" className="space-y-6">
