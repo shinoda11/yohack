@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { runSimulation, createDefaultProfile } from '../engine'
+import { runSimulation, createDefaultProfile, calculateAnnualPension } from '../engine'
 import type { Profile } from '../types'
 
 // ============================================================
@@ -570,6 +570,98 @@ describe('E2E ペルソナ検証', () => {
       ])
 
       expect(rComfort.score).toBeGreaterThan(rSteady.score)
+    })
+  })
+
+  // ----------------------------------------------------------
+  // 年金へのライフイベント反映 (E03)
+  // ----------------------------------------------------------
+  describe('年金へのライフイベント反映', () => {
+    it('income_decrease で年金額が下がる', () => {
+      // 年収700万は標準報酬月額上限(65万=年収780万)以下なので差が出る
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 65,
+        grossIncome: 700,
+        rsuAnnual: 0,
+        lifeEvents: [],
+      })
+
+      const withDecrease = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'career-change',
+            type: 'income_decrease',
+            name: '転職ダウン',
+            age: 40,
+            amount: 300,
+            isRecurring: true,
+          },
+        ],
+      })
+
+      const pensionBase = calculateAnnualPension(base)
+      const pensionDecreased = calculateAnnualPension(withDecrease)
+
+      expect(pensionBase).toBeGreaterThan(pensionDecreased)
+    })
+
+    it('パートナーの income_decrease でパートナー年金が下がる', () => {
+      const base = profileWith({
+        currentAge: 35,
+        targetRetireAge: 65,
+        mode: 'couple',
+        grossIncome: 1600,
+        rsuAnnual: 0,
+        partnerGrossIncome: 800,
+        partnerRsuAnnual: 0,
+        lifeEvents: [],
+      })
+
+      const withPartnerDecrease = profileWith({
+        ...base,
+        lifeEvents: [
+          {
+            id: 'partner-leave',
+            type: 'income_decrease',
+            name: 'パートナー育休→時短',
+            age: 38,
+            amount: 300,
+            duration: 3,
+            isRecurring: true,
+            target: 'partner' as const,
+          },
+        ],
+      })
+
+      const pensionBase = calculateAnnualPension(base)
+      const pensionWithEvent = calculateAnnualPension(withPartnerDecrease)
+
+      // パートナーの3年間のdecreaseで世帯年金が下がる
+      expect(pensionBase).toBeGreaterThan(pensionWithEvent)
+      // ただし影響は限定的（38年中3年間のみ）
+      expect(pensionBase - pensionWithEvent).toBeLessThan(20)
+    })
+
+    it('ライフイベントなしの場合は従来と同じ年金額', () => {
+      const profile = profileWith({
+        currentAge: 35,
+        targetRetireAge: 65,
+        grossIncome: 1000,
+        rsuAnnual: 0,
+        lifeEvents: [],
+      })
+
+      const pension = calculateAnnualPension(profile)
+      // 加入期間: 22歳〜60歳 = 38年
+      // 平均年収: 22〜34歳(13年)=1000, 35〜59歳(25年)=1000 → 平均1000
+      // 標準報酬月額: min(1000/12, 65) = 65 (上限)
+      // 基礎年金: 80 * 38/40 = 76
+      // 報酬比例: 65 * 5.481/1000 * 456 = 162.4
+      // 合計: 238
+      expect(pension).toBeGreaterThan(200)
+      expect(pension).toBeLessThan(280)
     })
   })
 })

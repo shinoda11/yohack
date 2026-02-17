@@ -1,10 +1,11 @@
 // Exit Readiness OS - Simulation Engine
 // Monte Carlo simulation for financial planning
 
-import type { 
-  Profile, 
-  SimulationResult, 
-  AssetPoint, 
+import type {
+  Profile,
+  LifeEvent,
+  SimulationResult,
+  AssetPoint,
   SimulationPath,
   KeyMetrics,
   CashFlowBreakdown,
@@ -214,6 +215,58 @@ export function getEstimatedTaxRates(profile: Profile): { main: number; partner:
  * 標準報酬月額上限: 65万（年収780万相当）
  * キャリア平均年収 ≈ 現在年収 × 0.75（若年期の低収入を考慮）
  */
+/**
+ * ライフイベントを考慮した加入期間の平均年収を計算する。
+ * 年金の報酬比例部分は加入期間全体の平均標準報酬月額で決まるため、
+ * 途中の収入変動を加重平均で反映させる。
+ *
+ * - 22歳〜currentAge は baseGrossIncome で働いていたと仮定（過去の収入は不明）
+ * - currentAge〜retireAge はライフイベントの影響を反映
+ * - RSU は含める（総報酬制）、sideIncomeNet は含めない（事業所得は厚生年金対象外）
+ */
+function calculateAverageGrossIncome(
+  baseGrossIncome: number,
+  lifeEvents: LifeEvent[],
+  currentAge: number,
+  retireAge: number,
+  target: 'self' | 'partner'
+): number {
+  const CAREER_START_AGE = 22;
+  const pensionEndAge = Math.min(retireAge, 60);
+  const totalYears = Math.max(0, pensionEndAge - CAREER_START_AGE);
+  if (totalYears === 0) return baseGrossIncome;
+
+  let totalIncome = 0;
+
+  for (let age = CAREER_START_AGE; age < pensionEndAge; age++) {
+    let yearlyIncome = baseGrossIncome;
+
+    // currentAge 以降のみライフイベントを適用
+    if (age >= currentAge) {
+      for (const event of lifeEvents) {
+        const eventTarget = event.target || 'self';
+        if (eventTarget !== target) continue;
+        if (event.type !== 'income_increase' && event.type !== 'income_decrease') continue;
+
+        if (age >= event.age) {
+          const endAge = event.duration ? event.age + event.duration : 999;
+          if (age < endAge) {
+            if (event.type === 'income_increase') {
+              yearlyIncome += event.amount;
+            } else {
+              yearlyIncome -= event.amount;
+            }
+          }
+        }
+      }
+    }
+
+    totalIncome += Math.max(0, yearlyIncome);
+  }
+
+  return totalIncome / totalYears;
+}
+
 function calculatePersonPension(grossIncome: number, retireAge: number): number {
   if (grossIncome <= 0) return 0;
 
@@ -226,10 +279,8 @@ function calculatePersonPension(grossIncome: number, retireAge: number): number 
   const basicPension = 80 * cappedYears / 40;
 
   // 厚生年金 報酬比例部分:
-  // 平均標準報酬額 = 現在年収 × 0.75（キャリア平均）
   // 標準報酬月額上限 = 65万（年収780万 ÷ 12）
-  const careerAvgAnnual = grossIncome * 0.75;
-  const avgMonthly = Math.min(careerAvgAnnual / 12, 65);
+  const avgMonthly = Math.min(grossIncome / 12, 65);
   const proportional = avgMonthly * 5.481 / 1000 * contributionMonths;
 
   return Math.round(basicPension + proportional);
@@ -238,13 +289,27 @@ function calculatePersonPension(grossIncome: number, retireAge: number): number 
 /**
  * 世帯の年間年金額を計算する（万円/年）。
  * 本人 + 配偶者（coupleモードの場合）をそれぞれ個別計算。
- * 加入期間は退職年齢（targetRetireAge）に基づく。
- * TODO: パートナーの収入イベントによる年金額への影響は未対応（プロファイル初期年収ベース）
+ * ライフイベントによる収入変動を加入期間の加重平均年収に反映する。
  */
 export function calculateAnnualPension(profile: Profile): number {
-  let total = calculatePersonPension(profile.grossIncome, profile.targetRetireAge);
+  const selfAvg = calculateAverageGrossIncome(
+    profile.grossIncome + profile.rsuAnnual,
+    profile.lifeEvents,
+    profile.currentAge,
+    profile.targetRetireAge,
+    'self'
+  );
+  let total = calculatePersonPension(selfAvg, profile.targetRetireAge);
+
   if (profile.mode === 'couple') {
-    total += calculatePersonPension(profile.partnerGrossIncome, profile.targetRetireAge);
+    const partnerAvg = calculateAverageGrossIncome(
+      profile.partnerGrossIncome + profile.partnerRsuAnnual,
+      profile.lifeEvents,
+      profile.currentAge,
+      profile.targetRetireAge,
+      'partner'
+    );
+    total += calculatePersonPension(partnerAvg, profile.targetRetireAge);
   }
   return total;
 }
