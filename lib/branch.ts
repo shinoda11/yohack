@@ -219,23 +219,36 @@ export function branchToLifeEvents(branch: Branch, _profile: Profile): LifeEvent
     case 'child': {
       const childNum = (branch.eventParams.childNumber as number) ?? 1;
       const baseAge = branch.age ?? profile.currentAge + 2;
+      // 3段階の教育費モデル（子ども年齢ベース）:
+      //   0-5歳: 保育料 50万/年
+      //   6-17歳: 学費+塾 100万/年
+      //   18-21歳: 大学費用 200万/年
       return [
         {
-          id: `branch-${branch.id}-childcare-${ts}`,
+          id: `branch-${branch.id}-nursery-${ts}`,
           type: 'expense_increase',
-          name: `第${childNum}子 育児費`,
+          name: `第${childNum}子 保育料`,
           age: baseAge,
-          amount: 100,
+          amount: 50,
           duration: 6,
           isRecurring: true,
         },
         {
-          id: `branch-${branch.id}-edu-${ts}`,
+          id: `branch-${branch.id}-school-${ts}`,
           type: 'expense_increase',
-          name: `第${childNum}子 教育費`,
+          name: `第${childNum}子 学費+塾`,
           age: baseAge + 6,
-          amount: 150,
-          duration: 16,
+          amount: 100,
+          duration: 12,
+          isRecurring: true,
+        },
+        {
+          id: `branch-${branch.id}-university-${ts}`,
+          type: 'expense_increase',
+          name: `第${childNum}子 大学費用`,
+          age: baseAge + 18,
+          amount: 200,
+          duration: 4,
           isRecurring: true,
         },
       ];

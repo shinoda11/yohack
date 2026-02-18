@@ -57,6 +57,9 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
           )}
         </div>
         <p className="text-xs text-muted-foreground truncate">{branch.detail}</p>
+        {branch.eventType === 'child' && (
+          <p className="text-[10px] text-muted-foreground/70 mt-0.5">教育費自動加算: 保育50万→学費100万→大学200万/年</p>
+        )}
       </div>
       {onDelete && (
         <button

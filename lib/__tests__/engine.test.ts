@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { runSimulation, computeExitScore, createDefaultProfile, validateProfile } from '../engine'
+import { branchToLifeEvents } from '../branch'
 import type { Profile, SimulationPath, KeyMetrics } from '../types'
+import type { Branch } from '../branch'
 
 // ============================================================
 // Helper
@@ -514,5 +516,94 @@ describe('退職後事業収入', () => {
     const diff = Math.abs(withAt100 - baseAt100)
     const tolerance = Math.abs(baseAt100) * 0.5 + 1000 // 50% + 1000万の許容誤差（モンテカルロ分散考慮）
     expect(diff).toBeLessThan(tolerance)
+  })
+})
+
+// ============================================================
+// 8. 子どもイベント教育費自動紐付け
+// ============================================================
+
+describe('子どもイベント教育費バンドル', () => {
+  function childBranch(childNumber: number, age: number): Branch {
+    return {
+      id: `child_${childNumber}`,
+      label: `第${childNumber}子`,
+      detail: `${age}歳`,
+      certainty: 'planned',
+      age,
+      eventType: 'child',
+      eventParams: { childNumber },
+    }
+  }
+
+  it('37歳で第一子 → 3段階の教育費イベントが生成される', () => {
+    const profile = createDefaultProfile()
+    const branch = childBranch(1, 37)
+    const events = branchToLifeEvents(branch, profile)
+
+    // 3イベント: 保育料、学費+塾、大学費用
+    expect(events).toHaveLength(3)
+
+    // 保育料: 37歳〜42歳（6年）50万
+    const nursery = events.find(e => e.name.includes('保育'))!
+    expect(nursery.type).toBe('expense_increase')
+    expect(nursery.age).toBe(37)
+    expect(nursery.amount).toBe(50)
+    expect(nursery.duration).toBe(6)
+
+    // 学費+塾: 43歳〜54歳（12年）100万
+    const school = events.find(e => e.name.includes('学費'))!
+    expect(school.type).toBe('expense_increase')
+    expect(school.age).toBe(43)
+    expect(school.amount).toBe(100)
+    expect(school.duration).toBe(12)
+
+    // 大学: 55歳〜58歳（4年）200万
+    const univ = events.find(e => e.name.includes('大学'))!
+    expect(univ.type).toBe('expense_increase')
+    expect(univ.age).toBe(55)
+    expect(univ.amount).toBe(200)
+    expect(univ.duration).toBe(4)
+  })
+
+  it('37歳で第一子 + 40歳で第二子 → 2人分が正しく生成される', () => {
+    const profile = createDefaultProfile()
+    const events1 = branchToLifeEvents(childBranch(1, 37), profile)
+    const events2 = branchToLifeEvents(childBranch(2, 40), profile)
+
+    expect(events1).toHaveLength(3)
+    expect(events2).toHaveLength(3)
+
+    // 第一子は37歳ベース、第二子は40歳ベース
+    expect(events1[0].age).toBe(37)
+    expect(events2[0].age).toBe(40)
+
+    // 第二子の大学開始: 40 + 18 = 58歳
+    const univ2 = events2.find(e => e.name.includes('大学'))!
+    expect(univ2.age).toBe(58)
+
+    // 全イベント名に子番号が含まれる
+    for (const e of events1) expect(e.name).toContain('第1子')
+    for (const e of events2) expect(e.name).toContain('第2子')
+  })
+
+  it('子どもイベントなし → 教育費イベントなし', () => {
+    const profile = createDefaultProfile()
+    const branch: Branch = {
+      id: 'income_down',
+      label: '年収ダウン',
+      detail: '',
+      certainty: 'uncertain',
+      age: 40,
+      eventType: 'income_change',
+      eventParams: { changePercent: -20 },
+    }
+    const events = branchToLifeEvents(branch, profile)
+
+    // 教育費関連のイベントがない
+    const eduEvents = events.filter(e =>
+      e.name.includes('保育') || e.name.includes('学費') || e.name.includes('大学')
+    )
+    expect(eduEvents).toHaveLength(0)
   })
 })
