@@ -23,7 +23,8 @@ interface ConclusionSummaryCardProps {
   // 世界線導線
   profile?: Profile;
   onStartWorldlineComparison?: (templateId: string) => void;
-  hasScenarios?: boolean;
+  scenarioCount?: number;
+  scenarioNames?: string[];
   creatingWorldline?: string | null;
 }
 
@@ -263,7 +264,8 @@ export function ConclusionSummaryCard({
   legacyGoal = '使い切り',
   profile,
   onStartWorldlineComparison,
-  hasScenarios = false,
+  scenarioCount = 0,
+  scenarioNames = [],
   creatingWorldline = null,
 }: ConclusionSummaryCardProps) {
   const displayStatus = useMemo(() => {
@@ -392,25 +394,38 @@ export function ConclusionSummaryCard({
         )}
 
         {/* 世界線比較への導線 */}
-        {score && profile && onStartWorldlineComparison && (
-          <div className="mt-4 pt-4 border-t border-border">
-            {hasScenarios ? (
-              <Link href="/app/v2" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors">
-                <GitBranch className="h-4 w-4" />
-                世界線比較を見る
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            ) : (
-              <div className="space-y-2.5">
-                <div>
-                  <p className="text-sm text-foreground">別の選択をしたら、この結果はどう変わるか。</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">比較パターンを選ぶと、2つの世界線が自動で作成されます。</p>
-                </div>
-                <div className="space-y-1.5">
-                  {worldlineTemplates
-                    .filter((t) => t.isRelevant(profile))
-                    .slice(0, 3)
-                    .map((t) => {
+        {score && profile && onStartWorldlineComparison && (() => {
+          const usedNameSet = new Set(scenarioNames);
+          const availableTemplates = worldlineTemplates
+            .filter((t) => t.isRelevant(profile) && !usedNameSet.has(t.baselineName) && !usedNameSet.has(t.variantName))
+            .slice(0, 3);
+
+          return (
+            <div className="mt-4 pt-4 border-t border-border space-y-2.5">
+              {/* 世界線比較リンク（1本以上あるとき） */}
+              {scenarioCount >= 1 && (
+                <Link href="/app/v2" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors">
+                  <GitBranch className="h-4 w-4" />
+                  世界線比較を見る
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              )}
+
+              {/* テンプレートセクション（3本未満のとき） */}
+              {scenarioCount < 3 && availableTemplates.length > 0 && (
+                <>
+                  <div>
+                    {scenarioCount === 0 ? (
+                      <>
+                        <p className="text-sm text-foreground">別の選択をしたら、この結果はどう変わるか。</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">比較パターンを選ぶと、2つの世界線が自動で作成されます。</p>
+                      </>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">さらに世界線を追加する</p>
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    {availableTemplates.map((t) => {
                       const isCreating = creatingWorldline === t.id;
                       const isDisabled = creatingWorldline !== null;
                       return (
@@ -436,16 +451,21 @@ export function ConclusionSummaryCard({
                         </button>
                       );
                     })}
-                </div>
+                  </div>
+                </>
+              )}
+
+              {/* 分岐ビルダーリンク（3本未満のとき） */}
+              {scenarioCount < 3 && (
                 <Link href="/app/branch" className="flex items-center gap-2 text-sm text-[#8A7A62] hover:text-[#C8B89A] dark:text-[#C8B89A] dark:hover:text-[#C8B89A]/80 transition-colors pt-1">
                   <GitBranch className="h-4 w-4" />
                   分岐ビルダーを使う
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );

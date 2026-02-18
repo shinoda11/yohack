@@ -16,6 +16,7 @@ import {
   Columns,
   Info,
   Plus,
+  Loader2,
 } from 'lucide-react';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,8 @@ interface V2ComparisonViewProps {
   clearComparisonIds: () => void;
   loadScenario: (id: string) => void;
   setActiveTab: (tab: 'worldlines' | 'margins' | 'strategy') => void;
+  onApplyTemplate?: (templateId: string) => void;
+  applyingTemplate?: string | null;
 }
 
 /** Y-branch symbol for the empty state */
@@ -66,7 +69,7 @@ const steps = [
   {
     icon: <Columns className="h-5 w-5 text-[#C8B89A]" />,
     title: '並べて比較',
-    description: '最大2つのシナリオを現在の状態と並べて比較。',
+    description: '最大3つのシナリオを現在の状態と並べて比較。',
   },
 ];
 
@@ -80,6 +83,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     clearComparisonIds,
     loadScenario,
     setActiveTab,
+    onApplyTemplate,
+    applyingTemplate,
   } = props;
 
   // --- Empty state ---
@@ -164,7 +169,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     })(),
   };
 
-  const scenarioRawMap = new Map(scenarios.slice(0, 2).map((scenario) => [scenario.id, {
+  const scenarioRawMap = new Map(scenarios.slice(0, 3).map((scenario) => [scenario.id, {
     fireAge: (() => {
       if (!scenario.result) return null;
       const age = scenario.result.metrics.fireAge;
@@ -192,7 +197,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
 
   type MetricKey = 'fireAge' | 'assets60' | 'monthlyCF' | 'drawdownAge';
   const rowHasDiff = (metric: MetricKey) =>
-    scenarios.slice(0, 2).some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
+    scenarios.slice(0, 3).some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
 
   // Unused worldline templates (for add-worldline prompt)
   const usedNames = new Set(scenarios.map(s => s.name));
@@ -212,7 +217,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
           世界線比較
         </CardTitle>
         <CardDescription>
-          現在の状態と保存済みシナリオを並列比較します（最大2つまで選択可能）
+          現在の状態と保存済みシナリオを並列比較します（最大3つまで選択可能）
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -229,7 +234,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     <span className="text-xs text-muted-foreground">ベースライン</span>
                   </div>
                 </th>
-                {scenarios.slice(0, 2).map((scenario) => (
+                {scenarios.slice(0, 3).map((scenario) => (
                   <th key={scenario.id} className="text-center py-3 px-2 font-medium min-w-32">
                     <div className="flex flex-col items-center gap-1">
                       <button
@@ -264,7 +269,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${age}歳`;
                   })()}
                 </td>
-                {scenarios.slice(0, 2).map((scenario) => {
+                {scenarios.slice(0, 3).map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.fireAge != null && currentRaw.fireAge != null)
                     ? sRaw.fireAge - currentRaw.fireAge : null;
@@ -302,7 +307,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${(assets / 10000).toFixed(1)}億`;
                   })()}
                 </td>
-                {scenarios.slice(0, 2).map((scenario) => {
+                {scenarios.slice(0, 3).map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.assets60 != null && currentRaw.assets60 != null)
                     ? sRaw.assets60 - currentRaw.assets60 : null;
@@ -368,7 +373,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${monthlyCF.toFixed(0)}万/月`;
                   })()}
                 </td>
-                {scenarios.slice(0, 2).map((scenario) => {
+                {scenarios.slice(0, 3).map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.monthlyCF != null && currentRaw.monthlyCF != null)
                     ? sRaw.monthlyCF - currentRaw.monthlyCF : null;
@@ -413,7 +418,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       : <span className="text-muted-foreground text-xs">なし</span>;
                   })()}
                 </td>
-                {scenarios.slice(0, 2).map((scenario) => {
+                {scenarios.slice(0, 3).map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.drawdownAge != null && currentRaw.drawdownAge != null)
                     ? sRaw.drawdownAge - currentRaw.drawdownAge : null;
@@ -470,7 +475,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             return ddIdx > 0 ? profile.currentAge + ddIdx : null;
           })();
 
-          const allSame = scenarios.slice(0, 2).every((scenario) => {
+          const allSame = scenarios.slice(0, 3).every((scenario) => {
             const sFireAge = scenario.result?.metrics.fireAge ?? null;
             const sAssets60 = (() => {
               const data = scenario.result?.paths.yearlyData;
@@ -559,7 +564,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                 選択解除
               </Button>
             )}
-            {scenarios.slice(0, 2).map((scenario) => (
+            {scenarios.slice(0, 3).map((scenario) => (
               <Button
                 key={scenario.id}
                 variant="ghost"
@@ -603,25 +608,44 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
       </CardContent>
     </Card>
 
-    {/* 世界線追加プレースホルダー（シナリオ2本のときのみ） */}
-    {scenarios.length === 2 && (
+    {/* 世界線追加プレースホルダー（1-2本のとき表示） */}
+    {scenarios.length >= 1 && scenarios.length < 3 && (
       <div className="rounded-lg border-2 border-dashed border-[#C8B89A]/40 hover:border-[#C8B89A] p-6 transition-colors">
         <div className="flex flex-col items-center text-center gap-3">
           <Plus className="h-6 w-6 text-[#8A7A62]" />
           <p className="text-sm font-medium text-[#8A7A62]">世界線を追加</p>
+          {unusedTemplates.length > 0 && onApplyTemplate && (
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {unusedTemplates.slice(0, 3).map((t) => {
+                const isApplying = applyingTemplate === t.id;
+                const isDisabled = applyingTemplate !== null;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => onApplyTemplate(t.id)}
+                    disabled={isDisabled}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition-colors',
+                      'border-[#C8B89A]/30 text-[#8A7A62] dark:text-[#C8B89A] dark:border-[#C8B89A]/20',
+                      isDisabled
+                        ? 'opacity-50 cursor-not-allowed'
+                        : 'hover:bg-[#C8B89A]/10 hover:border-[#C8B89A]/50',
+                    )}
+                  >
+                    <span>{t.icon}</span>
+                    <span>{t.label}</span>
+                    {isApplying && <Loader2 className="h-3 w-3 animate-spin" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <Link href="/app">
             <Button variant="outline" size="sm" className="gap-1.5 bg-transparent text-xs">
               ダッシュボードで条件を変えて保存
               <ArrowRight className="h-3 w-3" />
             </Button>
           </Link>
-          {unusedTemplates.length > 0 && (
-            <p className="text-xs text-muted-foreground">
-              おすすめ: {unusedTemplates.slice(0, 3).map((t, i) => (
-                <span key={t.id}>{i > 0 ? '、' : ''}{t.icon} {t.label}</span>
-              ))}
-            </p>
-          )}
         </div>
       </div>
     )}

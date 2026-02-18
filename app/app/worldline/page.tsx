@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useProfileStore } from '@/lib/store';
 import { useV2Store } from '@/lib/v2/store';
 import { useMargin } from '@/hooks/useMargin';
 import { useStrategy } from '@/hooks/useStrategy';
 import { readinessConfig } from '@/lib/v2/readinessConfig';
+import { worldlineTemplates } from '@/lib/worldline-templates';
 import { Button } from '@/components/ui/button';
 import { GitBranch } from 'lucide-react';
 
@@ -14,7 +16,8 @@ import { V2ResultSection } from '@/components/v2/V2ResultSection';
 import { V2ComparisonView } from '@/components/v2/V2ComparisonView';
 
 export default function WorldlinePage() {
-  const { profile, simResult, isLoading, scenarios, loadScenario } = useProfileStore();
+  const { profile, simResult, isLoading, scenarios, loadScenario, updateProfile, saveScenario } = useProfileStore();
+  const [applyingTemplate, setApplyingTemplate] = useState<string | null>(null);
 
   const {
     selectedComparisonIds, toggleComparisonId, clearComparisonIds, setSelectedComparisonIds,
@@ -42,6 +45,26 @@ export default function WorldlinePage() {
   });
 
   const readiness = readinessConfig[strategy.overallAssessment.readinessLevel];
+
+  // Handle template application (add a single variant scenario)
+  const handleApplyTemplate = async (templateId: string) => {
+    const template = worldlineTemplates.find(t => t.id === templateId);
+    if (!template) return;
+
+    setApplyingTemplate(templateId);
+
+    // Apply variant changes to current profile
+    const variantChanges = template.createVariant(profile);
+    updateProfile(variantChanges);
+
+    // Wait for simulation to complete (debounce + run)
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // Save variant as new scenario
+    saveScenario(template.variantName);
+
+    setApplyingTemplate(null);
+  };
 
   // Empty state: no scenarios at all
   if (scenarios.length === 0) {
@@ -101,6 +124,8 @@ export default function WorldlinePage() {
     clearComparisonIds,
     loadScenario,
     setActiveTab,
+    onApplyTemplate: handleApplyTemplate,
+    applyingTemplate,
   };
 
   return (

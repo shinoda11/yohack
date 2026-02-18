@@ -300,7 +300,8 @@ export default function DashboardPage() {
               legacyGoal="使い切り"
               profile={profile}
               onStartWorldlineComparison={handleStartWorldlineComparison}
-              hasScenarios={scenarios.length > 0}
+              scenarioCount={scenarios.length}
+              scenarioNames={scenarios.map(s => s.name)}
               creatingWorldline={creatingWorldline}
             />
           </div>
