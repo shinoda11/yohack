@@ -73,7 +73,7 @@ app/
     layout.tsx          ← プロダクト共通レイアウト（Sidebar + MobileHeader + BottomNav）
   pricing/page.tsx      ← 料金
   legal/                ← 利用規約・プライバシー・特商法
-  middleware.ts         ← /app/* にBasic認証
+  proxy.ts             ← /app/* にBasic認証
 
 components/
   dashboard/            ← 20ファイル（入力カード・結果カード・オンボーディング）
@@ -362,6 +362,5 @@ docs/
 
 ## 既知のTODO
 - パートナーの収入イベントによる年金額への影響（`engine.ts` L242）
-- `middleware.ts` → `proxy` 規約への移行（Next.js 16 非推奨警告）
 - metadataBase 未設定（OGP用）
 - SendGrid 連携（FitGate メール送信のスタブ実装を本番化）
