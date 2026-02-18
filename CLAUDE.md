@@ -17,11 +17,12 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - 運営者 = 開発者 = 1人（サラリーマン兼業）。週25分の稼働で回る設計が必須
 
 ## 技術スタック
-- Next.js 16 + React 19 + TypeScript
+- Next.js 16 + React 19.2 + TypeScript 5.9
 - Zustand 5（状態管理）、Recharts（グラフ）
-- shadcn/ui + Tailwind CSS 4（UI）
+- shadcn/ui + Tailwind CSS 4.1（UI）
 - Vercel（デプロイ、GitHub main ブランチ連携）
-- テスト: vitest 191本（`lib/__tests__/` に5ファイル）
+- テスト: vitest 191本（`lib/__tests__/` に5ファイル、testTimeout: 30,000ms）
+- 結果共有: html-to-image で PNG 生成 → Web Share API / ダウンロードフォールバック
 - **未導入**: Supabase（認証）、Stripe（決済）、SendGrid（メール）→ すべて Phase 2-3
 
 ## 現在のルート構成
@@ -44,7 +45,7 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 | `/app` | メインダッシュボード（入力カード + 結果タブ） | 610 |
 | `/app/branch` | 分岐ビルダー（決定木 + カテゴリ選択 + イベントカタログ + 世界線プレビュー） | 488 |
 | `/app/profile` | プロファイル入力（単カラム） | 263 |
-| `/app/worldline` | 世界線比較（3タブ: 世界線比較/余白/戦略） | 153 |
+| `/app/worldline` | 世界線比較（3タブ: 世界線比較/余白/戦略、最大3本同時比較） | 153 |
 | `/app/settings` | 設定（データ管理・バージョン情報） | 279 |
 
 ### リダイレクト（スタブ）
@@ -93,7 +94,7 @@ lib/
   store.ts              ← Zustand SoT（377行）
   engine.ts             ← モンテカルロシミュレーション（~835行）
   housing-sim.ts        ← 住宅シミュレーション（779行）
-  benchmarks.ts         ← ケース台帳C01-C18ハードコード結果（ダッシュボード参照用）
+  benchmarks.ts         ← ケース台帳C01-C24ハードコード結果（ダッシュボード参照用）
   branch.ts             ← 分岐ビルダーロジック（~690行）
   event-catalog.ts      ← ライフイベントプリセット23種 + バンドル3種（570行）
   types.ts              ← 型定義（232行）
@@ -114,7 +115,7 @@ docs/
   lp-design.md             ← LP設計書 v1.0
   migration-from-lp.md     ← 旧LPリポからの移植ガイド
   fitgate-reference/       ← 旧リポから抽出した移植対象コード（参照用）
-  case-catalog-results.md  ← 18ケースの賃貸vs購入比較結果
+  case-catalog-results.md  ← 24ケースの賃貸vs購入比較結果
   sensitivity-analysis.md  ← 感度分析結果
   product-backlog.md       ← プロダクトバックログ
   phase-*.md               ← フェーズ別設計書
@@ -151,7 +152,7 @@ docs/
   - `scenarios`: 保存されたシナリオ
   - `selectedBranchIds`: 分岐ビルダーの選択状態
   - `customBranches`: ユーザー追加の分岐
-  - `hiddenDefaultBranchIds`: 非表示デフォルトブランチ（migration で自動クリア）
+  - `hiddenDefaultBranchIds`: 非表示デフォルトブランチ（undefined の場合は空配列に初期化）
 - `lib/v2/store.ts` は世界線比較の UI 状態専用（計算結果は持たない）。唯一の許可された例外
 - 第三のストアを絶対に作らない
 - 各ページ/コンポーネントは `useProfileStore()` から参照のみ。独自に `runSimulation` を呼び出さない
@@ -180,7 +181,7 @@ docs/
 
 - BasicInfoCard / AssetCard はダッシュボードから除外（`/app/profile` のみに存在）
 - LifeEventsSummaryCard もダッシュボードから除外（分岐ビルダー `/app/branch` で管理）
-- ExitReadinessCard 内に折りたたみベンチマークセクション（`lib/benchmarks.ts` の C01-C18 データ参照）
+- ExitReadinessCard 内に折りたたみベンチマークセクション（`lib/benchmarks.ts` の C01-C24 データ参照）
 
 ## エンジン仕様 (`lib/engine.ts`)
 
@@ -211,7 +212,7 @@ docs/
 ### 感度分析の結論
 - **investReturn のみ有意**（±31スコア）。rentInflation / maintenance / rateCap はすべて ≤4
 - → 投資リターン設定UI（3%保守的/5%標準/7%積極的のプリセット）は実装済み
-- エンジン前提変更時は `pnpm run case-sim` で18ケース再検証
+- エンジン前提変更時は `pnpm run case-sim` で24ケース再検証
 
 ### 退職後事業収入
 - `postRetireIncome`: 退職後の年間事業収入（万円、デフォルト0）。顧問・コンサル等
@@ -248,10 +249,11 @@ docs/
 - 3種のバンドル（海外駐在+自宅賃貸、海外駐在(賃貸)、育休パッケージ）
 - プリセット → カスタマイズ → Branch 追加のフロー
 
-### ブランチの削除ルール
-- デフォルトブランチ: 削除ボタンなし（チェックボックスでON/OFF）
+### ブランチの削除・非表示ルール
+- デフォルトブランチ: インラインTrash2アイコンで非表示（`hiddenDefaultBranchIds` に追加）。カスタマイズダイアログ内にも「非表示にする」ボタン
 - カスタムブランチ: インラインXボタンで削除
 - オーバーライドブランチ: 削除するとデフォルト版を復元
+- 非表示ブランチ: 各カテゴリ末尾に「非表示のブランチを復元」セクション（Undo2アイコン）
 
 ### 教育費自動バンドル
 - 子どもイベント（`eventType: 'child'`）追加時、`branchToLifeEvents()` が3段階の教育費イベントを自動生成
@@ -317,7 +319,7 @@ docs/
 | `pnpm lint` | ESLint |
 | `pnpm test` | vitest実行（191本） |
 | `pnpm test:watch` | vitestウォッチ |
-| `pnpm run case-sim` | ケース台帳シミュレーション（C01-C18） |
+| `pnpm run case-sim` | ケース台帳シミュレーション（C01-C24） |
 | `npm run check:store` | SoTガードレールチェック |
 
 ## コーディング規約
