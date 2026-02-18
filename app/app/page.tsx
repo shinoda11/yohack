@@ -56,7 +56,6 @@ export default function DashboardPage() {
     runSimulationAsync,
     customBranches,
     hiddenDefaultBranchIds,
-    activeScenarioId,
   } = useProfileStore();
 
   const [activeTab, setActiveTab] = useState('summary');
@@ -114,13 +113,11 @@ export default function DashboardPage() {
 
   const { getFieldError } = useValidation(profile);
 
-  // Chart markers: シナリオロード時は profile.lifeEvents、通常は分岐ビルダー由来
-  const chartLifeEvents = useMemo(() => {
-    if (activeScenarioId && profile.lifeEvents.length > 0) {
-      return profile.lifeEvents;
-    }
-    return getBranchDerivedLifeEvents(profile, customBranches, hiddenDefaultBranchIds);
-  }, [profile, customBranches, hiddenDefaultBranchIds, activeScenarioId]);
+  // Chart markers: 常に分岐ビルダーのブランチから生成（profile.lifeEvents は無視）
+  const chartLifeEvents = useMemo(
+    () => getBranchDerivedLifeEvents(profile, customBranches, hiddenDefaultBranchIds),
+    [profile, customBranches, hiddenDefaultBranchIds]
+  );
 
   // Dismiss first-visit banner when profile is edited
   const profileFingerprint = `${profile.currentAge}-${profile.targetRetireAge}-${profile.grossIncome}-${profile.livingCostAnnual}-${profile.assetCash}-${profile.assetInvest}`;
