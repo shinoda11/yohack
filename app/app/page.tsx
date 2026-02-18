@@ -255,26 +255,24 @@ export default function DashboardPage() {
   // Handle share / capture
   const handleShareCapture = async () => {
     // Pick the visible capture target (mobile vs desktop)
-    const target = captureRefMobile.current?.offsetParent !== null
-      ? captureRefMobile.current
-      : captureRef.current;
+    const mobileEl = captureRefMobile.current;
+    const desktopEl = captureRef.current;
+    const target = (mobileEl && mobileEl.offsetParent !== null) ? mobileEl : desktopEl;
     if (!target || isCapturing) return;
     setIsCapturing(true);
 
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const sourceCanvas = await html2canvas(target, {
+      const { toCanvas } = await import('html-to-image');
+      const sourceCanvas = await toCanvas(target, {
         backgroundColor: '#FAF9F7',
-        scale: 2,
-        useCORS: true,
-        logging: false,
+        pixelRatio: 2,
       });
 
       // Add footer with logo + date + disclaimer
       const footerHeight = 60;
       const finalCanvas = document.createElement('canvas');
       finalCanvas.width = sourceCanvas.width;
-      finalCanvas.height = sourceCanvas.height + footerHeight * 2; // scale=2
+      finalCanvas.height = sourceCanvas.height + footerHeight * 2; // pixelRatio=2
       const ctx = finalCanvas.getContext('2d')!;
 
       // Background
@@ -295,39 +293,41 @@ export default function DashboardPage() {
       const dateStr = new Date().toLocaleDateString('ja-JP');
       ctx.fillText(`${dateStr}  ※シミュレーション結果です。金融アドバイスではありません。`, 180, footerY + 10);
 
-      finalCanvas.toBlob(async (blob) => {
-        if (!blob) {
-          toast({ description: '画像の生成に失敗しました', variant: 'destructive' });
+      const blob = await new Promise<Blob | null>((resolve) =>
+        finalCanvas.toBlob(resolve, 'image/png')
+      );
+      if (!blob) {
+        toast({ description: '画像の生成に失敗しました', variant: 'destructive' });
+        setIsCapturing(false);
+        return;
+      }
+
+      const file = new File([blob], `yohack-${dateStr}.png`, { type: 'image/png' });
+
+      // Try Web Share API (mobile)
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'YOHACK シミュレーション結果' });
+          toast({ description: '共有しました' });
           setIsCapturing(false);
           return;
+        } catch {
+          // User cancelled or share failed — fall through to download
         }
+      }
 
-        const file = new File([blob], `yohack-${dateStr}.png`, { type: 'image/png' });
-
-        // Try Web Share API (mobile)
-        if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          try {
-            await navigator.share({ files: [file], title: 'YOHACK シミュレーション結果' });
-            toast({ description: '共有しました' });
-            setIsCapturing(false);
-            return;
-          } catch {
-            // User cancelled or share failed — fall through to download
-          }
-        }
-
-        // Fallback: download
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `yohack-${dateStr}.png`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast({ description: '画像を保存しました' });
-        setIsCapturing(false);
-      }, 'image/png');
-    } catch {
+      // Fallback: download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `yohack-${dateStr}.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ description: '画像を保存しました' });
+    } catch (err) {
+      console.error('Share capture failed:', err);
       toast({ description: '画像の生成に失敗しました', variant: 'destructive' });
+    } finally {
       setIsCapturing(false);
     }
   };
