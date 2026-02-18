@@ -21,7 +21,7 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - Zustand 5（状態管理）、Recharts（グラフ）
 - shadcn/ui + Tailwind CSS 4（UI）
 - Vercel（デプロイ、GitHub main ブランチ連携）
-- テスト: vitest 160本（`lib/__tests__/` に5ファイル）
+- テスト: vitest 185本（`lib/__tests__/` に5ファイル）
 - **未導入**: Supabase（認証）、Stripe（決済）、SendGrid（メール）→ すべて Phase 2-3
 
 ## 現在のルート構成
@@ -101,7 +101,7 @@ lib/
   glossary.ts           ← 用語集（14行）
   utils.ts              ← ユーティリティ（6行）
   v2/                   ← 5ファイル（adapter, margin, store, worldline, readinessConfig）
-  __tests__/            ← 5テストファイル（160テスト）
+  __tests__/            ← 5テストファイル（185テスト）
     engine.test.ts, adapter.test.ts, housing-sim.test.ts, e2e-personas.test.ts, e02-regression.test.ts
 
 hooks/                  ← 8ファイル（useMargin, useStrategy, useSimulation, useHousingScenarios,
@@ -285,7 +285,7 @@ docs/
 | `pnpm dev` | 開発サーバー |
 | `pnpm build` | ビルド |
 | `pnpm lint` | ESLint |
-| `pnpm test` | vitest実行（160本） |
+| `pnpm test` | vitest実行（185本） |
 | `pnpm test:watch` | vitestウォッチ |
 | `pnpm run case-sim` | ケース台帳シミュレーション（C01-C18） |
 | `npm run check:store` | SoTガードレールチェック |
