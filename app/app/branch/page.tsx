@@ -337,9 +337,17 @@ export default function BranchPage() {
         </p>
       </div>
 
-      {/* Main layout */}
+      {/* PC: Full-width timeline above 2-column layout */}
+      <div className="hidden md:block mb-6">
+        <BranchTimeline
+          profile={profile}
+          selectedBranches={selectedBranches}
+        />
+      </div>
+
+      {/* Main 2-column layout */}
       <div className="flex flex-col md:flex-row md:gap-8">
-        {/* Left: Tree + Timeline (sticky on desktop, flexible width) */}
+        {/* Left: Tree (sticky on desktop) */}
         <div className="md:flex-1 md:sticky md:top-20 md:self-start mb-6 md:mb-0">
           <BranchTreeViz
             currentAge={profile.currentAge}
@@ -347,13 +355,6 @@ export default function BranchPage() {
             candidates={step === 'preview' ? candidates : undefined}
             showScores={step === 'preview'}
           />
-          {/* Desktop: Timeline below tree */}
-          <div className="hidden md:block">
-            <BranchTimeline
-              profile={profile}
-              selectedBranches={selectedBranches}
-            />
-          </div>
         </div>
 
         {/* Right: Categories or Preview */}
