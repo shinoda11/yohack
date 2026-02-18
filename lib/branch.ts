@@ -145,6 +145,15 @@ export function createDefaultBranches(profile: Profile): Branch[] {
       eventParams: { changePercent: -20 },
     },
     {
+      id: 'income_down_30',
+      label: '年収ダウン -30%',
+      detail: `${Math.round(profile.grossIncome * 0.3)}万円減`,
+      certainty: 'uncertain',
+      age: profile.currentAge + 3,
+      eventType: 'income_change',
+      eventParams: { changePercent: -30 },
+    },
+    {
       id: 'pacedown',
       label: 'ペースダウン',
       detail: `年収 -50%（${Math.round(profile.grossIncome * 0.5)}万円減）`,
