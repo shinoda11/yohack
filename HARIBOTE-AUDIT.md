@@ -1,20 +1,20 @@
 # HARIBOTE-AUDIT: プロダクト全体の張りぼて調査
 
-## 🔴 張りぼて（UIあり、ロジック未接続）
+## 🔴 張りぼて（UIあり、ロジック未接続）→ 全件対応済み
 
-| # | 画面 | 要素 | 状態 | ファイル:行 |
-|---|------|------|------|------------|
-| H1 | ダッシュボード | HousingPlanCard 全入力（物件価格/頭金/金利/ローン年数/メンテ費/プラン追加・削除） | 12個の入力フィールドが全てローカルstate。storeに書き込まず、リロードで消失。チャート・比較テーブルも一時的 | `components/dashboard/housing-plan-card.tsx:97-98` |
-| H2 | ダッシュボード | AdvancedInputPanel: 収入推移予測（incomeTrajectory） | 親コンポーネントのローカルstateに書くが、Profile型に存在せず、engine.tsが無視 | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H3 | ダッシュボード | AdvancedInputPanel: 不動産評価額（realEstateValue） | 同上。Profile型にフィールドなし | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H4 | ダッシュボード | AdvancedInputPanel: 暗号資産（cryptoValue） | 同上。Profile型にフィールドなし | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H5 | ダッシュボード | AdvancedInputPanel: その他資産（otherAssets） | 同上。Profile型にフィールドなし | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H6 | ダッシュボード | AdvancedInputPanel: 働き方の目標（workStyleGoal） | 同上。Profile型にフィールドなし | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H7 | ダッシュボード | AdvancedInputPanel: 遺産スタンス（legacyStance） | 同上。Profile型にフィールドなし | `components/dashboard/advanced-input-panel.tsx:20-27` |
-| H8 | LP | デモ動画プレースホルダー（240px灰色ボックス「デモ動画 — 準備中」） | 映像なし。静的プレースホルダー | `app/page.tsx:70-81` |
-| H9 | FitGate結果 | メールレター登録「準備中」テキスト | フォーム・ボタン・APIなし | `app/fit/result/page.tsx:165-173` |
-| H10 | FitGate Prep | メールレター登録「準備中」テキスト | H9と同一コピー | `app/fit/prep/page.tsx:36-43` |
-| H11 | 料金ページ | 支払い方法FAQ「クレジットカードに対応予定です」 | Stripe未実装。「予定」表記だが料金ページに配置されており誤解を招く | `app/pricing/page.tsx:33` |
+| # | 画面 | 要素 | 対応 |
+|---|------|------|------|
+| ~~H1~~ | ダッシュボード | HousingPlanCard 全入力 | **store接続済み** → `Profile.housingPlans` に永続化。分岐ビルダー連携。🟢 正常に昇格 |
+| ~~H2~~ | ダッシュボード | AdvancedInputPanel: 収入推移予測 | **削除済み** — 将来 Profile型+engine接続とセットで再実装 |
+| ~~H3~~ | ダッシュボード | AdvancedInputPanel: 不動産評価額 | **削除済み** |
+| ~~H4~~ | ダッシュボード | AdvancedInputPanel: 暗号資産 | **削除済み** |
+| ~~H5~~ | ダッシュボード | AdvancedInputPanel: その他資産 | **削除済み** |
+| ~~H6~~ | ダッシュボード | AdvancedInputPanel: 働き方の目標 | **削除済み** |
+| ~~H7~~ | ダッシュボード | AdvancedInputPanel: 遺産スタンス | **削除済み** |
+| ~~H8~~ | LP | デモ動画プレースホルダー | **削除済み** |
+| ~~H9~~ | FitGate結果 | メールレター登録「準備中」 | **削除済み** |
+| ~~H10~~ | FitGate Prep | メールレター登録「準備中」 | **削除済み** |
+| ~~H11~~ | 料金ページ | 支払い方法FAQ | **文言修正済み** — 「決済方法は準備中です。サービス開始時にクレジットカード決済に対応します。」 |
 
 ---
 
