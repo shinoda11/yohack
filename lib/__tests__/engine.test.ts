@@ -456,3 +456,63 @@ describe('runSimulation バリデーション', () => {
     await expect(runSimulation(profile)).rejects.toThrow('grossIncome')
   })
 })
+
+// ============================================================
+// 7. 退職後事業収入 (postRetireIncome)
+// ============================================================
+
+describe('退職後事業収入', () => {
+  it('postRetireIncome=300 の場合、退職後〜75歳の間に収入が反映される', async () => {
+    const retireAge = 55
+    const endAge = 75
+    const base = await runSimulation(profileWith({
+      targetRetireAge: retireAge,
+      postRetireIncome: 0,
+      postRetireIncomeEndAge: endAge,
+    }))
+    const withIncome = await runSimulation(profileWith({
+      targetRetireAge: retireAge,
+      postRetireIncome: 300,
+      postRetireIncomeEndAge: endAge,
+    }))
+
+    // 退職後事業収入があるほうが100歳時点の資産が大きい（中央値）
+    const baseAt100 = base.paths.yearlyData[base.paths.yearlyData.length - 1].assets
+    const withAt100 = withIncome.paths.yearlyData[withIncome.paths.yearlyData.length - 1].assets
+    expect(withAt100).toBeGreaterThan(baseAt100)
+  })
+
+  it('postRetireIncome=0（デフォルト）で既存挙動と変わらない', async () => {
+    const profile = createDefaultProfile()
+    // デフォルトは postRetireIncome: 0
+    expect(profile.postRetireIncome).toBe(0)
+    expect(profile.postRetireIncomeEndAge).toBe(75)
+
+    const result = await runSimulation(profile)
+    // 既存テストと同じ: 結果が正常に返る
+    expect(result.metrics.survivalRate).toBeGreaterThanOrEqual(0)
+    expect(result.metrics.survivalRate).toBeLessThanOrEqual(100)
+  })
+
+  it('postRetireIncomeEndAge < retireAge の場合、退職後収入なし', async () => {
+    const retireAge = 55
+    const base = await runSimulation(profileWith({
+      targetRetireAge: retireAge,
+      postRetireIncome: 0,
+      postRetireIncomeEndAge: 50, // retireAge より前
+    }))
+    const withIncome = await runSimulation(profileWith({
+      targetRetireAge: retireAge,
+      postRetireIncome: 500,
+      postRetireIncomeEndAge: 50, // retireAge より前 → 効果なし
+    }))
+
+    // endAge < retireAge なので収入は発生せず、結果はほぼ同じ
+    const baseAt100 = base.paths.yearlyData[base.paths.yearlyData.length - 1].assets
+    const withAt100 = withIncome.paths.yearlyData[withIncome.paths.yearlyData.length - 1].assets
+    // モンテカルロの揺らぎがあるが、大きな差はないはず（±10%以内）
+    const diff = Math.abs(withAt100 - baseAt100)
+    const tolerance = Math.abs(baseAt100) * 0.3 + 100 // 30% + 100万の許容誤差
+    expect(diff).toBeLessThan(tolerance)
+  })
+})

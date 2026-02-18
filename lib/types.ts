@@ -101,6 +101,8 @@ export interface Profile {
   useAutoTaxRate: boolean; // true = auto-calculate from income
   retireSpendingMultiplier: number;
   retirePassiveIncome: number;
+  postRetireIncome: number; // 退職後の年間事業収入（万円）。顧問・コンサル等
+  postRetireIncomeEndAge: number; // その収入が続く年齢
   
   // Life events
   lifeEvents: LifeEvent[];

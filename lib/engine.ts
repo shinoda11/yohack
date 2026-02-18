@@ -370,10 +370,18 @@ function calculateNetIncome(profile: Profile, age: number): number {
   const rentalIncome = calculateRentalIncome(profile, age);
 
   if (isRetired) {
-    // Post-retirement: pension (from age 65) + passive income + rental income
+    // Post-retirement: pension (from age 65) + passive income + rental income + business income
     const pensionAge = 65;
     const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
-    return pension + profile.retirePassiveIncome + rentalIncome;
+
+    // 退職後事業収入（顧問・コンサル等）: postRetireIncomeEndAge まで、実効税率20%固定
+    const postRetireGross = (profile.postRetireIncome ?? 0);
+    const postRetireEndAge = (profile.postRetireIncomeEndAge ?? 75);
+    const postRetireNet = (postRetireGross > 0 && age < postRetireEndAge)
+      ? postRetireGross * 0.8
+      : 0;
+
+    return pension + profile.retirePassiveIncome + rentalIncome + postRetireNet;
   }
 
   // Pre-retirement: gross income + income events → per-person tax
@@ -620,11 +628,16 @@ function calculateCashFlow(profile: Profile): CashFlowBreakdown {
   const inflationFactor = Math.pow(1 + profile.inflationRate / 100, yearsToRetire);
 
   // Simplified cash flow at retirement
-  const income = profile.retirePassiveIncome;
+  const postRetireGross = (profile.postRetireIncome ?? 0);
+  const postRetireEndAge = (profile.postRetireIncomeEndAge ?? 75);
+  const postRetireNet = (postRetireGross > 0 && retireAge < postRetireEndAge)
+    ? postRetireGross * 0.8
+    : 0;
+  const income = profile.retirePassiveIncome + postRetireNet;
   const pension = retireAge >= pensionAge ? calculateAnnualPension(profile) : 0;
   const dividends = (profile.assetInvest * 0.03); // Assume 3% dividend yield
   const expenses = calculateExpenses(profile, retireAge, inflationFactor);
-  
+
   return {
     income,
     pension,
@@ -813,6 +826,8 @@ export function createDefaultProfile(): Profile {
     useAutoTaxRate: true,
     retireSpendingMultiplier: 0.8,
     retirePassiveIncome: 0,
+    postRetireIncome: 0,
+    postRetireIncomeEndAge: 75,
     
     lifeEvents: [],
 
