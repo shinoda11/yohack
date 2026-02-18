@@ -1,7 +1,5 @@
 'use client'
 
-// TODO: モバイル最適化 — 12問を1問ずつ表示するステップ式UIに変更する
-
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,11 +10,19 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, Suspense } from 'react'
-import { judgeFitGate, saveFitGateAnswers } from '@/lib/fitgate'
+import { useState, useEffect, Suspense } from 'react'
+import { Mail } from 'lucide-react'
+import {
+  judgeFitGate,
+  saveFitGateAnswers,
+  getFitGateAttempts,
+  incrementFitGateAttempts,
+  sendFitGateEmail,
+  type FitGateResult,
+} from '@/lib/fitgate'
 
+// Schema for 12 questions (email is collected separately)
 const fitGateSchema = z.object({
-  email: z.string().min(1, 'メールアドレスを入力してください').email('有効なメールアドレスを入力してください'),
   q1DecisionDeadline: z.string().min(1, '選択してください'),
   q2HousingStatus: z.string().min(1, '選択してください'),
   q3PriceRange: z.string().min(1, '選択してください'),
@@ -95,6 +101,8 @@ const questions = [
   },
 ]
 
+const MAX_ATTEMPTS = 3
+
 export default function FitGatePage() {
   return (
     <Suspense fallback={null}>
@@ -111,6 +119,19 @@ function FitGateForm() {
   const totalSteps = 12
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Phase: questions → email → redirect
+  const [phase, setPhase] = useState<'questions' | 'email'>('questions')
+  const [pendingData, setPendingData] = useState<FitGateFormData | null>(null)
+  const [pendingResult, setPendingResult] = useState<FitGateResult | null>(null)
+  const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
+
+  // Attempt limiting
+  const [attemptCount, setAttemptCount] = useState(0)
+  useEffect(() => {
+    setAttemptCount(getFitGateAttempts())
+  }, [])
+
   const {
     register,
     handleSubmit,
@@ -126,13 +147,143 @@ function FitGateForm() {
 
   const privacyConsent = watch('q11PrivacyConsent')
 
-  const onSubmit = (data: FitGateFormData) => {
-    setIsSubmitting(true)
-    const result = judgeFitGate(data)
-    saveFitGateAnswers(data)
-    router.push(`/fit/result?judgment=${result.judgment}&prepBucket=${result.prepBucket || ''}`)
+  const onQuestionsSubmit = (data: FitGateFormData) => {
+    // Compute judgment (email not needed for judgment logic)
+    const result = judgeFitGate({
+      ...data,
+      email: '',
+    })
+    setPendingData(data)
+    setPendingResult(result)
+    setPhase('email')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const onEmailSubmit = () => {
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setEmailError('メールアドレスを入力してください')
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmed)) {
+      setEmailError('有効なメールアドレスを入力してください')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    // Save answers with email
+    saveFitGateAnswers({ ...pendingData!, email: trimmed })
+    incrementFitGateAttempts()
+    sendFitGateEmail(trimmed, pendingResult!)
+
+    router.push(
+      `/fit/result?judgment=${pendingResult!.judgment}&prepBucket=${pendingResult!.prepBucket || ''}`
+    )
+  }
+
+  // Attempt limit reached
+  if (attemptCount >= MAX_ATTEMPTS) {
+    return (
+      <Card className="p-8 border-0 shadow-sm text-center">
+        <div
+          className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 mx-auto"
+          style={{ backgroundColor: 'rgba(138, 122, 98, 0.15)' }}
+        >
+          <Mail className="w-8 h-8" style={{ color: '#8A7A62' }} />
+        </div>
+        <h2 className="text-xl font-bold mb-2" style={{ color: '#1A1916' }}>
+          診断回数の上限に達しました
+        </h2>
+        <p className="text-sm mb-4" style={{ color: '#5A5550' }}>
+          診断は{MAX_ATTEMPTS}回まで利用できます。
+        </p>
+        <p className="text-xs" style={{ color: '#8A7A62' }}>
+          ご質問は{' '}
+          <a href="mailto:hello@yohack.jp" className="underline">
+            hello@yohack.jp
+          </a>{' '}
+          まで
+        </p>
+      </Card>
+    )
+  }
+
+  // Email step
+  if (phase === 'email') {
+    return (
+      <>
+        {/* Progress — 100% */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between text-sm" style={{ color: '#8A7A62' }}>
+            <span>あと1ステップ</span>
+            <span>12問 完了</span>
+          </div>
+          <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ backgroundColor: '#E8E4DE' }}>
+            <div
+              className="h-full rounded-full"
+              style={{ width: '100%', backgroundColor: '#C8B89A' }}
+            />
+          </div>
+        </div>
+
+        <Card className="p-6 sm:p-8 border-0 shadow-sm" style={{ backgroundColor: '#FFFFFF' }}>
+          <div className="text-center mb-6">
+            <div
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-3 mx-auto"
+              style={{ backgroundColor: 'rgba(200, 184, 154, 0.2)' }}
+            >
+              <Mail className="w-6 h-6" style={{ color: '#C8B89A' }} />
+            </div>
+            <h2 className="text-xl font-semibold mb-1" style={{ color: '#1A1916' }}>
+              診断結果をメールでもお届けします
+            </h2>
+            <p className="text-sm" style={{ color: '#8A7A62' }}>
+              結果と次のステップをメールでお送りします
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" style={{ color: '#5A5550' }}>
+                メールアドレス
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value)
+                  setEmailError('')
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    onEmailSubmit()
+                  }
+                }}
+              />
+              {emailError && <p className="text-sm text-red-600">{emailError}</p>}
+            </div>
+
+            <Button
+              size="lg"
+              className="w-full text-white"
+              style={{ backgroundColor: '#C8B89A' }}
+              onClick={onEmailSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '送信中...' : '結果を見る'}
+            </Button>
+          </div>
+        </Card>
+      </>
+    )
+  }
+
+  // Questions phase
   return (
     <>
       {/* Progress */}
@@ -157,24 +308,7 @@ function FitGateForm() {
           適合チェック（12問）
         </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Email */}
-          <div className="space-y-2">
-            <Label htmlFor="email" style={{ color: '#5A5550' }}>メールアドレス（必須）</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your@email.com"
-              {...register('email')}
-            />
-            <p className="text-xs" style={{ color: '#8A7A62' }}>
-              判定結果と次のステップをお送りするため、メールアドレスが必要です
-            </p>
-            {errors.email && (
-              <p className="text-sm text-red-600">{errors.email.message}</p>
-            )}
-          </div>
-
+        <form onSubmit={handleSubmit(onQuestionsSubmit)} className="space-y-8">
           {/* Q1–Q10 radio questions */}
           {questions.map((q, qi) => (
             <div key={q.key} className="space-y-3">
@@ -275,7 +409,7 @@ function FitGateForm() {
               style={{ backgroundColor: '#C8B89A' }}
               disabled={isSubmitting}
             >
-              {isSubmitting ? '送信中...' : '適合チェックを完了する'}
+              次へ
             </Button>
           </div>
         </form>

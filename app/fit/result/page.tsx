@@ -92,6 +92,12 @@ function ReadyResult() {
         </p>
       </div>
 
+      {/* Email confirmation */}
+      <div className="flex items-center gap-2 p-3 rounded-lg mb-6" style={{ backgroundColor: 'rgba(200, 184, 154, 0.1)' }}>
+        <Mail className="w-4 h-4 shrink-0" style={{ color: '#C8B89A' }} />
+        <p className="text-xs" style={{ color: '#8A7A62' }}>結果をメールで送信しました</p>
+      </div>
+
       <div className="space-y-6">
         <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(200, 184, 154, 0.1)' }}>
           <h3 className="font-semibold mb-2" style={{ color: '#5A5550' }}>シミュレーションでできること</h3>
@@ -154,6 +160,12 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
         </p>
       </div>
 
+      {/* Email confirmation */}
+      <div className="flex items-center gap-2 p-3 rounded-lg mb-6" style={{ backgroundColor: 'rgba(138, 122, 98, 0.08)' }}>
+        <Mail className="w-4 h-4 shrink-0" style={{ color: '#8A7A62' }} />
+        <p className="text-xs" style={{ color: '#8A7A62' }}>結果をメールで送信しました</p>
+      </div>
+
       <div className="space-y-6">
         <div>
           <h3 className="font-semibold mb-3" style={{ color: '#5A5550' }}>Prep Mode とは</h3>
@@ -191,9 +203,7 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
         <div className="pt-4 border-t">
           <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(200, 184, 154, 0.05)' }}>
             <p className="text-xs mb-3" style={{ color: '#8A7A62' }}>
-              {isNotYet
-                ? '必要になったタイミングで、再度適合チェックを受けてください。'
-                : '準備が整ったら、再度適合チェックを受けてください。'}
+              条件が変わったら再診断できます。
             </p>
             <Button
               variant="outline"
@@ -205,6 +215,22 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
               再診断を受ける
             </Button>
           </div>
+        </div>
+
+        {/* Instagram */}
+        <div className="pt-4 border-t">
+          <p className="text-xs text-center" style={{ color: '#8A7A62' }}>
+            Instagramで問い×ケースを配信しています →{' '}
+            <a
+              href="https://www.instagram.com/yohack.jp"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-medium"
+              style={{ color: '#C8B89A' }}
+            >
+              @yohack.jp
+            </a>
+          </p>
         </div>
       </div>
     </Card>

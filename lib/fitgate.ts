@@ -118,3 +118,32 @@ export function clearFitGateAnswers(): void {
     // silently fail
   }
 }
+
+// --- Attempt tracking ---
+
+const ATTEMPTS_KEY = 'fitgate-attempts';
+
+export function getFitGateAttempts(): number {
+  try {
+    const raw = localStorage.getItem(ATTEMPTS_KEY);
+    return raw ? parseInt(raw, 10) || 0 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function incrementFitGateAttempts(): void {
+  try {
+    const current = getFitGateAttempts();
+    localStorage.setItem(ATTEMPTS_KEY, String(current + 1));
+  } catch {
+    // silently fail
+  }
+}
+
+// --- Email send stub ---
+
+export function sendFitGateEmail(email: string, result: FitGateResult): void {
+  // TODO: Replace with SendGrid integration
+  console.log(`メール送信: ${email}, 判定: ${result.judgment}${result.prepBucket ? `, bucket: ${result.prepBucket}` : ''}`);
+}
