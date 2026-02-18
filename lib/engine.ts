@@ -3,7 +3,6 @@
 
 import type {
   Profile,
-  LifeEvent,
   HomeStatus,
   SimulationResult,
   AssetPoint,
@@ -13,11 +12,22 @@ import type {
   ExitScoreDetail
 } from './types';
 import { getScoreLevel } from './types';
+import {
+  calculateEffectiveTaxRate,
+  getEstimatedTaxRates,
+  calculateAnnualPension,
+  calculateNetIncomeForAge,
+  calculateExpensesForAge,
+  calculateAssetGainForAge,
+  MAX_AGE,
+} from './calc-core';
+
+// Re-export for backward compatibility (housing-sim.ts, housing-plan-card.tsx, tests, etc.)
+export { calculateEffectiveTaxRate, getEstimatedTaxRates, calculateAnnualPension };
 
 export const ENGINE_VERSION = '1.0.0';
 
 const SIMULATION_RUNS = 1000;
-const MAX_AGE = 100;
 
 // ============================================================
 // Validation
@@ -96,226 +106,11 @@ export function validateProfile(profile: Profile): ValidationError[] {
   return errors;
 }
 
-// ============================================================
-// Tax Calculation (Japanese tax system, simplified)
-// ============================================================
+// Tax calculation functions moved to calc-core.ts
+// Re-exported above for backward compatibility
 
-/**
- * 年収（万円）から実効税率（%）を自動計算する。
- * 所得税（累進）+ 復興特別所得税 + 住民税（10%）+ 社会保険料の合算。
- * FP 完璧ではないが、年収800万〜3000万帯で±2%の精度。
- */
-export function calculateEffectiveTaxRate(grossIncome: number): number {
-  if (grossIncome <= 0) return 0;
-
-  // --- 1. 給与所得控除 (2024年基準) ---
-  let employmentDeduction: number;
-  if (grossIncome <= 162.5) {
-    employmentDeduction = 55;
-  } else if (grossIncome <= 180) {
-    employmentDeduction = grossIncome * 0.4 - 10;
-  } else if (grossIncome <= 360) {
-    employmentDeduction = grossIncome * 0.3 + 8;
-  } else if (grossIncome <= 660) {
-    employmentDeduction = grossIncome * 0.2 + 44;
-  } else if (grossIncome <= 850) {
-    employmentDeduction = grossIncome * 0.1 + 110;
-  } else {
-    employmentDeduction = 195; // 上限
-  }
-
-  // --- 2. 社会保険料 ---
-  // 厚生年金: 9.15% (標準報酬月額65万＝年収780万で上限)
-  const pension = Math.min(grossIncome, 780) * 0.0915;
-  // 健康保険: 5% (標準報酬月額上限 ≈ 年収1390万)
-  const health = Math.min(grossIncome, 1390) * 0.05;
-  // 雇用保険: 0.6%
-  const employment = grossIncome * 0.006;
-  const socialInsurance = pension + health + employment;
-
-  // --- 3. 基礎控除 (高所得者は段階的に縮小) ---
-  const totalIncome = grossIncome - employmentDeduction; // 合計所得金額
-  let basicDeduction: number;
-  if (totalIncome <= 2400) {
-    basicDeduction = 48;
-  } else if (totalIncome <= 2450) {
-    basicDeduction = 32;
-  } else if (totalIncome <= 2500) {
-    basicDeduction = 16;
-  } else {
-    basicDeduction = 0;
-  }
-
-  // --- 4. 課税所得 ---
-  const taxableIncome = Math.max(0, grossIncome - employmentDeduction - basicDeduction - socialInsurance);
-
-  // --- 5. 所得税 (累進課税) ---
-  let incomeTax = 0;
-  const brackets: [number, number][] = [
-    [195, 0.05],
-    [330, 0.10],
-    [695, 0.20],
-    [900, 0.23],
-    [1800, 0.33],
-    [4000, 0.40],
-    [Infinity, 0.45],
-  ];
-  let prev = 0;
-  for (const [limit, rate] of brackets) {
-    if (taxableIncome <= prev) break;
-    const taxable = Math.min(taxableIncome, limit) - prev;
-    incomeTax += taxable * rate;
-    prev = limit;
-  }
-  // 復興特別所得税 2.1%
-  incomeTax *= 1.021;
-
-  // --- 6. 住民税 (10%) ---
-  const residentTax = taxableIncome * 0.10;
-
-  // --- 7. 実効税率 ---
-  const totalTax = incomeTax + residentTax + socialInsurance;
-  return (totalTax / grossIncome) * 100;
-}
-
-/**
- * プロファイルから推定実効税率を取得する。
- * useAutoTaxRate=true の場合は自動計算、false の場合は手動入力値を返す。
- */
-export function getEstimatedTaxRates(profile: Profile): { main: number; partner: number; combined: number } {
-  const mainGross = profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet;
-  const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
-
-  if (!profile.useAutoTaxRate) {
-    return {
-      main: profile.effectiveTaxRate,
-      partner: profile.effectiveTaxRate,
-      combined: profile.effectiveTaxRate,
-    };
-  }
-
-  const mainRate = mainGross > 0 ? calculateEffectiveTaxRate(mainGross) : 0;
-  const partnerRate = partnerGross > 0 ? calculateEffectiveTaxRate(partnerGross) : 0;
-
-  // Weighted average for display
-  const totalGross = mainGross + partnerGross;
-  const combined = totalGross > 0
-    ? (mainGross * mainRate + partnerGross * partnerRate) / totalGross
-    : 0;
-
-  return { main: mainRate, partner: partnerRate, combined };
-}
-
-// ============================================================
-// Pension Calculation
-// ============================================================
-
-/**
- * 個人の年金額を年収・退職年齢から概算する（万円/年）。
- * 加入期間 = 20歳〜min(retireAge, 60) （最大40年）
- * 基礎年金: 80万/年 × (加入年数/40)
- * 厚生年金: 平均標準報酬月額 × 5.481/1000 × 加入月数
- * 標準報酬月額上限: 65万（年収780万相当）
- * キャリア平均年収 ≈ 現在年収 × 0.75（若年期の低収入を考慮）
- */
-/**
- * ライフイベントを考慮した加入期間の平均年収を計算する。
- * 年金の報酬比例部分は加入期間全体の平均標準報酬月額で決まるため、
- * 途中の収入変動を加重平均で反映させる。
- *
- * - 22歳〜currentAge は baseGrossIncome で働いていたと仮定（過去の収入は不明）
- * - currentAge〜retireAge はライフイベントの影響を反映
- * - RSU は含める（総報酬制）、sideIncomeNet は含めない（事業所得は厚生年金対象外）
- */
-function calculateAverageGrossIncome(
-  baseGrossIncome: number,
-  lifeEvents: LifeEvent[],
-  currentAge: number,
-  retireAge: number,
-  target: 'self' | 'partner'
-): number {
-  const CAREER_START_AGE = 22;
-  const pensionEndAge = Math.min(retireAge, 60);
-  const totalYears = Math.max(0, pensionEndAge - CAREER_START_AGE);
-  if (totalYears === 0) return baseGrossIncome;
-
-  let totalIncome = 0;
-
-  for (let age = CAREER_START_AGE; age < pensionEndAge; age++) {
-    let yearlyIncome = baseGrossIncome;
-
-    // currentAge 以降のみライフイベントを適用
-    if (age >= currentAge) {
-      for (const event of lifeEvents) {
-        const eventTarget = event.target || 'self';
-        if (eventTarget !== target) continue;
-        if (event.type !== 'income_increase' && event.type !== 'income_decrease') continue;
-
-        if (age >= event.age) {
-          const endAge = event.duration ? event.age + event.duration : 999;
-          if (age < endAge) {
-            if (event.type === 'income_increase') {
-              yearlyIncome += event.amount;
-            } else {
-              yearlyIncome -= event.amount;
-            }
-          }
-        }
-      }
-    }
-
-    totalIncome += Math.max(0, yearlyIncome);
-  }
-
-  return totalIncome / totalYears;
-}
-
-function calculatePersonPension(grossIncome: number, retireAge: number): number {
-  if (grossIncome <= 0) return 0;
-
-  // 加入期間: 20歳〜min(retireAge, 60), 最大40年
-  const contributionYears = Math.max(0, Math.min(retireAge, 60) - 20);
-  const cappedYears = Math.min(contributionYears, 40);
-  const contributionMonths = cappedYears * 12;
-
-  // 基礎年金: 80万/年（満額）× 加入年数/40
-  const basicPension = 80 * cappedYears / 40;
-
-  // 厚生年金 報酬比例部分:
-  // 標準報酬月額上限 = 65万（年収780万 ÷ 12）
-  const avgMonthly = Math.min(grossIncome / 12, 65);
-  const proportional = avgMonthly * 5.481 / 1000 * contributionMonths;
-
-  return Math.round(basicPension + proportional);
-}
-
-/**
- * 世帯の年間年金額を計算する（万円/年）。
- * 本人 + 配偶者（coupleモードの場合）をそれぞれ個別計算。
- * ライフイベントによる収入変動を加入期間の加重平均年収に反映する。
- */
-export function calculateAnnualPension(profile: Profile): number {
-  const selfAvg = calculateAverageGrossIncome(
-    profile.grossIncome + profile.rsuAnnual,
-    profile.lifeEvents,
-    profile.currentAge,
-    profile.targetRetireAge,
-    'self'
-  );
-  let total = calculatePersonPension(selfAvg, profile.targetRetireAge);
-
-  if (profile.mode === 'couple') {
-    const partnerAvg = calculateAverageGrossIncome(
-      profile.partnerGrossIncome + profile.partnerRsuAnnual,
-      profile.lifeEvents,
-      profile.currentAge,
-      profile.targetRetireAge,
-      'partner'
-    );
-    total += calculatePersonPension(partnerAvg, profile.targetRetireAge);
-  }
-  return total;
-}
+// Pension calculation functions moved to calc-core.ts
+// Re-exported above for backward compatibility
 
 // ============================================================
 // Simulation Helpers
@@ -329,130 +124,9 @@ function randomNormal(mean: number, stdDev: number): number {
   return mean + z * stdDev;
 }
 
-// Calculate income adjustment from life events at a given age, filtered by target
-function calculateIncomeAdjustment(profile: Profile, age: number, target: 'self' | 'partner'): number {
-  let adjustment = 0;
-  for (const event of profile.lifeEvents) {
-    const eventTarget = event.target || 'self';
-    if (eventTarget !== target) continue;
-    if (age >= event.age) {
-      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
-      if (age < endAge) {
-        if (event.type === 'income_increase') {
-          adjustment += event.amount;
-        } else if (event.type === 'income_decrease') {
-          adjustment -= event.amount;
-        }
-      }
-    }
-  }
-  return adjustment;
-}
+// Income calculation functions moved to calc-core.ts (calculateNetIncomeForAge)
 
-// Calculate rental income from life events at a given age (applies pre- and post-retirement)
-function calculateRentalIncome(profile: Profile, age: number): number {
-  let rental = 0;
-  for (const event of profile.lifeEvents) {
-    if (event.type !== 'rental_income') continue;
-    if (age >= event.age) {
-      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
-      if (age < endAge) {
-        rental += event.amount;
-      }
-    }
-  }
-  return rental;
-}
-
-// Calculate net income after tax (per-person tax, pension, income events)
-function calculateNetIncome(profile: Profile, age: number): number {
-  const isRetired = age >= profile.targetRetireAge;
-  const rentalIncome = calculateRentalIncome(profile, age);
-
-  if (isRetired) {
-    // Post-retirement: pension (from age 65) + passive income + rental income + business income
-    const pensionAge = 65;
-    const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
-
-    // 退職後事業収入（顧問・コンサル等）: postRetireIncomeEndAge まで、実効税率20%固定
-    const postRetireGross = (profile.postRetireIncome ?? 0);
-    const postRetireEndAge = (profile.postRetireIncomeEndAge ?? 75);
-    const postRetireNet = (postRetireGross > 0 && age < postRetireEndAge)
-      ? postRetireGross * 0.8
-      : 0;
-
-    return pension + profile.retirePassiveIncome + rentalIncome + postRetireNet;
-  }
-
-  // Pre-retirement: gross income + income events → per-person tax
-  const selfAdj = calculateIncomeAdjustment(profile, age, 'self');
-
-  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + selfAdj);
-  const mainRate = profile.useAutoTaxRate
-    ? calculateEffectiveTaxRate(mainGross)
-    : profile.effectiveTaxRate;
-  let netIncome = mainGross * (1 - mainRate / 100);
-
-  if (profile.mode === 'couple') {
-    const partnerAdj = calculateIncomeAdjustment(profile, age, 'partner');
-    const partnerGross = Math.max(0, profile.partnerGrossIncome + profile.partnerRsuAnnual + partnerAdj);
-    const partnerRate = profile.useAutoTaxRate
-      ? calculateEffectiveTaxRate(partnerGross)
-      : profile.effectiveTaxRate;
-    netIncome += partnerGross * (1 - partnerRate / 100);
-  }
-
-  // Add rental income (separate from employment income, applies as net)
-  netIncome += rentalIncome;
-
-  return netIncome;
-}
-
-// Calculate annual expenses with inflation
-// inflationFactor: (1 + rate)^yearsElapsed — applied to living costs & rent, not mortgage
-function calculateExpenses(
-  profile: Profile,
-  age: number,
-  inflationFactor: number = 1,
-  housingOverrides?: { homeStatus: HomeStatus; housingCostAnnual: number }
-): number {
-  const isRetired = age >= profile.targetRetireAge;
-
-  // Housing cost: rent inflates at rentInflationRate, mortgage stays nominal
-  const homeStatus = housingOverrides?.homeStatus ?? profile.homeStatus;
-  const housingCostBase = housingOverrides?.housingCostAnnual ?? profile.housingCostAnnual;
-  const isOwner = homeStatus === 'owner' || homeStatus === 'relocating';
-  const yearsElapsed = age - profile.currentAge;
-  const rentInflation = profile.rentInflationRate ?? profile.inflationRate;
-  const rentInflationFactor = Math.pow(1 + rentInflation / 100, yearsElapsed);
-  const housingCost = isOwner
-    ? housingCostBase                         // Mortgage+maintenance: nominal fixed
-    : housingCostBase * rentInflationFactor;  // Rent: inflates at rentInflationRate
-
-  // Living costs inflate
-  let baseExpenses = profile.livingCostAnnual * inflationFactor + housingCost;
-
-  // Life event amounts also inflate (they're defined in today's 万円)
-  for (const event of profile.lifeEvents) {
-    if (age >= event.age) {
-      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
-      if (age < endAge) {
-        if (event.type === 'expense_increase') {
-          baseExpenses += event.amount * inflationFactor;
-        } else if (event.type === 'expense_decrease') {
-          baseExpenses -= event.amount * inflationFactor;
-        }
-      }
-    }
-  }
-
-  // Retired lifestyle adjustment (applied after inflation)
-  if (isRetired) {
-    baseExpenses *= profile.retireSpendingMultiplier;
-  }
-
-  return Math.max(0, baseExpenses);
-}
+// Expense calculation function moved to calc-core.ts (calculateExpensesForAge)
 
 // Run a single simulation path
 function runSingleSimulation(profile: Profile): AssetPoint[] {
@@ -535,8 +209,8 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
     const inflationFactor = Math.pow(1 + inflationRate, yearsElapsed);
 
     // Calculate cash flow for this year
-    const income = calculateNetIncome(profile, age);
-    const expenses = calculateExpenses(profile, age, inflationFactor, housingOverrides);
+    const income = calculateNetIncomeForAge(profile, age);
+    const expenses = calculateExpensesForAge(profile, age, inflationFactor, housingOverrides);
     const netCashFlow = income - expenses;
 
     // Add DC contribution if working
@@ -547,12 +221,7 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
     const investmentGain = totalAssets * yearReturn;
 
     // One-time asset events (inheritance, gifts, severance, etc.)
-    let assetGain = 0;
-    for (const event of profile.lifeEvents) {
-      if (event.type === 'asset_gain' && age === event.age) {
-        assetGain += event.amount;
-      }
-    }
+    const assetGain = calculateAssetGainForAge(profile.lifeEvents, age);
 
     // Update total assets
     totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain + assetGain;
@@ -603,7 +272,7 @@ function calculateMetrics(allPaths: AssetPoint[][], profile: Profile): KeyMetric
   for (const point of medianPath) {
     const yearsElapsed = point.age - profile.currentAge;
     const inflationFactor = Math.pow(1 + inflationRate, yearsElapsed);
-    const expensesAtAge = calculateExpenses(profile, point.age, inflationFactor);
+    const expensesAtAge = calculateExpensesForAge(profile, point.age, inflationFactor);
     if (point.assets * safeWithdrawalRate >= expensesAtAge) {
       fireAge = point.age;
       break;
@@ -636,7 +305,7 @@ function calculateCashFlow(profile: Profile): CashFlowBreakdown {
   const income = profile.retirePassiveIncome + postRetireNet;
   const pension = retireAge >= pensionAge ? calculateAnnualPension(profile) : 0;
   const dividends = (profile.assetInvest * 0.03); // Assume 3% dividend yield
-  const expenses = calculateExpenses(profile, retireAge, inflationFactor);
+  const expenses = calculateExpensesForAge(profile, retireAge, inflationFactor);
 
   return {
     income,
@@ -673,7 +342,7 @@ export function computeExitScore(metrics: KeyMetrics, profile: Profile, paths: S
   // Lifestyle score: based on projected assets at retirement age
   const yearsToRetire = profile.targetRetireAge - profile.currentAge;
   const retireInflation = Math.pow(1 + profile.inflationRate / 100, yearsToRetire);
-  const targetExpenses = calculateExpenses(profile, profile.targetRetireAge, retireInflation);
+  const targetExpenses = calculateExpensesForAge(profile, profile.targetRetireAge, retireInflation);
   const retireIndex = Math.max(0, Math.min(yearsToRetire, paths.yearlyData.length - 1));
   const retireAssets = paths.yearlyData[retireIndex]?.assets ?? 0;
   const yearsOfExpenses = retireAssets > 0 ? safeNum(retireAssets / targetExpenses) : 0;
