@@ -1,12 +1,12 @@
 # フィールド↔エンジン接続監査
 
-実施日: 2025-02-18
+実施日: 2025-02-18（R01-Step2 反映: 同日）
 テスト数: 191
 
 ## サマリー
-- Profile フィールド: 32項目中 29項目 ✅、3項目 ⚠️
+- Profile フィールド: 32項目中 31項目 ✅、1項目 ⚠️（mortgageInterestRate 部分接続）
 - LifeEvent タイプ: 11種中 7種 ✅、1種 ⚠️、3種 死型
-- housing-sim 不整合: 5件（うち3件 重要度中 → R01で解消予定）
+- housing-sim 不整合: 5件 → **4件解消済**（R01-Step2）、残り1件（asset_purchase: B01で対応）
 
 ## ❌/⚠️ 一覧
 
@@ -14,10 +14,10 @@
 |---|------|------|--------|------|
 | 1 | mortgageInterestRate → engine.ts 未参照 | 部分接続 | 低 | 保留 |
 | 2 | partner income → 年金未反映 | 既知TODO | 低 | BACKLOG |
-| 3 | postRetireIncome → housing-sim 未実装 | engine/sim不整合 | 中 | R01-Step2で解消 |
-| 4 | postRetireIncomeEndAge → housing-sim 未実装 | engine/sim不整合 | 中 | R01-Step2で解消 |
-| 5 | rental_income → housing-sim 未処理 | engine/sim不整合 | 中 | R01-Step2で解消 |
-| 6 | partner income adjustment → housing-sim 未適用 | engine/sim不整合 | 低 | R01-Step2で解消 |
+| 3 | ~~postRetireIncome → housing-sim 未実装~~ | ~~engine/sim不整合~~ | ~~中~~ | ✅ R01-Step2で解消済 |
+| 4 | ~~postRetireIncomeEndAge → housing-sim 未実装~~ | ~~engine/sim不整合~~ | ~~中~~ | ✅ R01-Step2で解消済 |
+| 5 | ~~rental_income → housing-sim 未処理~~ | ~~engine/sim不整合~~ | ~~中~~ | ✅ R01-Step2で解消済 |
+| 6 | ~~partner income adjustment → housing-sim 未適用~~ | ~~engine/sim不整合~~ | ~~低~~ | ✅ R01-Step2で解消済 |
 | 7 | asset_purchase → 両エンジン未処理 | 未接続 | 低 | B01で対応 |
 | 8 | child_birth / education / retirement_partial | 死型定義 | 無 | 削除可 |
 
@@ -55,8 +55,8 @@
 | 26 | `useAutoTaxRate` | L189, L391, L399 | L223, L230 | 自動/手動税率切替 | ✅ |
 | 27 | `retireSpendingMultiplier` | L451 | L280 | 退職後支出の掛け率（0.8=生活費2割減） | ✅ |
 | 28 | `retirePassiveIncome` | L384 | L217 | 退職後の配当・不動産等パッシブ収入 | ✅ |
-| 29 | `postRetireIncome` | L378-L381 | **なし** | 退職後事業収入（engine✅、housing-sim❌） | ⚠️ 不整合 |
-| 30 | `postRetireIncomeEndAge` | L379-L380 | **なし** | 事業収入終了年齢（engine✅、housing-sim❌） | ⚠️ 不整合 |
+| 29 | `postRetireIncome` | L378-L381 | calc-core経由 | 退職後事業収入 | ✅ (R01-Step2) |
+| 30 | `postRetireIncomeEndAge` | L379-L380 | calc-core経由 | 事業収入終了年齢 | ✅ (R01-Step2) |
 | 31 | `lifeEvents` | L335-L555 | L195-L336 | 全イベントタイプを処理（下記Part2参照） | ✅ |
 | 32 | `housingPlans` | なし | なし（UI→BuyNowParams経由） | branch.ts L83 でデフォルト住宅購入パラメータ参照 | ✅ 間接接続 |
 
@@ -70,7 +70,7 @@
 | `expense_decrease` | L443 `-= amount * inflation` | L273 | preset/bundle | ✅ |
 | `asset_gain` | L552 `assetGain += amount` | L333 | preset(相続/退職金/贈与) | ✅ |
 | `housing_purchase` | L492-L525 頭金+諸費用+ローン | L305-L314 頭金+諸費用 | preset/branch | ✅ |
-| `rental_income` | L354-L364 `rental += amount` | **なし** | bundle(海外駐在+持家) | ⚠️ 不整合 |
+| `rental_income` | L354-L364 `rental += amount` | calc-core経由 | bundle(海外駐在+持家) | ✅ (R01-Step2) |
 | `asset_purchase` | **なし** | **なし** | housing-sim L579(relocate) | ❌ 未接続 |
 | `child_birth` | **なし** | **なし** | 生成されない(branch.tsがexpense_increaseに変換) | ⚠️ 死型 |
 | `education` | **なし** | **なし** | 生成されない(同上) | ⚠️ 死型 |
@@ -78,15 +78,15 @@
 
 ### Part 3: housing-sim.ts 固有の不整合
 
-engine.ts と housing-sim.ts は独立した計算ロジックを持つ。以下の差異がある：
+R01-Step2 で housing-sim.ts が calc-core.ts の共通関数を使用するようになり、4件解消。残り1件:
 
-| 項目 | engine.ts | housing-sim.ts | 影響度 |
-|------|-----------|----------------|--------|
-| `postRetireIncome` | L378-L381 退職後事業収入を加算 | 未実装 | **中** — 住宅比較で退職後収入を過小評価 |
-| `postRetireIncomeEndAge` | L379 事業収入終了年齢 | 未実装 | **中** — 同上 |
-| `rental_income` イベント | L354-L364 処理あり | 未実装 | **中** — 海外駐在バンドルの賃貸収入が住宅比較に反映されない |
-| partner income adjustment | L397 `target:'partner'` でフィルタ | L229 パートナー収入は固定値 | **低** — partner向け income_decrease が住宅比較で反映されない |
-| `asset_purchase` イベント | 未実装 | 未実装 | **低** — relocate(deferred)の資金流出が未反映 |
+| 項目 | engine.ts | housing-sim.ts | 影響度 | 状態 |
+|------|-----------|----------------|--------|------|
+| ~~`postRetireIncome`~~ | calc-core `calculateNetIncomeForAge` | calc-core 経由で処理 | ~~中~~ | ✅ 解消済 |
+| ~~`postRetireIncomeEndAge`~~ | calc-core `calculateNetIncomeForAge` | calc-core 経由で処理 | ~~中~~ | ✅ 解消済 |
+| ~~`rental_income` イベント~~ | calc-core `calculateRentalIncome` | calc-core 経由で処理 | ~~中~~ | ✅ 解消済 |
+| ~~partner income adjustment~~ | calc-core `calculateIncomeAdjustment` | calc-core 経由で処理 | ~~低~~ | ✅ 解消済 |
+| `asset_purchase` イベント | 未実装 | 未実装 | **低** | B01で対応 |
 
 ### Part 4: 分岐ビルダー eventType → LifeEvent 変換
 

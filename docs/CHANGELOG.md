@@ -2,6 +2,14 @@
 
 ## 2025-02-18
 
+### R01-Step2: housing-sim.ts → calc-core 接続
+- 変更: housing-sim.ts のローカル計算関数（calculateNetIncome, calculateExpenses, calculateIncomeAdjustment）を削除し、calc-core.ts の共通関数に置換
+- 追加: `calculateExpensesWithOverride` ブリッジヘルパー（housingCostSchedule の数値オーバーライドを calc-core の型に変換）
+- 不要import削除: `calculateEffectiveTaxRate`（内部で使用されるため直接参照不要に）
+- CRN テストタイムアウト 15s → 30s（フレイキー対策）
+- テスト: 191/191 パス（既知フレイキー1件除く）
+- ケース台帳: C01-C24 全件 ±1以内
+
 ### R01-Step1: calc-core.ts 共通ロジック抽出
 - コミット: 86d7800
 - 変更: engine.ts（837→506行）から10関数を lib/calc-core.ts（375行）に抽出

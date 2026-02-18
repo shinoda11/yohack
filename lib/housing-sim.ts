@@ -1,7 +1,12 @@
 // Housing Simulation - Rent vs Buy Comparison with CRN (Common Random Numbers)
-import type { Profile, AssetPoint, ExitScoreDetail, SimulationPath, KeyMetrics } from './types';
-import { calculateEffectiveTaxRate, calculateAnnualPension } from './engine';
+import type { Profile, AssetPoint, ExitScoreDetail, SimulationPath, KeyMetrics, HomeStatus } from './types';
 import { getScoreLevel } from './types';
+import {
+  calculateNetIncomeForAge,
+  calculateExpensesForAge,
+  calculateAssetGainForAge,
+  MAX_AGE,
+} from './calc-core';
 
 export type HousingScenarioType = 'RENT_BASELINE' | 'BUY_NOW' | 'RELOCATE';
 
@@ -185,102 +190,30 @@ export function computeYearlyHousingCosts(
   return schedule;
 }
 
-const MAX_AGE = 100;
 const SIMULATION_RUNS = 500;
 const BASE_SEED = 42;
 
-// Calculate income adjustment from life events
-function calculateIncomeAdjustment(profile: Profile, age: number): number {
-  let adjustment = 0;
-  for (const event of profile.lifeEvents) {
-    if (age >= event.age) {
-      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
-      if (age < endAge) {
-        if (event.type === 'income_increase') {
-          adjustment += event.amount;
-        } else if (event.type === 'income_decrease') {
-          adjustment -= event.amount;
-        }
-      }
-    }
-  }
-  return adjustment;
-}
+// Income, expense, and asset event calculations are in calc-core.ts
 
-// Calculate net income after tax (per-person tax, pension, income events)
-function calculateNetIncome(profile: Profile, age: number): number {
-  const isRetired = age >= profile.targetRetireAge;
-
-  if (isRetired) {
-    const pensionAge = 65;
-    const pension = age >= pensionAge ? calculateAnnualPension(profile) : 0;
-    return pension + profile.retirePassiveIncome;
-  }
-
-  const incomeAdj = calculateIncomeAdjustment(profile, age);
-
-  const mainGross = Math.max(0, profile.grossIncome + profile.rsuAnnual + profile.sideIncomeNet + incomeAdj);
-  const mainRate = profile.useAutoTaxRate
-    ? calculateEffectiveTaxRate(mainGross)
-    : profile.effectiveTaxRate;
-  let netIncome = mainGross * (1 - mainRate / 100);
-
-  if (profile.mode === 'couple') {
-    const partnerGross = profile.partnerGrossIncome + profile.partnerRsuAnnual;
-    const partnerRate = profile.useAutoTaxRate
-      ? calculateEffectiveTaxRate(partnerGross)
-      : profile.effectiveTaxRate;
-    netIncome += partnerGross * (1 - partnerRate / 100);
-  }
-
-  return netIncome;
-}
-
-// Calculate annual expenses with inflation
-// housingCostOverride: if provided, replaces the standard housing cost calculation for that year
-function calculateExpenses(
+/**
+ * housing-sim用の支出計算ヘルパー。
+ * housingCostSchedule からのオーバーライド値がある場合、
+ * homeStatus='owner' として渡すことで家賃インフレを回避する。
+ */
+function calculateExpensesWithOverride(
   profile: Profile,
   age: number,
-  inflationFactor: number = 1,
+  inflationFactor: number,
   housingCostOverride?: number
 ): number {
-  const isRetired = age >= profile.targetRetireAge;
-
-  let housingCost: number;
   if (housingCostOverride !== undefined) {
-    housingCost = housingCostOverride;
-  } else {
-    const isOwner = profile.homeStatus === 'owner' || profile.homeStatus === 'relocating';
-    if (isOwner) {
-      housingCost = profile.housingCostAnnual;
-    } else {
-      const yearsElapsed = age - profile.currentAge;
-      const rentInflation = profile.rentInflationRate ?? profile.inflationRate;
-      const rentInflationFactor = Math.pow(1 + rentInflation / 100, yearsElapsed);
-      housingCost = profile.housingCostAnnual * rentInflationFactor;
-    }
+    const overrides: { homeStatus: HomeStatus; housingCostAnnual: number } = {
+      homeStatus: 'owner',
+      housingCostAnnual: housingCostOverride,
+    };
+    return calculateExpensesForAge(profile, age, inflationFactor, overrides);
   }
-
-  let baseExpenses = profile.livingCostAnnual * inflationFactor + housingCost;
-
-  for (const event of profile.lifeEvents) {
-    if (age >= event.age) {
-      const endAge = event.duration ? event.age + event.duration : MAX_AGE;
-      if (age < endAge) {
-        if (event.type === 'expense_increase') {
-          baseExpenses += event.amount * inflationFactor;
-        } else if (event.type === 'expense_decrease') {
-          baseExpenses -= event.amount * inflationFactor;
-        }
-      }
-    }
-  }
-
-  if (isRetired) {
-    baseExpenses *= profile.retireSpendingMultiplier;
-  }
-
-  return Math.max(0, baseExpenses);
+  return calculateExpensesForAge(profile, age, inflationFactor);
 }
 
 // Run single simulation with seeded random
@@ -317,9 +250,9 @@ function runSingleSimulationSeeded(
     const yearsElapsed = age - profile.currentAge;
     const inflationFactor = Math.pow(1 + inflationRate, yearsElapsed);
 
-    const income = calculateNetIncome(profile, age);
+    const income = calculateNetIncomeForAge(profile, age);
     const housingOverride = housingCostSchedule?.[yearsElapsed];
-    const expenses = calculateExpenses(profile, age, inflationFactor, housingOverride);
+    const expenses = calculateExpensesWithOverride(profile, age, inflationFactor, housingOverride);
     const netCashFlow = income - expenses;
 
     const dcContrib = age < profile.targetRetireAge ? profile.dcContributionAnnual : 0;
@@ -328,12 +261,7 @@ function runSingleSimulationSeeded(
     const investmentGain = totalAssets * yearReturn;
 
     // One-time asset events (inheritance, gifts, severance, etc.)
-    let assetGain = 0;
-    for (const event of profile.lifeEvents) {
-      if (event.type === 'asset_gain' && age === event.age) {
-        assetGain += event.amount;
-      }
-    }
+    const assetGain = calculateAssetGainForAge(profile.lifeEvents, age);
 
     totalAssets = totalAssets + netCashFlow + dcContrib + investmentGain + assetGain;
 
@@ -409,7 +337,7 @@ function runSimulationWithSeed(
     const yearsElapsed = point.age - profile.currentAge;
     const inflationFactor = Math.pow(1 + profile.inflationRate / 100, yearsElapsed);
     const housingOverride = housingCostSchedule?.[yearsElapsed];
-    const expensesAtAge = calculateExpenses(profile, point.age, inflationFactor, housingOverride);
+    const expensesAtAge = calculateExpensesWithOverride(profile, point.age, inflationFactor, housingOverride);
     if (point.assets * safeWithdrawalRate >= expensesAtAge) {
       fireAge = point.age;
       break;
@@ -430,7 +358,7 @@ function runSimulationWithSeed(
   const yearsToRetire = profile.targetRetireAge - profile.currentAge;
   const retireInflationFactor = Math.pow(1 + profile.inflationRate / 100, yearsToRetire);
   const retireHousingOverride = housingCostSchedule?.[yearsToRetire];
-  const targetExpenses = calculateExpenses(profile, profile.targetRetireAge, retireInflationFactor, retireHousingOverride);
+  const targetExpenses = calculateExpensesWithOverride(profile, profile.targetRetireAge, retireInflationFactor, retireHousingOverride);
   const retireIndex = Math.max(0, Math.min(yearsToRetire, paths.yearlyData.length - 1));
   const retireAssets = paths.yearlyData[retireIndex]?.assets ?? 0;
   const yearsOfExpenses = retireAssets > 0 && targetExpenses > 0 ? retireAssets / targetExpenses : 0;

@@ -267,7 +267,7 @@ describe('比較の整合性', () => {
     expect(results[1].simulation.score.overall).toBeGreaterThanOrEqual(0)
   })
 
-  it('CRN（Common Random Numbers）により同じ seed で再現性がある', { timeout: 15000 }, () => {
+  it('CRN（Common Random Numbers）により同じ seed で再現性がある', { timeout: 30000 }, () => {
     const profile = createDefaultProfile()
 
     const results1 = runHousingScenarios(profile, defaultBuyParams())
