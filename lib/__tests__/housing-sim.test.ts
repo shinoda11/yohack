@@ -5,7 +5,7 @@ import {
   computeMonthlyPaymentManYen,
   computeYearlyHousingCosts,
 } from '../housing-sim'
-import type { BuyNowParams, RelocateParams } from '../housing-sim'
+import type { BuyNowParams, RelocateParams, RateStep } from '../housing-sim'
 import { createDefaultProfile } from '../engine'
 import type { Profile } from '../types'
 
@@ -435,5 +435,399 @@ describe('computeMonthlyPaymentManYen', () => {
     // 月額は 10〜15万円程度が妥当
     expect(monthly).toBeGreaterThan(10)
     expect(monthly).toBeLessThan(15)
+  })
+
+  it('4000万円, 1.5%, 35年の月額返済額が ±1% 精度で正しい', () => {
+    const monthly = computeMonthlyPaymentManYen(4000, 1.5, 35)
+    // 理論値: 約 12.245万円/月
+    const expected = 12.245
+    const tolerance = expected * 0.01
+    expect(monthly).toBeGreaterThan(expected - tolerance)
+    expect(monthly).toBeLessThan(expected + tolerance)
+  })
+
+  it('6800万円, 0.5%, 35年の月額返済額が ±1% 精度で正しい', () => {
+    const monthly = computeMonthlyPaymentManYen(6800, 0.5, 35)
+    // 理論値: 約 17.65万円/月
+    const expected = 17.65
+    const tolerance = expected * 0.01
+    expect(monthly).toBeGreaterThan(expected - tolerance)
+    expect(monthly).toBeLessThan(expected + tolerance)
+  })
+
+  it('高金利（3.0%）でも正しく計算される', () => {
+    const monthly = computeMonthlyPaymentManYen(5000, 3.0, 35)
+    // 月額は金利が上がるほど増加する
+    const lowRate = computeMonthlyPaymentManYen(5000, 1.0, 35)
+    expect(monthly).toBeGreaterThan(lowRate)
+    // 5000万円 3.0% 35年 → 約19.3万円/月
+    expect(monthly).toBeGreaterThan(18)
+    expect(monthly).toBeLessThan(21)
+  })
+})
+
+// ============================================================
+// 8. 変動金利モデル（rateSteps）詳細テスト
+// ============================================================
+
+describe('変動金利モデル（rateSteps）', () => {
+  const FULL_RATE_STEPS: RateStep[] = [
+    { year: 0, rate: 0.5 },
+    { year: 5, rate: 0.8 },
+    { year: 10, rate: 1.1 },
+    { year: 15, rate: 1.5 },
+    { year: 20, rate: 1.8 },
+    { year: 25, rate: 2.0 },
+    { year: 30, rate: 2.3 },
+  ]
+
+  it('ステップアップ毎に年間コストが増加する', () => {
+    const params = defaultBuyParams({
+      propertyPrice: 8500,
+      downPayment: 1700,
+      interestRate: 0.5,
+      mortgageYears: 35,
+      ownerAnnualCost: 60,
+      ownerCostEscalation: 0,
+      rateSteps: FULL_RATE_STEPS,
+    })
+    const schedule = computeYearlyHousingCosts(params, 40)
+
+    // 各ステップアップ境界でコスト増加
+    expect(schedule[5]).toBeGreaterThan(schedule[0])
+    expect(schedule[10]).toBeGreaterThan(schedule[5])
+    expect(schedule[15]).toBeGreaterThan(schedule[10])
+    expect(schedule[20]).toBeGreaterThan(schedule[15])
+  })
+
+  it('30年目以降もローン期間内ならコストが発生し、cap 2.3% で頭打ちになる', () => {
+    const params = defaultBuyParams({
+      propertyPrice: 6800,
+      downPayment: 0,
+      interestRate: 0.5,
+      mortgageYears: 35,
+      ownerAnnualCost: 0,
+      ownerCostEscalation: 0,
+      rateSteps: FULL_RATE_STEPS,
+    })
+    const schedule = computeYearlyHousingCosts(params, 40)
+
+    // Year 30-34: cap 2.3% でローン返済あり
+    expect(schedule[30]).toBeGreaterThan(0)
+    expect(schedule[34]).toBeGreaterThan(0)
+    // Year 30 と Year 34 は同一金利（2.3%）なので大きく変わらない
+    // （残高減少による微減のみ）
+    const ratio = schedule[34] / schedule[30]
+    expect(ratio).toBeGreaterThan(0.8)
+    expect(ratio).toBeLessThanOrEqual(1.0)
+    // Year 35+: ローン完済、ownerAnnualCost=0 なので 0
+    expect(schedule[35]).toBeCloseTo(0, 1)
+  })
+
+  it('固定金利と初期同率の変動金利で year 0 は同じコスト', () => {
+    const fixedParams = defaultBuyParams({
+      interestRate: 0.5,
+      ownerAnnualCost: 50,
+      ownerCostEscalation: 0,
+    })
+    const variableParams = defaultBuyParams({
+      interestRate: 0.5,
+      ownerAnnualCost: 50,
+      ownerCostEscalation: 0,
+      rateSteps: [{ year: 0, rate: 0.5 }],
+    })
+
+    const fixedSchedule = computeYearlyHousingCosts(fixedParams, 5)
+    const variableSchedule = computeYearlyHousingCosts(variableParams, 5)
+
+    expect(variableSchedule[0]).toBeCloseTo(fixedSchedule[0], 2)
+  })
+
+  it('ステップアップで月額返済額が再計算され、大幅増が反映される', () => {
+    const params = defaultBuyParams({
+      propertyPrice: 5000,
+      downPayment: 1000,
+      interestRate: 0.5,
+      mortgageYears: 35,
+      ownerAnnualCost: 0,
+      ownerCostEscalation: 0,
+      rateSteps: [
+        { year: 0, rate: 0.5 },
+        { year: 5, rate: 2.0 },
+      ],
+    })
+    const schedule = computeYearlyHousingCosts(params, 10)
+
+    // 0.5% → 2.0% のジャンプで 10% 以上増加するはず
+    expect(schedule[5]).toBeGreaterThan(schedule[4] * 1.1)
+  })
+
+  it('rateSteps が年順でなくてもソートされて正しく適用される', () => {
+    const params = defaultBuyParams({
+      interestRate: 0.5,
+      ownerAnnualCost: 0,
+      ownerCostEscalation: 0,
+      rateSteps: [
+        { year: 10, rate: 1.5 },
+        { year: 0, rate: 0.5 },
+        { year: 5, rate: 1.0 },
+      ],
+    })
+    const schedule = computeYearlyHousingCosts(params, 15)
+
+    // year 0-4: 0.5%, year 5-9: 1.0%, year 10+: 1.5%
+    expect(schedule[5]).toBeGreaterThan(schedule[0])
+    expect(schedule[10]).toBeGreaterThan(schedule[5])
+  })
+})
+
+// ============================================================
+// 9. BUY_NOW 詳細テスト
+// ============================================================
+
+describe('BUY_NOW 詳細', () => {
+  it('ローン完済後は維持費のみになる', () => {
+    const mortgageYears = 10
+    const ownerAnnualCost = 60
+    const params = defaultBuyParams({
+      mortgageYears,
+      ownerAnnualCost,
+      ownerCostEscalation: 0,
+    })
+    const schedule = computeYearlyHousingCosts(params, 20)
+
+    // ローン期間中（year 0）: ローン返済 + 維持費
+    expect(schedule[0]).toBeGreaterThan(ownerAnnualCost)
+    // ローン完済後（year 10+）: 維持費のみ
+    expect(schedule[10]).toBeCloseTo(ownerAnnualCost, 0)
+    expect(schedule[15]).toBeCloseTo(ownerAnnualCost, 0)
+    expect(schedule[19]).toBeCloseTo(ownerAnnualCost, 0)
+  })
+
+  it('維持費逓増（1.5%/年）が正しく効く', () => {
+    const params = defaultBuyParams({
+      mortgageYears: 5,
+      ownerAnnualCost: 100,
+      ownerCostEscalation: 1.5,
+    })
+    const schedule = computeYearlyHousingCosts(params, 30)
+
+    // Year 10: 100 * (1.015)^10 ≈ 116.1
+    expect(schedule[10]).toBeCloseTo(100 * Math.pow(1.015, 10), 0)
+    // Year 20: 100 * (1.015)^20 ≈ 134.7
+    expect(schedule[20]).toBeCloseTo(100 * Math.pow(1.015, 20), 0)
+    // Year 29: 100 * (1.015)^29 ≈ 153.7
+    expect(schedule[29]).toBeCloseTo(100 * Math.pow(1.015, 29), 0)
+  })
+
+  it('totalCost40Years = 頭金+諸費用+住宅コストスケジュール合計', () => {
+    const profile = createDefaultProfile()
+    const buyParams = defaultBuyParams({
+      propertyPrice: 5000,
+      downPayment: 1000,
+      purchaseCostRate: 7,
+      ownerCostEscalation: 0,
+    })
+    const results = runHousingScenarios(profile, buyParams)
+    const buyResult = results[1]
+
+    const purchaseOutflow = buyParams.downPayment +
+      buyParams.propertyPrice * (buyParams.purchaseCostRate / 100)
+    const totalYears = 100 - profile.currentAge + 1
+    const schedule = computeYearlyHousingCosts(buyParams, totalYears)
+    const schedule40Sum = schedule.slice(0, 40).reduce((s, c) => s + c, 0)
+
+    expect(buyResult.totalCost40Years).toBe(
+      Math.round(purchaseOutflow + schedule40Sum)
+    )
+  })
+
+  it('monthlyPayment = ローン月額 + 管理費月額', () => {
+    const buyParams = defaultBuyParams()
+    const loanPrincipal = buyParams.propertyPrice - buyParams.downPayment
+    const expectedMonthly = computeMonthlyPaymentManYen(
+      loanPrincipal, buyParams.interestRate, buyParams.mortgageYears
+    )
+    const expectedTotal = expectedMonthly + buyParams.ownerAnnualCost / 12
+
+    const results = runHousingScenarios(createDefaultProfile(), buyParams)
+    expect(results[1].monthlyPayment).toBeCloseTo(expectedTotal, 4)
+  })
+})
+
+// ============================================================
+// 10. 累積コスト比較（Rent vs Buy）
+// ============================================================
+
+describe('累積コスト比較', () => {
+  it('高金利購入は賃貸より40年総コストが高い', () => {
+    const profile = profileWith({
+      housingCostAnnual: 180,
+      rentInflationRate: 0.5,
+    })
+    const buyParams = defaultBuyParams({
+      propertyPrice: 8000,
+      downPayment: 1000,
+      interestRate: 3.0,
+      mortgageYears: 35,
+      ownerAnnualCost: 80,
+    })
+    const results = runHousingScenarios(profile, buyParams)
+    const rent = results[0]
+    const buy = results[1]
+
+    // 3% 金利で 7000万ローン → 賃貸より高い
+    expect(buy.totalCost40Years).toBeGreaterThan(rent.totalCost40Years)
+  })
+
+  it('assetsAt60 が両シナリオで数値', () => {
+    const results = runHousingScenarios(createDefaultProfile(), defaultBuyParams())
+    expect(typeof results[0].assetsAt60).toBe('number')
+    expect(typeof results[1].assetsAt60).toBe('number')
+  })
+
+  it('score.overall が両シナリオで 0-100 の範囲', () => {
+    const results = runHousingScenarios(createDefaultProfile(), defaultBuyParams())
+    for (const r of results) {
+      expect(r.simulation.score.overall).toBeGreaterThanOrEqual(0)
+      expect(r.simulation.score.overall).toBeLessThanOrEqual(100)
+    }
+  })
+
+  it('safeFireAge が null でなければ currentAge 以上 70 以下', () => {
+    const profile = createDefaultProfile()
+    const results = runHousingScenarios(profile, defaultBuyParams())
+    for (const r of results) {
+      if (r.safeFireAge !== null) {
+        expect(r.safeFireAge).toBeGreaterThanOrEqual(profile.currentAge)
+        expect(r.safeFireAge).toBeLessThanOrEqual(70)
+      }
+    }
+  })
+
+  it('yearlyData の各年で age が連続する', () => {
+    const profile = createDefaultProfile()
+    const results = runHousingScenarios(profile, defaultBuyParams())
+    for (const r of results) {
+      const data = r.simulation.paths.yearlyData
+      for (let i = 1; i < data.length; i++) {
+        expect(data[i].age).toBe(data[i - 1].age + 1)
+      }
+    }
+  })
+})
+
+// ============================================================
+// 11. C01 ケース（年収 2,400万・物件 8,500万）
+// ============================================================
+
+describe('C01 ケース（年収 2,400万・物件 8,500万）', { timeout: 30000 }, () => {
+  const c01Profile = profileWith({
+    currentAge: 35,
+    targetRetireAge: 65,
+    mode: 'couple',
+    grossIncome: 1500,
+    partnerGrossIncome: 900,
+    assetCash: 500,
+    assetInvest: 2000,
+    assetDefinedContributionJP: 300,
+    livingCostAnnual: 360,
+    housingCostAnnual: 240,
+    expectedReturn: 5,
+    inflationRate: 2,
+    rentInflationRate: 0.5,
+    volatility: 0.15,
+    homeStatus: 'renter' as const,
+  })
+
+  const c01BuyParams: BuyNowParams = {
+    propertyPrice: 8500,
+    downPayment: 1700,
+    purchaseCostRate: 7,
+    mortgageYears: 35,
+    interestRate: 0.5,
+    ownerAnnualCost: 80,
+    buyAfterYears: 0,
+    rateSteps: [
+      { year: 0, rate: 0.5 },
+      { year: 5, rate: 0.8 },
+      { year: 10, rate: 1.1 },
+      { year: 15, rate: 1.5 },
+      { year: 20, rate: 1.8 },
+      { year: 25, rate: 2.0 },
+      { year: 30, rate: 2.3 },
+    ],
+    ownerCostEscalation: 1.5,
+  }
+
+  it('賃貸ベースラインが実行でき survivalRate > 0', () => {
+    const results = runHousingScenarios(c01Profile, null)
+    expect(results[0].type).toBe('RENT_BASELINE')
+    expect(results[0].simulation.metrics.survivalRate).toBeGreaterThan(0)
+  })
+
+  it('8,500万物件の購入シナリオが実行できる', () => {
+    const results = runHousingScenarios(c01Profile, c01BuyParams)
+    expect(results).toHaveLength(2)
+    expect(results[1].type).toBe('BUY_NOW')
+    expect(results[1].simulation.metrics.survivalRate).toBeGreaterThanOrEqual(0)
+  })
+
+  it('初期月額返済額が ±1% 精度で正しい', () => {
+    const loanPrincipal = 8500 - 1700 // 6800万
+    const monthly = computeMonthlyPaymentManYen(loanPrincipal, 0.5, 35)
+    // 6800万, 0.5%, 35年 → 理論値 約17.65万円/月
+    const expected = 17.65
+    const tolerance = expected * 0.01
+    expect(monthly).toBeGreaterThan(expected - tolerance)
+    expect(monthly).toBeLessThan(expected + tolerance)
+  })
+
+  it('頭金+諸費用が資産から正しく差し引かれる', () => {
+    const results = runHousingScenarios(c01Profile, c01BuyParams)
+    const buyProfile = results[1].scenarioProfile
+    const originalTotal = c01Profile.assetCash + c01Profile.assetInvest
+    const buyTotal = buyProfile.assetCash + buyProfile.assetInvest
+    // 1700 + 8500 * 0.07 = 1700 + 595 = 2295万
+    const purchaseOutflow = 1700 + 8500 * 0.07
+    expect(purchaseOutflow).toBe(2295)
+    expect(buyTotal).toBeCloseTo(originalTotal - purchaseOutflow, 1)
+  })
+
+  it('変動金利スケジュールで 66年間のコストが計算できる', () => {
+    const totalYears = 100 - 35 + 1 // 66年
+    const schedule = computeYearlyHousingCosts(c01BuyParams, totalYears)
+
+    expect(schedule).toHaveLength(totalYears)
+    expect(schedule[0]).toBeGreaterThan(0)
+    // ローン完済後（year 35+）はコスト大幅減
+    expect(schedule[35]).toBeLessThan(schedule[34])
+  })
+
+  it('CRN 再現性', () => {
+    const r1 = runHousingScenarios(c01Profile, c01BuyParams)
+    const r2 = runHousingScenarios(c01Profile, c01BuyParams)
+
+    expect(r1[0].simulation.metrics.survivalRate)
+      .toBe(r2[0].simulation.metrics.survivalRate)
+    expect(r1[1].simulation.metrics.survivalRate)
+      .toBe(r2[1].simulation.metrics.survivalRate)
+    expect(r1[1].totalCost40Years).toBe(r2[1].totalCost40Years)
+  })
+
+  it('高収入世帯の賃貸 survivalRate が高い（>= 50%）', () => {
+    const results = runHousingScenarios(c01Profile, null)
+    // 世帯年収 2,400万 → 賃貸で生存率が低いことはない
+    expect(results[0].simulation.metrics.survivalRate).toBeGreaterThanOrEqual(50)
+  })
+
+  it('paths.yearlyData が currentAge から 100 歳まで', () => {
+    const results = runHousingScenarios(c01Profile, c01BuyParams)
+    for (const r of results) {
+      const data = r.simulation.paths.yearlyData
+      expect(data[0].age).toBe(35)
+      expect(data[data.length - 1].age).toBe(100)
+      expect(data.length).toBe(66) // 35〜100歳
+    }
   })
 })
