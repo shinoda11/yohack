@@ -28,6 +28,7 @@ interface EventCustomizeDialogProps {
   profile: Profile;
   onSave: (branch: Branch) => void;
   onDelete?: () => void;
+  onHide?: () => void;
 }
 
 export function EventCustomizeDialog({
@@ -38,6 +39,7 @@ export function EventCustomizeDialog({
   profile,
   onSave,
   onDelete,
+  onHide,
 }: EventCustomizeDialogProps) {
   const isEditing = !!existingBranch;
 
@@ -213,6 +215,20 @@ export function EventCustomizeDialog({
             >
               <Trash2 className="h-4 w-4 mr-1" />
               削除
+            </Button>
+          )}
+          {isEditing && onHide && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                onHide();
+                onOpenChange(false);
+              }}
+              className="text-muted-foreground hover:text-foreground mr-auto"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              非表示にする
             </Button>
           )}
           <Button

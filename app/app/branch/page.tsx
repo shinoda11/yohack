@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Eye } from 'lucide-react';
 import { useProfileStore, type SavedScenario } from '@/lib/store';
 import {
   createDefaultBranches,
@@ -36,6 +36,8 @@ export default function BranchPage() {
     removeCustomBranch,
     updateCustomBranch,
     hiddenDefaultBranchIds,
+    hideDefaultBranch,
+    unhideDefaultBranch,
     addScenarioBatch,
   } = useProfileStore();
 
@@ -73,6 +75,12 @@ export default function BranchPage() {
       ...customBranches,
     ],
     [defaultBranches, customBranches, hiddenIds, overriddenDefaultIds]
+  );
+
+  // Hidden default branches (for restore UI)
+  const hiddenDefaults = useMemo(
+    () => defaultBranches.filter((d) => hiddenIds.has(d.id)),
+    [defaultBranches, hiddenIds]
   );
 
   // Available branch IDs for filtering stale selections
@@ -291,27 +299,31 @@ export default function BranchPage() {
 
   const handleCustomizeDelete = useCallback(() => {
     if (editingBranch) {
-      const isDefault = defaultBranchIds.has(editingBranch.id);
-      if (isDefault) {
-        // Default branches cannot be deleted — just close dialog
+      // Deleting a custom branch
+      removeCustomBranch(editingBranch.id);
+      if (editingBranch.overridesDefaultId) {
+        // Override branch: restore the default by re-selecting its ID
+        setSelectedBranchIds([
+          ...selectedBranchIds.filter((id) => id !== editingBranch.id),
+          editingBranch.overridesDefaultId,
+        ]);
       } else {
-        // Deleting a custom branch
-        removeCustomBranch(editingBranch.id);
-        if (editingBranch.overridesDefaultId) {
-          // Override branch: restore the default by re-selecting its ID
-          setSelectedBranchIds([
-            ...selectedBranchIds.filter((id) => id !== editingBranch.id),
-            editingBranch.overridesDefaultId,
-          ]);
-        } else {
-          // Pure custom branch: just remove from selection
-          setSelectedBranchIds(selectedBranchIds.filter((id) => id !== editingBranch.id));
-        }
+        // Pure custom branch: just remove from selection
+        setSelectedBranchIds(selectedBranchIds.filter((id) => id !== editingBranch.id));
       }
     }
     setEditingBranch(null);
     setCustomizePreset(null);
-  }, [editingBranch, defaultBranchIds, removeCustomBranch, selectedBranchIds, setSelectedBranchIds]);
+  }, [editingBranch, removeCustomBranch, selectedBranchIds, setSelectedBranchIds]);
+
+  const handleCustomizeHide = useCallback(() => {
+    if (editingBranch) {
+      hideDefaultBranch(editingBranch.id);
+      setSelectedBranchIds(selectedBranchIds.filter((id) => id !== editingBranch.id));
+    }
+    setEditingBranch(null);
+    setCustomizePreset(null);
+  }, [editingBranch, hideDefaultBranch, selectedBranchIds, setSelectedBranchIds]);
 
   const handleDeleteBranch = useCallback((branch: Branch) => {
     removeCustomBranch(branch.id);
@@ -442,6 +454,34 @@ export default function BranchPage() {
                   </>
                 )}
               </Button>
+
+              {/* Hidden default events (collapsible) */}
+              {hiddenDefaults.length > 0 && (
+                <details className="pt-2">
+                  <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                    非表示のイベント（{hiddenDefaults.length}件）
+                  </summary>
+                  <div className="mt-2 space-y-1">
+                    {hiddenDefaults.map((branch) => (
+                      <div
+                        key={branch.id}
+                        className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/30 text-sm"
+                      >
+                        <span className="text-muted-foreground">{branch.label}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => unhideDefaultBranch(branch.id)}
+                          className="h-7 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <Eye className="h-3 w-3" />
+                          復活
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
             </div>
           ) : (
             <WorldlinePreview
@@ -478,6 +518,7 @@ export default function BranchPage() {
         profile={profile}
         onSave={handleCustomizeSave}
         onDelete={editingBranch && !defaultBranchIds.has(editingBranch.id) ? handleCustomizeDelete : undefined}
+        onHide={editingBranch && defaultBranchIds.has(editingBranch.id) && !editingBranch.auto ? handleCustomizeHide : undefined}
       />
 
       <p className="mt-8 text-center text-xs text-muted-foreground">

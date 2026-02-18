@@ -97,6 +97,7 @@ interface ProfileStore {
   removeCustomBranch: (id: string) => void;
   updateCustomBranch: (id: string, updates: Partial<Branch>) => void;
   hideDefaultBranch: (id: string) => void;
+  unhideDefaultBranch: (id: string) => void;
   addScenarioBatch: (scenarios: SavedScenario[]) => void;
 
   // Scenario actions
@@ -226,6 +227,10 @@ export const useProfileStore = create<ProfileStore>()(
             hiddenDefaultBranchIds: s.hiddenDefaultBranchIds.includes(id)
               ? s.hiddenDefaultBranchIds
               : [...s.hiddenDefaultBranchIds, id],
+          })),
+        unhideDefaultBranch: (id) =>
+          set((s) => ({
+            hiddenDefaultBranchIds: s.hiddenDefaultBranchIds.filter((bid) => bid !== id),
           })),
         addScenarioBatch: (newScenarios) => {
           const { scenarios } = get();
@@ -361,8 +366,8 @@ export const useProfileStore = create<ProfileStore>()(
           if (!state.profile.housingPlans) {
             state.profile.housingPlans = [];
           }
-          // Migrate: hiddenDefaultBranchIds をクリア（削除ボタンバグで溜まったデータを復元）
-          if (state.hiddenDefaultBranchIds && state.hiddenDefaultBranchIds.length > 0) {
+          // Migrate: hiddenDefaultBranchIds が undefined の場合は空配列に
+          if (!state.hiddenDefaultBranchIds) {
             state.hiddenDefaultBranchIds = [];
           }
           // 復元後にシミュレーションを再実行
