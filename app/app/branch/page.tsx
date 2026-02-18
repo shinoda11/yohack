@@ -20,6 +20,7 @@ import { PRESET_EVENTS } from '@/lib/event-catalog';
 import type { PresetEvent, BundlePreset } from '@/lib/event-catalog';
 import { BranchCategory } from '@/components/branch/branch-category';
 import { BranchTreeViz } from '@/components/branch/branch-tree-viz';
+import { BranchTimeline } from '@/components/branch/branch-timeline';
 import { WorldlinePreview } from '@/components/branch/worldline-preview';
 import { EventPickerDialog } from '@/components/branch/event-picker-dialog';
 import { EventCustomizeDialog } from '@/components/branch/event-customize-dialog';
@@ -338,7 +339,7 @@ export default function BranchPage() {
 
       {/* Main layout */}
       <div className="flex flex-col md:flex-row md:gap-8">
-        {/* Left: Tree (sticky on desktop, flexible width) */}
+        {/* Left: Tree + Timeline (sticky on desktop, flexible width) */}
         <div className="md:flex-1 md:sticky md:top-20 md:self-start mb-6 md:mb-0">
           <BranchTreeViz
             currentAge={profile.currentAge}
@@ -346,6 +347,13 @@ export default function BranchPage() {
             candidates={step === 'preview' ? candidates : undefined}
             showScores={step === 'preview'}
           />
+          {/* Desktop: Timeline below tree */}
+          <div className="hidden md:block">
+            <BranchTimeline
+              profile={profile}
+              selectedBranches={selectedBranches}
+            />
+          </div>
         </div>
 
         {/* Right: Categories or Preview */}
@@ -374,6 +382,14 @@ export default function BranchPage() {
                 onAddEvent={() => setPickerOpen(true)}
                 onEditBranch={handleEditBranch}
               />
+
+              {/* Mobile: Timeline after checklists */}
+              <div className="md:hidden">
+                <BranchTimeline
+                  profile={profile}
+                  selectedBranches={selectedBranches}
+                />
+              </div>
 
               {!hasUncertain && nonAutoSelectedCount > 0 && (
                 <p className="text-xs text-muted-foreground text-center py-2">
