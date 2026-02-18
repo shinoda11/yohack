@@ -145,9 +145,9 @@ export function AssetProjectionChart({
         description="モンテカルロシミュレーションによる将来予測"
       >
         {isLoading ? (
-          <Skeleton className="h-64 w-full sm:h-80" />
+          <Skeleton className="h-[300px] w-full sm:h-[360px]" />
         ) : (
-          <div className="flex h-64 flex-col items-center justify-center gap-3 sm:h-80">
+          <div className="flex h-[300px] flex-col items-center justify-center gap-3 sm:h-[360px]">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-muted-foreground/30">
               <line x1="20" y1="4" x2="8" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               <line x1="20" y1="4" x2="32" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -219,7 +219,7 @@ export function AssetProjectionChart({
       </div>
 
       {/* Chart */}
-      <div className="relative h-64 sm:h-80 w-full overflow-x-hidden">
+      <div className="relative h-[300px] sm:h-[360px] w-full overflow-x-hidden">
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/40">
             <span className="text-xs text-muted-foreground">計算中...</span>
@@ -228,7 +228,7 @@ export function AssetProjectionChart({
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 24, right: 16, left: 0, bottom: 0 }}
+            margin={{ top: 24, right: 16, left: 0, bottom: 24 }}
           >
             <defs>
               <linearGradient id="colorMedian" x1="0" y1="0" x2="0" y2="1">
@@ -241,14 +241,13 @@ export function AssetProjectionChart({
               dataKey="age"
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: '#8A7A62' }}
               tickFormatter={(value: number) => `${value}歳`}
               ticks={(() => {
                 if (chartData.length === 0) return [];
                 const startAge = chartData[0].age;
                 const endAge = chartData[chartData.length - 1].age;
                 const result: number[] = [];
-                // Start from nearest 5-year mark at or after startAge
                 const first = Math.ceil(startAge / 5) * 5;
                 for (let age = first; age <= endAge; age += 5) {
                   result.push(age);
@@ -259,7 +258,7 @@ export function AssetProjectionChart({
             <YAxis
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 11 }}
+              tick={{ fontSize: 11, fill: '#8A7A62' }}
               tickFormatter={formatYAxis}
               domain={[yMin, yMax]}
               width={55}
@@ -371,7 +370,112 @@ export function AssetProjectionChart({
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      
+
+      {/* Life Event Timeline — aligned with chart X-axis */}
+      {lifeEvents.length > 0 && chartData.length > 0 && (() => {
+        const startAge = chartData[0].age;
+        const endAge = chartData[chartData.length - 1].age;
+        const range = endAge - startAge;
+        if (range <= 0) return null;
+
+        // Deduplicate events at the same age (keep first of each age)
+        const seen = new Set<number>();
+        const uniqueEvents = lifeEvents.filter(e => {
+          if (e.age < startAge || e.age > endAge) return false;
+          if (seen.has(e.age)) return false;
+          seen.add(e.age);
+          return true;
+        }).sort((a, b) => a.age - b.age);
+
+        if (uniqueEvents.length === 0) return null;
+
+        const toPercent = (age: number) => ((age - startAge) / range) * 100;
+        const truncLabel = (name: string) => name.length > 6 ? name.slice(0, 5) + '…' : name;
+        const pensionAge = 65;
+        const showPension = pensionAge >= startAge && pensionAge <= endAge;
+
+        return (
+          <div
+            className="relative w-full"
+            style={{
+              height: 48,
+              paddingLeft: 55,   // YAxis width
+              paddingRight: 16,  // chart margin.right
+            }}
+          >
+            {/* Baseline axis */}
+            <div className="absolute top-[23px] h-px bg-border" style={{ left: 55, right: 16 }} />
+
+            {/* Events (positioned inside padded area) */}
+            <div className="relative h-full">
+              {/* Pension marker */}
+              {showPension && (
+                <div
+                  className="absolute flex flex-col items-center"
+                  style={{
+                    left: `${toPercent(pensionAge)}%`,
+                    top: 0,
+                    bottom: 0,
+                    transform: 'translateX(-50%)',
+                  }}
+                >
+                  <div
+                    className="absolute border-l border-dashed"
+                    style={{ top: 4, bottom: 4, borderColor: '#8A7A62' }}
+                  />
+                  <span
+                    className="absolute whitespace-nowrap"
+                    style={{ fontSize: 9, color: '#8A7A62', bottom: 0 }}
+                  >
+                    年金
+                  </span>
+                </div>
+              )}
+
+              {/* Event dots + labels */}
+              {uniqueEvents.map((event, i) => {
+                const isUpper = i % 2 === 0;
+                return (
+                  <div
+                    key={event.id}
+                    className="absolute flex flex-col items-center"
+                    style={{
+                      left: `${toPercent(event.age)}%`,
+                      top: 0,
+                      bottom: 0,
+                      transform: 'translateX(-50%)',
+                    }}
+                  >
+                    {/* Label */}
+                    <span
+                      className="absolute whitespace-nowrap max-w-[48px] truncate text-center"
+                      style={{
+                        fontSize: 9,
+                        color: '#8A7A62',
+                        lineHeight: '12px',
+                        ...(isUpper ? { top: 0 } : { bottom: 0 }),
+                      }}
+                    >
+                      {truncLabel(event.name)}
+                    </span>
+                    {/* Dot */}
+                    <div
+                      className="absolute rounded-full"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        top: 'calc(50% - 3px)',
+                        backgroundColor: '#C8B89A',
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Key Metrics Summary */}
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
         <div className="rounded-lg bg-muted/50 p-3 text-center">
