@@ -11,7 +11,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CollapsibleCardProps {
@@ -22,6 +22,7 @@ interface CollapsibleCardProps {
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
   className?: string;
+  completed?: boolean;
 }
 
 export function CollapsibleCard({
@@ -32,23 +33,43 @@ export function CollapsibleCard({
   onOpenChange,
   children,
   className,
+  completed,
 }: CollapsibleCardProps) {
+  const isCompact = !open && completed;
   return (
-    <Card className={cn('overflow-hidden border-[#F0ECE4] dark:border-[#5A5550]', className)}>
+    <Card className={cn(
+      'overflow-hidden border-[#F0ECE4] dark:border-[#5A5550]',
+      isCompact && 'border-[#F0ECE4]/60 dark:border-[#5A5550]/40',
+      className,
+    )}>
       <Collapsible open={open} onOpenChange={onOpenChange}>
         <CollapsibleTrigger asChild>
           <button
             type="button"
-            className="flex w-full items-center justify-between px-6 py-4 text-left transition-colors hover:bg-muted/50"
+            className={cn(
+              "flex w-full items-center justify-between text-left transition-colors hover:bg-muted/50",
+              isCompact ? "px-4 py-2.5" : "px-6 py-4",
+            )}
           >
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center text-[#8A7A62]/60 dark:text-[#8A7A62]">
-                {icon}
+              <div className={cn(
+                "shrink-0 items-center justify-center",
+                isCompact
+                  ? "flex h-6 w-6 text-[#4A7C59]/60 dark:text-[#6BA368]/60"
+                  : "flex h-8 w-8 text-[#8A7A62]/60 dark:text-[#8A7A62]",
+              )}>
+                {isCompact ? <Check className="h-4 w-4" /> : icon}
               </div>
               <div className="min-w-0">
-                <CardTitle className="text-base font-semibold">{title}</CardTitle>
+                <CardTitle className={cn(
+                  "font-semibold",
+                  isCompact ? "text-sm text-muted-foreground" : "text-base",
+                )}>{title}</CardTitle>
                 {!open && summary && (
-                  <div className="mt-0.5 truncate text-sm text-muted-foreground">
+                  <div className={cn(
+                    "truncate text-muted-foreground",
+                    isCompact ? "text-xs mt-0" : "text-sm mt-0.5",
+                  )}>
                     {summary}
                   </div>
                 )}
@@ -56,8 +77,9 @@ export function CollapsibleCard({
             </div>
             <ChevronDown
               className={cn(
-                'h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200',
-                open && 'rotate-180'
+                'shrink-0 text-muted-foreground transition-transform duration-200',
+                isCompact ? 'h-3 w-3' : 'h-4 w-4',
+                open && 'rotate-180',
               )}
             />
           </button>

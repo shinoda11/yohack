@@ -19,9 +19,10 @@ interface RetirementCardProps {
   onUpdate: (updates: Partial<Profile>) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  completed?: boolean;
 }
 
-export function RetirementCard({ profile, onUpdate, open, onOpenChange }: RetirementCardProps) {
+export function RetirementCard({ profile, onUpdate, open, onOpenChange, completed }: RetirementCardProps) {
   const icon = <Clock className="h-5 w-5" />;
   const title = 'リタイア設計';
   const postRetireIncome = profile.postRetireIncome ?? 0;
@@ -79,7 +80,7 @@ export function RetirementCard({ profile, onUpdate, open, onOpenChange }: Retire
       </>
     );
     return (
-      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange}>
+      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange} completed={completed}>
         {content}
       </CollapsibleCard>
     );

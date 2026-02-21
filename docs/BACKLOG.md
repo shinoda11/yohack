@@ -3,7 +3,7 @@
 ## P0: UI洗練（今週）
 
 ## P0-1: ゼロ状態の設計
-status: todo
+status: done
 priority: 0
 estimate: S
 
@@ -20,7 +20,7 @@ estimate: S
 ```
 
 ## P0-2: 情報密度の制御
-status: todo
+status: running
 priority: 0
 estimate: M
 

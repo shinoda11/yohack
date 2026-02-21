@@ -155,7 +155,7 @@ export default function DashboardPage() {
 
   // --- Collapsible card state ---
   const [openCards, setOpenCards] = useState<Record<CardKey, boolean>>({
-    income: true,
+    income: false,
     retirement: false,
     expense: false,
     investment: false,
@@ -454,9 +454,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-4 md:mt-0 grid gap-6 lg:grid-cols-3">
-            {/* Left column: Input cards — hidden on mobile when result tab active */}
-            <div className={cn("space-y-4 lg:col-span-1 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
+          <div className="mt-4 md:mt-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+            {/* Left column: Input cards — visually subdued, hidden on mobile when result tab active */}
+            <div className={cn("space-y-3 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
               {/* Profile Summary - Read-only */}
               <ProfileSummaryCard profile={profile} onUpdate={updateProfile} />
 
@@ -467,6 +467,7 @@ export default function DashboardPage() {
                   getFieldError={getFieldError}
                   open={openCards.income}
                   onOpenChange={(o) => handleCardToggle('income', o)}
+                  completed={cardComplete.income}
                 />
               </div>
               <div ref={cardRefs.retirement}>
@@ -475,6 +476,7 @@ export default function DashboardPage() {
                   onUpdate={updateProfile}
                   open={openCards.retirement}
                   onOpenChange={(o) => handleCardToggle('retirement', o)}
+                  completed={cardComplete.retirement}
                 />
               </div>
               <div ref={cardRefs.expense}>
@@ -485,6 +487,7 @@ export default function DashboardPage() {
                   open={openCards.expense}
                   onOpenChange={(o) => handleCardToggle('expense', o)}
                   hideHousing
+                  completed={cardComplete.expense}
                 />
               </div>
               <div ref={cardRefs.investment}>
@@ -494,6 +497,7 @@ export default function DashboardPage() {
                   getFieldError={getFieldError}
                   open={openCards.investment}
                   onOpenChange={(o) => handleCardToggle('investment', o)}
+                  completed={cardComplete.investment}
                 />
               </div>
 
@@ -509,7 +513,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Right column: Result cards */}
-            <div className={cn("lg:col-span-2 min-w-0 overflow-x-hidden", mobileTab === 'input' && 'hidden md:block')}>
+            <div className={cn("min-w-0 overflow-x-hidden", mobileTab === 'input' && 'hidden md:block')}>
               {/* Mobile: flat result list (no sub-tabs) */}
               <div className="md:hidden space-y-6">
                 <div className="flex justify-end">
@@ -529,18 +533,17 @@ export default function DashboardPage() {
                   </Button>
                 </div>
                 <div ref={captureRefMobile} className="space-y-6">
-                  <div className="grid gap-4">
-                    <ExitReadinessCard
-                      score={simResult?.score ?? null}
-                      isLoading={isLoading && !simResult}
-                    />
-                    <KeyMetricsCard
-                      metrics={simResult?.metrics ?? null}
-                      currentAge={profile.currentAge}
-                      targetRetireAge={profile.targetRetireAge}
-                      isLoading={isLoading}
-                    />
-                  </div>
+                  {/* Hero: Score — most important single card */}
+                  <ExitReadinessCard
+                    score={simResult?.score ?? null}
+                    isLoading={isLoading && !simResult}
+                  />
+                  <KeyMetricsCard
+                    metrics={simResult?.metrics ?? null}
+                    currentAge={profile.currentAge}
+                    targetRetireAge={profile.targetRetireAge}
+                    isLoading={isLoading}
+                  />
                   <AssetProjectionChart
                     data={simResult?.paths ?? null}
                     targetRetireAge={profile.targetRetireAge}
@@ -657,19 +660,19 @@ export default function DashboardPage() {
 
                   {/* Capture target for share */}
                   <div ref={captureRef} className="space-y-6">
-                    {/* Top row: Score and metrics */}
-                    <div className="grid gap-6 lg:grid-cols-2">
-                      <ExitReadinessCard
-                        score={simResult?.score ?? null}
-                        isLoading={isLoading && !simResult}
-                      />
-                      <KeyMetricsCard
-                        metrics={simResult?.metrics ?? null}
-                        currentAge={profile.currentAge}
-                        targetRetireAge={profile.targetRetireAge}
-                        isLoading={isLoading}
-                      />
-                    </div>
+                    {/* Hero: Score — most important single card */}
+                    <ExitReadinessCard
+                      score={simResult?.score ?? null}
+                      isLoading={isLoading && !simResult}
+                    />
+
+                    {/* Key metrics — secondary */}
+                    <KeyMetricsCard
+                      metrics={simResult?.metrics ?? null}
+                      currentAge={profile.currentAge}
+                      targetRetireAge={profile.targetRetireAge}
+                      isLoading={isLoading}
+                    />
 
                     {/* Chart */}
                     <AssetProjectionChart

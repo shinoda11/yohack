@@ -80,9 +80,10 @@ interface HousingPlanCardProps {
   onUpdate: (updates: Partial<Profile>) => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  completed?: boolean;
 }
 
-export function HousingPlanCard({ profile, onUpdate, open, onOpenChange }: HousingPlanCardProps) {
+export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, completed }: HousingPlanCardProps) {
   const [showProDialog, setShowProDialog] = useState(false);
 
   // Store から plans を取得。空なら初回のみデフォルトプランを生成して保存
@@ -609,7 +610,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange }: Housi
   if (open !== undefined && onOpenChange) {
     return (
       <>
-        <CollapsibleCard icon={icon} title={titleText} summary={summaryNode} open={open} onOpenChange={onOpenChange}>
+        <CollapsibleCard icon={icon} title={titleText} summary={summaryNode} open={open} onOpenChange={onOpenChange} completed={completed}>
           {content}
         </CollapsibleCard>
         {proDialog}

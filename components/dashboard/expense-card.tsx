@@ -15,9 +15,10 @@ interface ExpenseCardProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   hideHousing?: boolean;
+  completed?: boolean;
 }
 
-export function ExpenseCard({ profile, onUpdate, getFieldError, open, onOpenChange, hideHousing }: ExpenseCardProps) {
+export function ExpenseCard({ profile, onUpdate, getFieldError, open, onOpenChange, hideHousing, completed }: ExpenseCardProps) {
   const totalExpense = hideHousing ? profile.livingCostAnnual : profile.livingCostAnnual + profile.housingCostAnnual;
   const icon = <Receipt className="h-5 w-5" />;
   const title = hideHousing ? '生活費' : '支出';
@@ -86,7 +87,7 @@ export function ExpenseCard({ profile, onUpdate, getFieldError, open, onOpenChan
       </>
     );
     return (
-      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange}>
+      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange} completed={completed}>
         {content}
       </CollapsibleCard>
     );

@@ -31,9 +31,10 @@ interface InvestmentCardProps {
   getFieldError?: (field: string) => string | undefined;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  completed?: boolean;
 }
 
-export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenChange }: InvestmentCardProps) {
+export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenChange, completed }: InvestmentCardProps) {
   const realReturn = profile.expectedReturn - profile.inflationRate;
   const icon = <TrendingUp className="h-5 w-5" />;
   const title = '投資設定';
@@ -235,7 +236,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
       </>
     );
     return (
-      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange}>
+      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange} completed={completed}>
         {content}
       </CollapsibleCard>
     );

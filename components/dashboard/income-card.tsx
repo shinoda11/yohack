@@ -18,9 +18,10 @@ interface IncomeCardProps {
   getFieldError?: (field: string) => string | undefined;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  completed?: boolean;
 }
 
-export function IncomeCard({ profile, onUpdate, getFieldError, open, onOpenChange }: IncomeCardProps) {
+export function IncomeCard({ profile, onUpdate, getFieldError, open, onOpenChange, completed }: IncomeCardProps) {
   const icon = <Briefcase className="h-5 w-5" />;
   const title = '収入';
 
@@ -55,7 +56,7 @@ export function IncomeCard({ profile, onUpdate, getFieldError, open, onOpenChang
       </>
     );
     return (
-      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange}>
+      <CollapsibleCard icon={icon} title={title} summary={summary} open={open} onOpenChange={onOpenChange} completed={completed}>
         {content}
       </CollapsibleCard>
     );
