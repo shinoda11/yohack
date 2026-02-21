@@ -31,11 +31,16 @@ const COMMIT_BATCH = 3;
 
 // claude コマンドのパスを解決（Windows対応）
 function findClaude() {
-  try {
-    return execSync("where claude", { encoding: "utf-8" }).split("\n")[0].trim();
-  } catch {
-    return "claude";
+  const candidates = [
+    "C:\\Users\\shino\\AppData\\Roaming\\npm\\claude.cmd",
+    "C:\\Users\\shino\\AppData\\Roaming\\npm\\claude",
+  ];
+  for (const p of candidates) {
+    try {
+      if (require("fs").existsSync(p)) return p;
+    } catch {}
   }
+  return "claude";
 }
 
 const CLAUDE_CMD = findClaude();
