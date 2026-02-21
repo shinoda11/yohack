@@ -20,7 +20,7 @@ estimate: S
 ```
 
 ## P0-2: 情報密度の制御
-status: running
+status: done
 priority: 0
 estimate: M
 

@@ -3,12 +3,12 @@
 プロジェクト: Next.js 16, React 19, TypeScript, Zustand, Tailwind CSS
 カラー: #C8B89A #5A5550 #FAF9F7
 
-タスク: P0-1 - ゼロ状態の設計
+タスク: P0-3 - 数字の変化に文脈を与える
 
-1. app/worldline/page.tsx で世界線が0本のとき表示するEmptyStateコンポーネントを作成
-2. コピー: 「まず、あなたの家の選択肢を世界線として並べてみましょう」
-3. 「最初の世界線を作る →」ボタンを配置（/app/branch へ）
-4. ダッシュボードの入力未完了状態にも同様のガイダンスを追加
-5. pnpm build && git add -A && git commit -m "feat: add empty state design"
+1. スコアが変化するとき CSS transition で 600ms かけて変化
+2. スコアが上がる→カードに +2px elevation（box-shadow強化）
+3. スコアが下がる→カードborderが #CC3333 に 300ms フラッシュ
+4. 安心ライン割れの数字: 色だけでなく ⚠️ アイコン + border太さも変化
+5. pnpm build && git add -A && git commit -m "feat: animate score changes with context"
 
 注意: git commitは指示通り実行。pnpm buildが通ることを確認。完了後「✅ 完了:」で始まる1行サマリーを出力。
