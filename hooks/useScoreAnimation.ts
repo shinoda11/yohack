@@ -6,13 +6,16 @@ export type ScoreDirection = 'up' | 'down' | null;
 
 /**
  * Track score value changes and return a direction indicator that auto-clears.
+ * Supports separate durations for up (elevation) and down (flash) states.
  */
 export function useScoreAnimation(
   value: number | null | undefined,
-  resetMs: number = 600
+  resetMs: number | { up: number; down: number } = { up: 600, down: 300 }
 ): ScoreDirection {
   const prevRef = useRef<number | null>(null);
   const [direction, setDirection] = useState<ScoreDirection>(null);
+  const upMs = typeof resetMs === 'number' ? resetMs : resetMs.up;
+  const downMs = typeof resetMs === 'number' ? resetMs : resetMs.down;
 
   useEffect(() => {
     if (value == null) {
@@ -23,16 +26,19 @@ export function useScoreAnimation(
       prevRef.current = value;
       return;
     }
-    if (value > prevRef.current) {
+    const isUp = value > prevRef.current;
+    const isDown = value < prevRef.current;
+    if (isUp) {
       setDirection('up');
-    } else if (value < prevRef.current) {
+    } else if (isDown) {
       setDirection('down');
     }
     prevRef.current = value;
 
-    const timer = setTimeout(() => setDirection(null), resetMs);
+    const ms = isUp ? upMs : isDown ? downMs : upMs;
+    const timer = setTimeout(() => setDirection(null), ms);
     return () => clearTimeout(timer);
-  }, [value, resetMs]);
+  }, [value, upMs, downMs]);
 
   return direction;
 }
