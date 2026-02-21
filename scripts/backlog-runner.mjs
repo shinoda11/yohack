@@ -185,9 +185,10 @@ ${task.instructions}
   writeFileSync(promptFile, prompt, "utf-8");
 
   return new Promise((resolve) => {
+    console.log(`[Claude] CMD: ${CLAUDE_CMD}`);
     console.log(`[Claude] Starting: ${task.id}`);
     const proc = spawn(
-      "claude",
+      CLAUDE_CMD,
       ["--dangerously-skip-permissions", "-p", prompt],
       {
         cwd: REPO_DIR,
