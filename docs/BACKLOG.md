@@ -10,7 +10,7 @@
 ---
 
 ## P0-1: フレイキーテスト修正
-status: todo
+status: done
 priority: 0
 estimate: S
 

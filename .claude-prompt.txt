@@ -3,18 +3,30 @@
 プロジェクト: Next.js 16, React 19, TypeScript, Zustand, Tailwind CSS
 カラー: #C8B89A #5A5550 #FAF9F7
 
-タスク: P0-1 - フレイキーテスト修正
+タスク: P0-2 - metadataBase 設定（OGP対応）
 
-以下を実行してフレイキーテストを修正する。
+1. app/layout.tsx を開く
+2. metadata オブジェクトに以下を追加:
+   metadataBase: new URL('https://yohack.jp')
+   
+   また以下のOGP設定を追加:
+   openGraph: {
+     title: 'YOHACK — 人生の選択肢を世界線で比較する',
+     description: 'この家を買ったあと、年収が20%下がっても、まだ動けるか。世界線比較で確認する。',
+     url: 'https://yohack.jp',
+     siteName: 'YOHACK',
+     locale: 'ja_JP',
+     type: 'website',
+   },
+   twitter: {
+     card: 'summary_large_image',
+     title: 'YOHACK — 人生の選択肢を世界線で比較する',
+     description: 'この家を買ったあと、年収が20%下がっても、まだ動けるか。',
+   }
 
-1. pnpm test 2>&1 を実行して失敗しているテストを特定する
-2. 失敗テスト: "退職後収入なし" に関するテストを lib/ 以下で探す
-3. 原因: モンテカルロシミュレーションの分散により、境界値でテストが不安定
-4. 修正方針: アサーションの許容範囲を広げる（exactマッチ → rangeチェック）
-   または、テスト用のシード固定（Math.random をモック）で再現性を確保する
-5. pnpm test を3回実行して全て252/252 passed になることを確認
-6. git add -A && git commit -m "fix: stabilize flaky Monte Carlo test"
+3. pnpm build でエラーなし確認
+4. git add app/layout.tsx && git commit -m "feat: add metadataBase and OGP tags"
 
-完了条件: pnpm test を3回連続実行して全て252/252 passed
+完了条件: pnpm buildが通り、metadataBaseの警告が消える
 
 注意: git commitは指示通り実行。pnpm buildが通ることを確認。完了後「✅ 完了:」で始まる1行サマリーを出力。

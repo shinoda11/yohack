@@ -174,8 +174,6 @@ async function sendNextTaskPrompt(task) {
 // ── Claude Code 実行 ────────────────────────────────────────────────────────
 
 async function runClaude(task) {
-  const promptFile = join(REPO_DIR, ".claude-prompt.txt");
-
   const prompt = `あなたはYOHACKプロジェクトの開発者です。以下のタスクを実行してください。
 
 プロジェクト: Next.js 16, React 19, TypeScript, Zustand, Tailwind CSS
@@ -187,20 +185,19 @@ ${task.instructions}
 
 注意: git commitは指示通り実行。pnpm buildが通ることを確認。完了後「✅ 完了:」で始まる1行サマリーを出力。`;
 
-  writeFileSync(promptFile, prompt, "utf-8");
+  const env = { ...process.env };
+  delete env.CLAUDECODE;
 
   return new Promise((resolve) => {
-    console.log(`[Claude] CMD: ${CLAUDE_CMD}`);
     console.log(`[Claude] Starting: ${task.id}`);
-    const proc = spawn(
-      "cmd.exe",
-      ["/c", "claude", "--dangerously-skip-permissions", "-p", prompt],
-      {
-        cwd: REPO_DIR,
-        env: { ...process.env, CLAUDECODE: undefined },
-        stdio: ["ignore", "pipe", "pipe"]
-      }
-    );
+    const proc = spawn("cmd.exe", ["/c", "claude", "--dangerously-skip-permissions"], {
+      cwd: REPO_DIR,
+      env,
+      stdio: ["pipe", "pipe", "pipe"]
+    });
+
+    proc.stdin.write(prompt);
+    proc.stdin.end();
 
     let output = "";
     proc.stdout.on("data", d => { output += d.toString(); process.stdout.write(d); });
@@ -213,8 +210,12 @@ ${task.instructions}
 
     proc.on("close", code => {
       clearTimeout(timeout);
-      try { require("fs").unlinkSync(promptFile); } catch {}
       resolve({ output: output.slice(-3000), success: code === 0 });
+    });
+
+    proc.on("error", e => {
+      clearTimeout(timeout);
+      resolve({ output: e.message, success: false });
     });
   });
 }
