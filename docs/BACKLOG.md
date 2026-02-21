@@ -36,7 +36,7 @@ estimate: M
 ```
 
 ## P0-3: 数字の変化に文脈を与える
-status: done
+status: todo
 priority: 0
 estimate: S
 
@@ -67,6 +67,39 @@ estimate: M
 3. ボトムナビが全ページで正しく表示されるか確認・修正
 4. タップターゲットを最小44×44pxに統一
 5. pnpm build && git add -A && git commit -m "fix: unify mobile layout"
+```
+
+## P0-5: UIテキストの品質向上
+status: todo
+priority: 0
+estimate: M
+
+### instructions
+```
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+YOHACKの全UIテキストを「決断の静けさ」のトーンに統一する。
+
+1. 以下のカテゴリで全UIテキストを棚卸しする:
+   - ボタンラベル
+   - エラーメッセージ
+   - 空状態のコピー
+   - プレースホルダー
+   - ツールチップ
+   - ローディング状態
+
+2. 以下の原則で書き直す:
+   - 機能を説明しない → 価値を伝える
+   - 「エラーが発生しました」→「計算に必要な情報が足りません」
+   - 「保存する」→「この世界線を保存」
+   - 「読み込み中」→ 意味のあるスケルトンUIまたは非表示
+   - 一人称複数（「私たちは」）は使わない
+   - ユーザーを急かす言葉は使わない
+
+3. 変更箇所を列挙してコミット:
+   git add -A && git commit -m "ui: rewrite all UI text for professional tone"
+
+完了条件: 全UIテキストがYOHACKのトーン「決断の静けさ」と一致している
 ```
 
 ---
