@@ -3,12 +3,12 @@
 プロジェクト: Next.js 16, React 19, TypeScript, Zustand, Tailwind CSS
 カラー: #C8B89A #5A5550 #FAF9F7
 
-タスク: P0-3 - 数字の変化に文脈を与える
+タスク: P0-4 - モバイル体験の統一
 
-1. スコアが変化するとき CSS transition で 600ms かけて変化
-2. スコアが上がる→カードに +2px elevation（box-shadow強化）
-3. スコアが下がる→カードborderが #CC3333 に 300ms フラッシュ
-4. 安心ライン割れの数字: 色だけでなく ⚠️ アイコン + border太さも変化
-5. pnpm build && git add -A && git commit -m "feat: animate score changes with context"
+1. pnpm dev でモバイルサイズ（375px）を確認
+2. ダッシュボードをモバイルで1カラムに統一
+3. ボトムナビが全ページで正しく表示されるか確認・修正
+4. タップターゲットを最小44×44pxに統一
+5. pnpm build && git add -A && git commit -m "fix: unify mobile layout"
 
 注意: git commitは指示通り実行。pnpm buildが通ることを確認。完了後「✅ 完了:」で始まる1行サマリーを出力。
