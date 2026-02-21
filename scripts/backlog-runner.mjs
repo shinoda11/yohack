@@ -200,7 +200,19 @@ ${task.instructions}
     proc.stdin.end();
 
     let output = "";
-    proc.stdout.on("data", d => { output += d.toString(); process.stdout.write(d); });
+    let lastNotify = 0;
+    proc.stdout.on("data", d => {
+      output += d.toString();
+      process.stdout.write(d);
+      const now = Date.now();
+      if (now - lastNotify > 30000) {
+        lastNotify = now;
+        const preview = d.toString().slice(0, 200).replace(/\n/g, " ");
+        if (preview.trim()) {
+          sendMessage(`⏳ 作業中...\n\`${preview}\``).catch(() => {});
+        }
+      }
+    });
     proc.stderr.on("data", d => { output += d.toString(); process.stderr.write(d); });
 
     const timeout = setTimeout(() => {

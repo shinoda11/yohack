@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { getBranchDerivedLifeEvents } from '@/lib/branch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { X, Save, Check, Share2, Loader2 } from 'lucide-react';
+import { X, Save, Check, Share2, Loader2, GitBranch } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -364,6 +365,25 @@ export default function DashboardPage() {
 
           {/* Profile Completeness - shown after onboarding */}
           <ProfileCompleteness profile={profile} onOpenCard={handleOpenCard} />
+
+          {/* Worldline guidance - shown when profile edited but no scenarios yet */}
+          {!showFirstVisitBanner && !isProfileDefault && scenarios.length === 0 && (
+            <div className="mb-6 flex items-center gap-4 rounded-lg border border-[#C8B89A]/20 bg-[#C8B89A]/5 p-4">
+              <div className="flex-shrink-0 rounded-full bg-[#C8B89A]/10 p-2.5">
+                <GitBranch className="h-5 w-5 text-[#C8B89A]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-[#5A5550]">
+                  まず、あなたの家の選択肢を世界線として並べてみましょう
+                </p>
+              </div>
+              <Button asChild size="sm" className="flex-shrink-0 gap-1 bg-[#1A1916] text-[#F0ECE4] hover:bg-[#1A1916]/90">
+                <Link href="/app/branch">
+                  最初の世界線を作る →
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {/* First-visit banner */}
           {showFirstVisitBanner && (

@@ -75,20 +75,19 @@ export default function WorldlinePage() {
             <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
             <p className="text-sm text-[#8A7A62] mt-1">余白で比較し、次の一手を決める</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-12 text-center space-y-4">
-            <div className="rounded-full bg-muted p-4">
-              <GitBranch className="h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-[#C8B89A]/30 bg-[#FAF9F7] p-16 text-center space-y-6">
+            <div className="rounded-full bg-[#C8B89A]/10 p-5">
+              <GitBranch className="h-10 w-10 text-[#C8B89A]" />
             </div>
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-foreground">比較する世界線がありません</h2>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                まず分岐ビルダーで人生の分岐を選び、世界線を生成してください。
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-[#5A5550]">比較する世界線がありません</h2>
+              <p className="text-sm text-[#8A7A62] max-w-md leading-relaxed">
+                まず、あなたの家の選択肢を世界線として並べてみましょう
               </p>
             </div>
-            <Button asChild className="gap-2 bg-[#1A1916] text-[#F0ECE4] hover:bg-[#1A1916]/90">
+            <Button asChild className="gap-2 bg-[#1A1916] text-[#F0ECE4] hover:bg-[#1A1916]/90 h-11 px-6">
               <Link href="/app/branch">
-                <GitBranch className="h-4 w-4" />
-                分岐を描きはじめる
+                最初の世界線を作る →
               </Link>
             </Button>
           </div>
