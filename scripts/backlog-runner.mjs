@@ -193,11 +193,11 @@ ${task.instructions}
     console.log(`[Claude] CMD: ${CLAUDE_CMD}`);
     console.log(`[Claude] Starting: ${task.id}`);
     const proc = spawn(
-      CLAUDE_CMD,
-      ["--dangerously-skip-permissions", "-p", prompt],
+      "cmd.exe",
+      ["/c", "claude", "--dangerously-skip-permissions", "-p", prompt],
       {
         cwd: REPO_DIR,
-        env: { ...process.env },
+        env: { ...process.env, CLAUDECODE: undefined },
         stdio: ["ignore", "pipe", "pipe"]
       }
     );
