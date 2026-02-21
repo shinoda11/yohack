@@ -193,3 +193,100 @@ FitGate回答データをYOHACKのプロファイルに自動反映する。
 1. FitGateの回答をlocalStorageに保存
 2. YOHACK起動時にFitGate回答があればプロファイルに反映
 3. git add -A && git commit -m "feat: fitgate profile auto-preset"
+
+---
+
+## UI洗練タスク
+
+### UI-1: 視線の流れ設計
+priority: P1
+estimate: L
+status: todo
+
+### context
+ダッシュボード全体に「見る順番」の設計がない。ユーザーが最初にどこを見て、次にどこへ目が行くかを意図的に設計する。
+
+### instructions
+1. app/app/page.tsx のレイアウトを分析する
+2. 現状のコンポーネント配置をF字動線・Z字動線の観点で評価する
+3. 以下の優先順位でレイアウトを再構成する:
+   - 最重要: ConclusionSummaryCard（結論）を最上部・最大サイズに
+   - 第二: スコアと安心ラインを横並びで視覚的に強調
+   - 第三: グラフエリアを結論の直下に配置
+   - 入力カードは左カラムに収める（現状維持だが余白を整理）
+4. Tailwindのgrid/flexレイアウトを調整してF字動線を実現
+5. pnpm build で確認
+6. git add -A && git commit -m "ui: redesign dashboard layout for visual flow"
+
+完了条件: ダッシュボードを開いた瞬間に「結論→根拠→詳細」の順で目が流れる
+
+---
+
+### UI-2: グラフを意思決定支援に昇華
+priority: P1
+estimate: L
+status: todo
+
+### context
+現状のRecharts素のグラフは「データを表示している」だけ。「世界線の分岐点」「安心ライン」が視覚的に伝わるグラフに変える。
+
+### instructions
+1. components/dashboard/ 以下のグラフコンポーネントを特定する
+2. 以下の視覚要素を追加する:
+   - 安心ラインを水平の参照線（ReferenceLine）で表示、#CC3333で「ここを割ると危険」を表現
+   - 世界線A/Bを比較する場合、線の太さと透明度で主従を表現
+   - グラフの余白（margin）を現状の1.5倍に拡大
+   - 軸ラベルを日本語・万円単位に統一
+   - ツールチップをカスタム化（#FAF9F7背景、#5A5550テキスト）
+3. カラーパレット: 安全=#4A7C59、警告=#C8B89A、危険=#CC3333
+4. pnpm build で確認
+5. git add -A && git commit -m "ui: enhance charts with decision-support visual design"
+
+完了条件: グラフを見た瞬間に「安全か危険か」が色と線で直感的にわかる
+
+---
+
+### UI-3: 数字の視覚的重み付け
+priority: P2
+estimate: M
+status: todo
+
+### context
+金額・スコア・年齢の表示が均一で緊張感がない。重要な数字が重要に見える表示へ。
+
+### instructions
+1. 全dashboardコンポーネントの数字表示を棚卸しする
+2. 数字の階層を3段階に整理する:
+   - 大: スコア・総資産・物件価格（text-3xl以上、DM Sans Bold）
+   - 中: 年収・月額・年齢（text-xl、DM Sans Medium）
+   - 小: 補足数値・パーセント（text-sm、通常weight）
+3. 金額表示のformatCurrency()が億円自動変換していることを確認
+4. スコア表示に変化のアニメーション追加（0→実値へのcount-up、CSS transitionで実装）
+5. 重要数値の背景に薄いハイライト（#C8B89A 10%opacity）を追加
+6. pnpm build で確認
+7. git add -A && git commit -m "ui: add visual weight hierarchy to numbers"
+
+完了条件: 画面を見た3秒以内に最重要数値が目に入る
+
+---
+
+### UI-4: 入力フローの再設計
+priority: P2
+estimate: L
+status: todo
+
+### context
+入力カードが「フォームを埋める」体験になっている。「自分のことを話す」体験に変える。
+
+### instructions
+1. 左カラムの入力カード群（BasicInfoCard, IncomeCard等）を分析する
+2. 以下の改善を実施する:
+   - 各カードのタイトルを「基本情報」→「あなたのプロフィール」のように一人称的な表現に
+   - 入力フィールドにplaceholderを追加（例: 年収「例: 1,200万円」）
+   - 入力完了したカードにチェックマーク表示（profileの充足度を視覚化）
+   - カード間の区切りを明確にし、「次に入力すべき項目」がわかるよう未入力カードを強調
+3. ProfileCompletenessコンポーネントと連動させる
+4. pnpm build で確認
+5. git add -A && git commit -m "ui: redesign input flow for conversational experience"
+
+完了条件: 入力しながら「自分のシミュレーションが育っている」感覚が得られる
