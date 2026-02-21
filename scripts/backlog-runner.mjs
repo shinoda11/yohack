@@ -29,6 +29,17 @@ const TOKEN       = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID     = process.env.TELEGRAM_CHAT_ID;
 const COMMIT_BATCH = 3;
 
+// claude コマンドのパスを解決（Windows対応）
+function findClaude() {
+  try {
+    return execSync("where claude", { encoding: "utf-8" }).split("\n")[0].trim();
+  } catch {
+    return "claude";
+  }
+}
+
+const CLAUDE_CMD = findClaude();
+
 // ── 起動チェック ────────────────────────────────────────────────────────────
 
 if (!TOKEN || !CHAT_ID) {
@@ -177,10 +188,16 @@ ${task.instructions}
 
   return new Promise((resolve) => {
     console.log(`[Claude] Starting: ${task.id}`);
+    console.log(`[Claude] Command: ${CLAUDE_CMD}`);
     const proc = spawn(
-      "claude",
+      CLAUDE_CMD,
       ["--dangerously-skip-permissions", "-p", prompt],
-      { cwd: REPO_DIR, shell: true }
+      {
+        cwd: REPO_DIR,
+        shell: true,
+        windowsHide: false,
+        env: { ...process.env },
+      }
     );
 
     let output = "";
@@ -364,6 +381,7 @@ async function poll() {
 console.log("🚀 YOHACK Backlog Runner 起動中...");
 console.log(`📁 リポジトリ: ${REPO_DIR}`);
 console.log(`📋 BACKLOG.md: ${BACKLOG_FILE}`);
+console.log(`🤖 Claude CMD: ${CLAUDE_CMD}`);
 
 const firstTask = getNextTodo();
 console.log(`⏭️  次のタスク: ${firstTask ? `${firstTask.id} - ${firstTask.title}` : "なし"}`);
