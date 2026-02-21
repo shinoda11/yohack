@@ -65,9 +65,12 @@ function parseBacklog() {
     const [, fullTitle, status, priority, estimate, instructions] = m;
     const id    = fullTitle.split(":")[0].trim();
     const title = fullTitle.split(":").slice(1).join(":").trim();
-    tasks.push({ id, title, status, priority: parseInt(priority), estimate, instructions: instructions.trim() });
+    const trimmed = instructions.trim();
+    console.log(`[parseBacklog] ${id}: status=${status}, instructions length=${trimmed.length}`);
+    tasks.push({ id, title, status, priority: parseInt(priority), estimate, instructions: trimmed });
   }
   tasks.sort((a, b) => a.priority - b.priority || a.id.localeCompare(b.id));
+  console.log(`[parseBacklog] Total tasks found: ${tasks.length}`);
   return tasks;
 }
 
@@ -155,6 +158,8 @@ async function sendNextTaskPrompt(task) {
 // ── Claude Code 実行 ────────────────────────────────────────────────────────
 
 async function runClaude(task) {
+  console.log(`[Claude] instructions length: ${task.instructions.length}`);
+  console.log(`[Claude] instructions preview: ${task.instructions.substring(0, 100)}...`);
   const prompt = `あなたはYOHACKプロジェクトの開発者です。以下のタスクを実行してください。
 
 # プロジェクト情報
