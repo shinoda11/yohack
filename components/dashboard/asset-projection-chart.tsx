@@ -81,7 +81,7 @@ function CustomTooltip({
   const p25 = payload.find((p) => p.dataKey === 'p25')?.value ?? 0;
 
   return (
-    <div className="rounded-lg border bg-background p-4 shadow-sm min-w-0 w-[200px] max-w-[90vw]">
+    <div className="rounded-lg border border-brand-sand bg-brand-canvas p-4 shadow-sm min-w-0 w-[200px] max-w-[90vw]">
       <p className="mb-2 font-bold text-base">{label}歳</p>
       <div className="space-y-2 text-sm">
         {showOptimistic && (
@@ -228,7 +228,7 @@ export function AssetProjectionChart({
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 24, right: 16, left: 0, bottom: 24 }}
+            margin={{ top: 32, right: 24, left: 0, bottom: 32 }}
           >
             <defs>
               <linearGradient id="colorMedian" x1="0" y1="0" x2="0" y2="1">
@@ -319,12 +319,12 @@ export function AssetProjectionChart({
             {/* Zero line (important reference) */}
             <ReferenceLine
               y={0}
-              stroke="hsl(var(--destructive))"
+              stroke={CHART_COLORS.danger}
               strokeWidth={2}
               label={{
                 value: '資産枯渇ライン',
                 position: 'insideBottomRight',
-                fill: 'hsl(var(--destructive))',
+                fill: CHART_COLORS.danger,
                 fontSize: 10,
               }}
             />

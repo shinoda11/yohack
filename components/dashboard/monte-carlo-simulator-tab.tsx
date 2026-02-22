@@ -83,7 +83,7 @@ function CustomTooltip({ active, payload, label }: any) {
   };
 
   return (
-    <div className="rounded-lg border border-brand-linen bg-white px-3 py-2 shadow-sm dark:border-brand-bronze dark:bg-brand-night">
+    <div className="rounded-lg border border-brand-sand bg-brand-canvas px-3 py-2 shadow-sm dark:border-brand-bronze dark:bg-brand-night">
       <p className="text-xs font-normal text-brand-night dark:text-brand-linen">{label}歳</p>
       <div className="mt-1 space-y-0.5 text-xs">
         <div className="flex justify-between gap-4">
@@ -341,7 +341,7 @@ export function MonteCarloSimulatorTab({
               </div>
             )}
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 5, bottom: 10 }}>
+              <ComposedChart data={chartData} margin={{ top: 16, right: 16, left: 8, bottom: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="age"
