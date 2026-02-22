@@ -373,7 +373,7 @@ export default function BranchPage() {
   const customizeOpen = !!customizePreset;
 
   return (
-    <div className="max-w-2xl mx-auto md:max-w-none md:px-8 px-4 py-6 overflow-x-hidden">
+    <div className="max-w-2xl mx-auto md:max-w-5xl px-4 py-6 overflow-x-hidden">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-bold tracking-tight text-foreground">分岐ビルダー</h1>
@@ -400,8 +400,8 @@ export default function BranchPage() {
 
       {/* Main 2-column layout */}
       <div className="flex flex-col md:flex-row md:gap-8">
-        {/* Left: Tree (sticky on desktop, 60% width) */}
-        <div className="md:w-[60%] md:shrink-0 md:sticky md:top-20 md:self-start mb-6 md:mb-0">
+        {/* Left: Tree (sticky on desktop) */}
+        <div className="md:flex-1 md:sticky md:top-20 md:self-start mb-6 md:mb-0">
           <BranchTreeViz
             currentAge={profile.currentAge}
             selectedBranches={selectedBranches}
@@ -410,7 +410,7 @@ export default function BranchPage() {
           />
         </div>
 
-        {/* Right: Categories or Preview (40%) */}
+        {/* Right: Categories or Preview */}
         <div className="flex-1 min-w-0">
           {step === 'select' ? (
             <div className="space-y-6">

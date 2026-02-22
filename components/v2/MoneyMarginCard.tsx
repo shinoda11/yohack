@@ -57,35 +57,12 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
         ? 'ダッシュボードでシミュレーションを実行してください'
         : null;
 
-  // 値に応じた文脈メッセージを生成
-  const getSavingsContext = (): string => {
-    if (!hasValidData) return '';
-    const val = moneyMargin?.monthlyNetSavings ?? 0;
-    if (val > 0) return '毎月の余剰資金。住宅購入後のローン返済余力の目安になります';
-    if (val === 0) return '収支がちょうどトントンの状態。固定費の見直しで余白を作れます';
-    return '支出が収入を上回っています。住宅購入前に収支の改善が必要です';
-  };
-
-  const getEmergencyContext = (): string => {
-    if (!hasValidData) return '';
-    const val = moneyMargin?.emergencyFundCoverage ?? 0;
-    if (val >= 12) return '十分な備えがあります。想定外の収入減にも対応できます';
-    if (val >= 6) return '一般的な安全ラインを確保。余裕を持つなら12ヶ月分が理想です';
-    return '目安の6ヶ月分に不足しています。現金比率の見直しを検討してください';
-  };
-
-  const getIncomeContext = (): string => {
-    if (!hasValidData) return '';
-    return '税・社保控除後の手取り総額。ローン返済比率の基準になります';
-  };
-
   const metrics = [
     {
       icon: PiggyBank,
       label: '月々の純貯蓄額',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.monthlyNetSavings)}万円` : '—',
       description: '手取り収入から支出を引いた月々の余剰額',
-      context: getSavingsContext(),
       highlight: hasValidData && (moneyMargin?.monthlyNetSavings ?? 0) > 0,
     },
     {
@@ -93,7 +70,6 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
       label: '緊急資金カバー月数',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.emergencyFundCoverage, 1)}ヶ月分` : '—',
       description: '収入が途絶えた場合に現在の貯蓄で生活できる月数。6ヶ月以上が目安',
-      context: getEmergencyContext(),
       highlight: hasValidData && (moneyMargin?.emergencyFundCoverage ?? 0) >= 6,
     },
     {
@@ -101,7 +77,6 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
       label: '年間可処分所得',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.annualDisposableIncome)}万円` : '—',
       description: '税・社会保険料控除後の年間手取り総額',
-      context: getIncomeContext(),
       highlight: hasValidData,
     },
   ];
@@ -129,13 +104,13 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
             {missingReason}
           </div>
         )}
-        <div className="divide-y divide-border">
+        <div className="space-y-4">
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="flex items-start gap-4 px-4 py-4 first:pt-0"
+              className="flex items-start gap-4 rounded-lg p-4 transition-colors hover:bg-muted/50"
             >
-              <div className={`mt-0.5 rounded-full p-2 ${metric.highlight ? 'bg-safe/10 text-safe' : 'bg-muted text-muted-foreground'}`}>
+              <div className={`rounded-full p-2 ${metric.highlight ? 'bg-safe/10 text-safe' : 'bg-muted text-muted-foreground'}`}>
                 <metric.icon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">
@@ -155,11 +130,6 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
                 <p className={`text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums ${metric.highlight ? 'text-foreground' : 'text-muted-foreground'}`}>
                   {metric.value}
                 </p>
-                {metric.context && (
-                  <p className="text-xs text-brand-bronze mt-1">
-                    {metric.context}
-                  </p>
-                )}
               </div>
             </div>
           ))}

@@ -194,59 +194,59 @@ function generateActions(
     });
   }
   
-  // Scenario exploration
-  if (score.overall < 80) {
+  // Investment optimization
+  if (margins.money && margins.money.monthlyNetSavings > 10 && score.overall < 80) {
     actions.push({
-      id: 'action-explore-scenarios',
-      title: '年収ダウンシナリオの検証',
-      description: '分岐ビルダーで年収-20%の世界線を追加し、耐性を確認しましょう。',
+      id: 'action-invest-surplus',
+      title: '余剰資金の投資',
+      description: `月${Math.floor(margins.money.monthlyNetSavings * 0.7)}万円を長期投資に回しましょう。`,
       impact: 'high' as ImpactLevel,
       effort: 'low',
       timeHorizon: 'medium' as TimeHorizon,
-      category: 'scenario',
-      estimatedBenefit: 'リスク耐性の可視化',
+      category: 'investment',
+      estimatedBenefit: '年間資産増加率+3-5%',
     });
   }
   
-  // Worldline comparison
+  // Cost reduction
   if (profile.livingCostAnnual > profile.grossIncome * 0.4) {
     actions.push({
-      id: 'action-compare-worldlines',
-      title: '世界線比較で余白を確認',
-      description: '支出が高い状態での世界線を比較し、余白の違いを可視化しましょう。',
+      id: 'action-reduce-cost',
+      title: '支出の最適化',
+      description: '固定費の見直しで貯蓄率を改善できます。',
       impact: 'medium' as ImpactLevel,
-      effort: 'low',
+      effort: 'medium',
       timeHorizon: 'short' as TimeHorizon,
-      category: 'scenario',
-      estimatedBenefit: '意思決定の判断材料',
+      category: 'expense',
+      estimatedBenefit: '年間50-100万円の節約',
     });
   }
-
-  // Pace-down scenario
-  if (profile.currentAge < 50) {
+  
+  // Income increase
+  if (profile.sideIncomeNet === 0 && profile.currentAge < 50) {
     actions.push({
-      id: 'action-pacedown',
-      title: 'ペースダウン世界線を試す',
-      description: '分岐ビルダーで年収半減シナリオを追加し、選択の余白を探りましょう。',
+      id: 'action-side-income',
+      title: '副収入の検討',
+      description: 'スキルを活かした副業でFIRE達成を加速できます。',
       impact: 'high' as ImpactLevel,
-      effort: 'low',
+      effort: 'high',
       timeHorizon: 'medium' as TimeHorizon,
-      category: 'scenario',
-      estimatedBenefit: '将来の選択肢の可視化',
+      category: 'income',
+      estimatedBenefit: 'FIRE達成1-3年短縮',
     });
   }
-
-  // Housing scenario for renters
-  if (profile.homeStatus === 'renter') {
+  
+  // Risk management
+  if (score.risk < 50) {
     actions.push({
-      id: 'action-housing-scenario',
-      title: '住宅購入シナリオの追加',
-      description: '分岐ビルダーで購入世界線を追加し、賃貸継続との違いを比較しましょう。',
+      id: 'action-diversify',
+      title: 'ポートフォリオの分散',
+      description: '資産クラスの分散でリスクを軽減しましょう。',
       impact: 'medium' as ImpactLevel,
       effort: 'low',
       timeHorizon: 'short' as TimeHorizon,
-      category: 'scenario',
-      estimatedBenefit: '住宅判断の材料',
+      category: 'risk',
+      estimatedBenefit: 'ボラティリティ20-30%低減',
     });
   }
   
@@ -303,7 +303,7 @@ function generatePrimaryStrategy(
         timeToFire: yearsToFire ? Math.max(1, yearsToFire - 2) : null,
         riskReduction: -5,
       },
-      requiredActions: ['分岐ビルダーで攻めの世界線を追加', '世界線比較で余白を確認'],
+      requiredActions: ['投資比率の引き上げ', '成長株への傾斜', 'RSUの戦略的保有'],
       assumptions: ['市場が平均的に推移', '収入が維持される'],
     },
     balanced: {
@@ -316,7 +316,7 @@ function generatePrimaryStrategy(
         timeToFire: yearsToFire,
         riskReduction: 10,
       },
-      requiredActions: ['年収ダウンシナリオを分岐ビルダーで検証', '世界線比較で余白バランスを確認'],
+      requiredActions: ['分散投資の維持', '定期的なリバランス', '緊急資金の確保'],
       assumptions: ['計画通りの貯蓄', 'インフレ率が想定内'],
     },
     conservative: {
@@ -329,7 +329,7 @@ function generatePrimaryStrategy(
         timeToFire: yearsToFire ? yearsToFire + 2 : null,
         riskReduction: 25,
       },
-      requiredActions: ['分岐ビルダーでペースダウン世界線を試す', '住宅購入タイミングを世界線比較で検討'],
+      requiredActions: ['生活防衛資金の積み増し', '固定費の削減', '安定資産の比率増加'],
       assumptions: ['支出削減が可能', '収入が安定'],
     },
     defensive: {
@@ -342,7 +342,7 @@ function generatePrimaryStrategy(
         timeToFire: null,
         riskReduction: 40,
       },
-      requiredActions: ['分岐ビルダーで前提条件を見直す', 'リタイア年齢を変えた世界線を比較'],
+      requiredActions: ['緊急の支出見直し', '収入増加の模索', 'FIRE目標年齢の見直し'],
       assumptions: ['大きな支出削減が可能', '追加収入の確保が可能'],
     },
   };

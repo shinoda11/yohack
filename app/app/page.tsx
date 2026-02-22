@@ -154,7 +154,6 @@ export default function DashboardPage() {
   }, [simResult]);
 
   // --- Collapsible card state ---
-  const hasHousingPlans = (profile.housingPlans?.length ?? 0) > 0;
   const [openCards, setOpenCards] = useState<Record<CardKey, boolean>>({
     income: false,
     retirement: false,
@@ -189,13 +188,6 @@ export default function DashboardPage() {
       return changed ? next : prev;
     });
   }, [cardComplete]);
-
-  // Auto-expand housing card when user has purchase plans (e.g. after store hydration)
-  useEffect(() => {
-    if (hasHousingPlans && !manualToggles.current.has('housing')) {
-      setOpenCards(prev => prev.housing ? prev : { ...prev, housing: true });
-    }
-  }, [hasHousingPlans]);
 
   const handleCardToggle = useCallback((key: CardKey, open: boolean) => {
     manualToggles.current.add(key);

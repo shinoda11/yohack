@@ -42,7 +42,7 @@ import { cn, CHART_COLORS } from '@/lib/utils';
 
 // --- 色定数 ---
 const RENT_COLOR = '#2563EB';
-const PLAN_COLORS = ['#C8B89A', '#8A7A62', '#5A5550'] as const;
+const PLAN_COLORS = ['#C8B89A', '#16A34A', '#9333EA'] as const;
 const PLAN_LETTERS = ['A', 'B', 'C'] as const;
 
 interface ProjectionPoint {
@@ -534,7 +534,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
         {/* 結論テキスト */}
         <p className={cn(
           "text-sm font-normal text-center inline-flex items-center justify-center gap-1 w-full",
-          'text-brand-gold'
+          bestPlanId === 'rent' ? 'text-safe' : 'text-[#4A6FA5]'
         )}>
           <Check className="h-4 w-4 shrink-0" />
           {conclusionText}
@@ -559,7 +559,8 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                 <TableRow
                   key={s.id}
                   className={cn(
-                    s.id === bestPlanId && 'bg-brand-gold/10',
+                    s.id === bestPlanId && bestPlanId === 'rent' && 'bg-safe/10',
+                    s.id === bestPlanId && bestPlanId !== 'rent' && 'bg-[#4A6FA5]/10',
                   )}
                 >
                   <TableCell className="font-normal">{s.name}</TableCell>

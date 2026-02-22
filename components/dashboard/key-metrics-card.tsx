@@ -26,26 +26,26 @@ interface MetricItemProps {
   highlight?: 'success' | 'warning' | 'danger' | 'neutral';
 }
 
-// Brand-tone styles — differentiate by text weight/opacity, not signal colors
+// Semantic colors using Tailwind standard classes
 function getHighlightStyles(highlight?: 'success' | 'warning' | 'danger' | 'neutral') {
   switch (highlight) {
     case 'success':
       return {
-        icon: 'text-brand-gold',
-        value: 'text-brand-night dark:text-brand-linen',
-        bg: 'bg-brand-canvas dark:bg-brand-night/30',
+        icon: 'text-emerald-600 dark:text-emerald-400',
+        value: 'text-emerald-700 dark:text-emerald-300',
+        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
       };
     case 'warning':
       return {
-        icon: 'text-brand-bronze',
-        value: 'text-brand-stone dark:text-brand-bronze',
-        bg: 'bg-brand-canvas dark:bg-brand-night/30',
+        icon: 'text-amber-600 dark:text-amber-400',
+        value: 'text-amber-700 dark:text-amber-300',
+        bg: 'bg-amber-50 dark:bg-amber-950/20',
       };
     case 'danger':
       return {
-        icon: 'text-brand-stone',
-        value: 'text-brand-stone dark:text-brand-bronze',
-        bg: 'bg-brand-canvas dark:bg-brand-night/30',
+        icon: 'text-red-700 dark:text-red-400',
+        value: 'text-red-700 dark:text-red-300',
+        bg: 'bg-red-50 dark:bg-red-950/20',
       };
     default:
       return {
@@ -72,8 +72,8 @@ function MetricItem({
     <div className={cn(
       "flex items-center gap-4 py-4 px-2 rounded-lg transition-all duration-[600ms] ease-out",
       styles.bg,
-      isDanger && "border border-brand-sand dark:border-brand-stone/30",
-      isWarning && "border border-brand-sand dark:border-brand-stone/30",
+      isDanger && "border-2 border-danger/40 dark:border-danger/30",
+      isWarning && "border border-amber-400/40 dark:border-amber-500/30",
     )}>
       <div className={cn("flex h-8 w-8 items-center justify-center", styles.icon)}>
         {icon}
@@ -85,7 +85,10 @@ function MetricItem({
             {value}
           </p>
           {showAlert && (
-            <AlertTriangle className="h-4 w-4 flex-shrink-0 text-brand-bronze" />
+            <AlertTriangle className={cn(
+              "h-4 w-4 flex-shrink-0",
+              isDanger ? "text-danger dark:text-red-400" : "text-amber-500 dark:text-amber-400",
+            )} />
           )}
         </div>
         {subValue && (

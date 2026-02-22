@@ -110,6 +110,9 @@ export default function WorldlinePage() {
     selectedComparisonIds,
     moneyMargin: margins.moneyMargin,
     moneyHealth: margins.moneyHealth,
+    primaryStrategy: strategy.primaryStrategy,
+    strategicInsights: strategy.strategicInsights,
+    onViewStrategy: () => setActiveTab('strategy'),
   };
 
   const comparisonProps = {
