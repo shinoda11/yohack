@@ -160,7 +160,7 @@ export async function POST(req: Request) {
 ---
 
 ### [P0-1] LP Y字アニメーション高速化
-**status:** [ ]
+**status:** [x]
 
 **意図:** LPのY字SVGにドロー・アニメーションを追加し、ページ読み込み時に枝が描かれる演出を入れる。
 
