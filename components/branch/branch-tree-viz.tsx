@@ -210,9 +210,9 @@ export function BranchTreeViz({
     (b) => !b.auto && b.certainty === 'uncertain' && b.age !== undefined
   );
 
-  const SVG_W = 480;
-  // Dynamic height: taller with more uncertain branches (320–400)
-  const SVG_H = Math.max(320, Math.min(400, 280 + uncertain.length * 40));
+  const SVG_W = 720;
+  // Dynamic height: taller with more uncertain branches (360–480)
+  const SVG_H = Math.max(360, Math.min(480, 300 + uncertain.length * 45));
   const PAD_X = 30;
   const PAD_RIGHT = 120;
   const PAD_Y = 30;

@@ -390,132 +390,121 @@ export default function BranchPage() {
         </div>
       )}
 
-      {/* PC: Full-width timeline above 2-column layout */}
-      <div className="hidden md:block mb-6">
+      {/* Decision Tree: Full Width */}
+      <div className="mb-6">
+        <BranchTreeViz
+          currentAge={profile.currentAge}
+          selectedBranches={selectedBranches}
+          candidates={step === 'preview' ? candidates : undefined}
+          showScores={step === 'preview'}
+        />
+      </div>
+
+      {/* Timeline */}
+      <div className="mb-6">
         <BranchTimeline
           profile={profile}
           selectedBranches={selectedBranches}
         />
       </div>
 
-      {/* Main 2-column layout */}
-      <div className="flex flex-col md:flex-row md:gap-8">
-        {/* Left: Tree (sticky on desktop) */}
-        <div className="md:flex-1 md:sticky md:top-20 md:self-start mb-6 md:mb-0">
-          <BranchTreeViz
-            currentAge={profile.currentAge}
-            selectedBranches={selectedBranches}
-            candidates={step === 'preview' ? candidates : undefined}
-            showScores={step === 'preview'}
-          />
-        </div>
-
-        {/* Right: Categories or Preview */}
-        <div className="flex-1 min-w-0">
-          {step === 'select' ? (
-            <div className="space-y-6">
-              <BranchCategory
-                certainty="confirmed"
-                branches={confirmed}
-                selectedIds={activeSelectedIds}
-                onToggle={handleToggle}
-              />
-              <BranchCategory
-                certainty="planned"
-                branches={planned}
-                selectedIds={activeSelectedIds}
-                onToggle={handleToggle}
-                onAddEvent={() => setPickerOpen(true)}
-                onEditBranch={handleEditBranch}
-                onDeleteBranch={handleDeleteBranch}
-                deletableBranchIds={deletableBranchIds}
-                onHideBranch={handleHideBranch}
-                hidableBranchIds={hidableBranchIds}
-              />
-              <BranchCategory
-                certainty="uncertain"
-                branches={uncertain}
-                selectedIds={activeSelectedIds}
-                onToggle={handleToggle}
-                onAddEvent={() => setPickerOpen(true)}
-                onEditBranch={handleEditBranch}
-                onDeleteBranch={handleDeleteBranch}
-                deletableBranchIds={deletableBranchIds}
-                onHideBranch={handleHideBranch}
-                hidableBranchIds={hidableBranchIds}
-              />
-
-              {/* Mobile: Timeline after checklists */}
-              <div className="md:hidden">
-                <BranchTimeline
-                  profile={profile}
-                  selectedBranches={selectedBranches}
-                />
-              </div>
-
-              {!hasUncertain && nonAutoSelectedCount > 0 && (
-                <p className="text-xs text-muted-foreground text-center py-2">
-                  不確定な分岐を加えると、より多くの世界線が生まれます
-                </p>
-              )}
-
-              {/* Generate button */}
-              <Button
-                onClick={handleGenerate}
-                disabled={nonAutoSelectedCount === 0 || isGenerating}
-                className="w-full gap-2 bg-brand-gold text-white hover:bg-brand-gold/90"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    生成中… ({progress.current}/{progress.total})
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    世界線を生成する
-                  </>
-                )}
-              </Button>
-
-              {/* Hidden default events (collapsible) */}
-              {hiddenDefaults.length > 0 && (
-                <details className="pt-2">
-                  <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                    非表示のイベント（{hiddenDefaults.length}件）
-                  </summary>
-                  <div className="mt-2 space-y-1">
-                    {hiddenDefaults.map((branch) => (
-                      <div
-                        key={branch.id}
-                        className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm"
-                      >
-                        <span className="text-muted-foreground">{branch.label}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => unhideDefaultBranch(branch.id)}
-                          className="h-7 text-xs gap-1 text-muted-foreground hover:text-foreground"
-                        >
-                          <Eye className="h-3 w-3" />
-                          復活
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </details>
-              )}
-            </div>
-          ) : (
-            <WorldlinePreview
-              candidates={candidates}
-              selectedIds={selectedCandidateIds}
-              onToggle={handleCandidateToggle}
-              onCompare={handleCompare}
-              onBack={handleBack}
+      {/* Events: Single Column */}
+      <div>
+        {step === 'select' ? (
+          <div className="space-y-6">
+            <BranchCategory
+              certainty="confirmed"
+              branches={confirmed}
+              selectedIds={activeSelectedIds}
+              onToggle={handleToggle}
             />
-          )}
-        </div>
+            <BranchCategory
+              certainty="planned"
+              branches={planned}
+              selectedIds={activeSelectedIds}
+              onToggle={handleToggle}
+              onAddEvent={() => setPickerOpen(true)}
+              onEditBranch={handleEditBranch}
+              onDeleteBranch={handleDeleteBranch}
+              deletableBranchIds={deletableBranchIds}
+              onHideBranch={handleHideBranch}
+              hidableBranchIds={hidableBranchIds}
+            />
+            <BranchCategory
+              certainty="uncertain"
+              branches={uncertain}
+              selectedIds={activeSelectedIds}
+              onToggle={handleToggle}
+              onAddEvent={() => setPickerOpen(true)}
+              onEditBranch={handleEditBranch}
+              onDeleteBranch={handleDeleteBranch}
+              deletableBranchIds={deletableBranchIds}
+              onHideBranch={handleHideBranch}
+              hidableBranchIds={hidableBranchIds}
+            />
+
+            {!hasUncertain && nonAutoSelectedCount > 0 && (
+              <p className="text-xs text-muted-foreground text-center py-2">
+                不確定な分岐を加えると、より多くの世界線が生まれます
+              </p>
+            )}
+
+            {/* Generate button */}
+            <Button
+              onClick={handleGenerate}
+              disabled={nonAutoSelectedCount === 0 || isGenerating}
+              className="w-full gap-2 bg-brand-gold text-white hover:bg-brand-gold/90"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  生成中… ({progress.current}/{progress.total})
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  世界線を生成する
+                </>
+              )}
+            </Button>
+
+            {/* Hidden default events (collapsible) */}
+            {hiddenDefaults.length > 0 && (
+              <details className="pt-2">
+                <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
+                  非表示のイベント（{hiddenDefaults.length}件）
+                </summary>
+                <div className="mt-2 space-y-1">
+                  {hiddenDefaults.map((branch) => (
+                    <div
+                      key={branch.id}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm"
+                    >
+                      <span className="text-muted-foreground">{branch.label}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => unhideDefaultBranch(branch.id)}
+                        className="h-7 text-xs gap-1 text-muted-foreground hover:text-foreground"
+                      >
+                        <Eye className="h-3 w-3" />
+                        復活
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            )}
+          </div>
+        ) : (
+          <WorldlinePreview
+            candidates={candidates}
+            selectedIds={selectedCandidateIds}
+            onToggle={handleCandidateToggle}
+            onCompare={handleCompare}
+            onBack={handleBack}
+          />
+        )}
       </div>
 
       {/* Dialogs */}

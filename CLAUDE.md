@@ -118,6 +118,8 @@ YOHACKは ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop水準
 - mobileTab による入力/結果切り替えは廃止済み。モバイルもデスクトップも同じ1カラム構造
 - VariableBar と入力カード（`<details>` 内）は同じ Zustand store を参照。どちらで変更しても同期される
 - VariableBar の変数追加は慎重に。3つ（年収・生活費・目標年齢）を超えると Fintech SaaS 感が出る
+- 資産推移チャートの高さは h-[400px] sm:h-[520px]。65年分の微妙な差を読むための最低限の縦幅
+- 分岐ビルダー（/branch）はツリー全幅 → イベント一覧の1カラム構成。2カラムにしない（ツリーがプロダクトの核心であり、幅を半分にしない）
 
 ## 絶対にやらないこと
 - Phase1 で Supabase / Stripe / SendGrid を導入しない（`docs/constraints.md`）

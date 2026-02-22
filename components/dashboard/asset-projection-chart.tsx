@@ -145,9 +145,9 @@ export function AssetProjectionChart({
         description="将来の資産推移の予測範囲"
       >
         {isLoading ? (
-          <Skeleton className="h-[300px] w-full sm:h-[360px]" />
+          <Skeleton className="h-[400px] w-full sm:h-[520px]" />
         ) : (
-          <div className="flex h-[300px] flex-col items-center justify-center gap-4 sm:h-[360px]">
+          <div className="flex h-[400px] flex-col items-center justify-center gap-4 sm:h-[520px]">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-muted-foreground/30">
               <line x1="20" y1="4" x2="8" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               <line x1="20" y1="4" x2="32" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -223,7 +223,7 @@ export function AssetProjectionChart({
       </div>
 
       {/* Chart */}
-      <div className="relative h-[300px] sm:h-[360px] w-full overflow-x-hidden">
+      <div className="relative h-[400px] sm:h-[520px] w-full overflow-x-hidden">
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/40">
             <Skeleton className="h-4 w-16" />
