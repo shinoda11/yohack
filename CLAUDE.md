@@ -261,16 +261,6 @@ ExitReadinessCard → KeyMetricsCard → AssetProjectionChart → NextBestAction
 3. **実行** → 設計書の差分のみを適用
 4. **検査** → `docs/ds-audit/DS-X-after.md` に結果記録、before/after比較で承認
 
-### lib/v2/ のデッドコード（削除候補）
-- **未使用コンポーネント**: `components/v2/WorldLineLens.tsx`, `NextStepCard.tsx`, `EventLayer.tsx`, `ConclusionCard.tsx`, `ReasonCard.tsx`
-- **未使用フック**: `hooks/useWorldLines.ts`
-- **未使用ライブラリ**: `lib/v2/strategy.ts`（`hooks/useStrategy.ts` が代替実装。完全にデッドコード）
-- **未使用ライブラリ**: `lib/v2/events.ts`（唯一の利用者 EventLayer.tsx がデッドコード）
-- `lib/v2/worldline.ts` の大部分（`cloneWorldLine`, `addEventToWorldLine`, `removeEventFromWorldLine`, `evaluateKpiHealth`, `compareWorldLines`）が未使用
-- `lib/v2/adapter.ts` の `adaptV1ProfileToV2WorldLine`, `updateWorldLineWithResults` が未使用
-- `lib/v2/store.ts` の `showV2UI`, `goalLens` フィールドが未使用
-- **注意**: `lib/v2/adapter.ts` の `calculateMoneyMargin` は V2ResultSection の余白比較テーブルで使用中。削除不可
-
 ### エンジン仕様の要点
 - スコア重み: survival 55% / lifestyle 20% / risk 15% / liquidity 10%
 - 税金・年金は自動計算（累進課税7段階 + 報酬比例年金）

@@ -247,27 +247,27 @@ export async function POST(req: Request) {
 - `app/page.tsx` をダッシュボードのみに戻す
 
 ### [P2-2] チラ見せ動画（15秒）撮影・埋め込み
-**status:** [x]
+**status:** [ ]
 
 - 年収スライダー → グラフ変化のキャプチャ
 - 数字はダミーデータ
 - LP S0に埋め込み、`autoPlay loop muted playsInline`
 
 ### [P2-3] ケース台帳LP展開（6ケース）
-**status:** [x]
+**status:** [ ]
 
 - C01〜C18 + C19（6,000万 vs 8,000万）から6件選定
 - LP S3 を `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` に拡張
 
 ### [P2-4] 1on1裏メニュー表示ロジック
-**status:** [x]
+**status:** [ ]
 
 - トリガー: 世界線3本以上 OR Pass購入から60日経過
 - 表示場所: `/worldline` ページ末尾
 - 一度閉じたら再表示しない（localStorage）
 
 ### [P2-5] Stripe Checkout接続（Phase 2）
-**status:** [x]
+**status:** [ ]
 
 - Ready判定 → Stripe Checkout → ¥29,800 Pass購入 → アクセス権付与
 - `passSubscriptions` テーブル（Supabase）
