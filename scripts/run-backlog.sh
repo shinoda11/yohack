@@ -43,45 +43,60 @@ telegram_send() {
 
 # ── タスク抽出 ─────────────────────────────────────────────────
 get_next_task() {
-  # status: [ ] の最初のタスクブロックを抽出
-  python3 - "$BACKLOG" <<'PYEOF'
-import sys, re
+  # status: [ ] を含む最初のタスクブロックを抽出
+  # 1. **status:** [ ] がある行番号を取得
+  local status_line
+  status_line=$(grep -n '^\*\*status:\*\* \[ \]' "$BACKLOG" | head -1 | cut -d: -f1)
+  [ -z "$status_line" ] && return
 
-with open(sys.argv[1]) as f:
-    content = f.read()
+  # 2. その行より上にある直近の ### [ID] 行を探す（タスクヘッダー）
+  local header_line
+  header_line=$(sed -n "1,${status_line}p" "$BACKLOG" | grep -n '^### \[' | tail -1 | cut -d: -f1)
+  [ -z "$header_line" ] && return
 
-# タスクブロックを抽出（### [ID] から次の ### まで）
-pattern = r'(### \[([A-Z0-9a-z-]+)\].*?)\n\*\*status:\*\* \[ \](.*?)(?=\n### |\n---|\Z)'
-matches = re.findall(pattern, content, re.DOTALL)
+  # 3. タスクIDを抽出
+  local task_id
+  task_id=$(sed -n "${header_line}p" "$BACKLOG" | sed 's/^### \[\([A-Za-z0-9_-]*\)\].*/\1/')
 
-if matches:
-    header, task_id, body = matches[0]
-    print(f"TASK_ID={task_id}")
-    print(f"TASK_BODY<<HEREDOC")
-    print(header + "\n**status:** [ ]" + body.rstrip())
-    print("HEREDOC")
-PYEOF
+  # 4. タスクブロックの終端を探す（次の ### または --- または EOF）
+  local total_lines
+  total_lines=$(wc -l < "$BACKLOG")
+  local end_line
+  end_line=$(sed -n "$((header_line+1)),${total_lines}p" "$BACKLOG" | grep -n '^\(### \|---\)' | head -1 | cut -d: -f1)
+  if [ -n "$end_line" ]; then
+    end_line=$((header_line + end_line - 1))
+  else
+    end_line=$total_lines
+  fi
+
+  # 5. 末尾の空行を除去してブロックを出力
+  local body
+  body=$(sed -n "${header_line},${end_line}p" "$BACKLOG" | sed -e :a -e '/^[[:space:]]*$/{ $d; N; ba; }')
+
+  echo "TASK_ID=${task_id}"
+  echo "TASK_BODY<<HEREDOC"
+  echo "$body"
+  echo "HEREDOC"
 }
 
 # ── タスクを完了マーク ──────────────────────────────────────────
 mark_done() {
   local task_id="$1"
-  python3 - "$BACKLOG" "$task_id" <<'PYEOF'
-import sys, re
+  # ### [task_id] の行番号を探す
+  local header_line
+  header_line=$(grep -n "^### \[${task_id}\]" "$BACKLOG" | head -1 | cut -d: -f1)
+  [ -z "$header_line" ] && return
 
-backlog_path, task_id = sys.argv[1], sys.argv[2]
-with open(backlog_path) as f:
-    content = f.read()
+  # そのタスクブロック内の **status:** [ ] を [x] に置換
+  local total_lines
+  total_lines=$(wc -l < "$BACKLOG")
+  local status_line
+  status_line=$(sed -n "${header_line},${total_lines}p" "$BACKLOG" | grep -n '^\*\*status:\*\* \[ \]' | head -1 | cut -d: -f1)
+  [ -z "$status_line" ] && return
 
-# [ ] → [x] に変更（対象タスクIDのみ）
-pattern = rf'(### \[{re.escape(task_id)}\].*?\n\*\*status:\*\*) \[ \]'
-new_content = re.sub(pattern, r'\1 [x]', content, count=1, flags=re.DOTALL)
-
-with open(backlog_path, 'w') as f:
-    f.write(new_content)
-
-print(f"✅ {task_id} を完了マーク")
-PYEOF
+  local target_line=$((header_line + status_line - 1))
+  sed -i "${target_line}s/\\*\\*status:\\*\\* \\[ \\]/**status:** [x]/" "$BACKLOG"
+  log "✅ ${task_id} を完了マーク"
 }
 
 # ── メインループ ────────────────────────────────────────────────
