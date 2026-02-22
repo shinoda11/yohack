@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -101,6 +102,131 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
   )
 }
 
+/* ── Animated demo preview — income slider → graph change (15s loop) ── */
+function DemoPreview() {
+  const incomeRef = useRef<HTMLSpanElement>(null)
+  const sliderFillRef = useRef<HTMLDivElement>(null)
+  const sliderKnobRef = useRef<HTMLDivElement>(null)
+  const pathARef = useRef<SVGPathElement>(null)
+  const pathBRef = useRef<SVGPathElement>(null)
+  const labelBRef = useRef<SVGTextElement>(null)
+
+  useEffect(() => {
+    let frame: number
+    let start: number | null = null
+    const CYCLE = 5000
+
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t
+
+    // Y-coordinates for path control points [M, C1, C2, C3, S, end]
+    const aHi = [100, 82, 55, 38, 22, 18]
+    const aLo = [100, 96, 92, 90, 96, 102]
+    const bHi = [106, 98, 86, 80, 90, 106]
+    const bLo = [106, 104, 102, 108, 118, 130]
+
+    const buildPath = (hi: number[], lo: number[], t: number) => {
+      const y = hi.map((h, i) => Math.round(lerp(lo[i], h, t) * 10) / 10)
+      return `M40,${y[0]} C130,${y[1]} 220,${y[2]} 300,${y[3]} S400,${y[4]} 460,${y[5]}`
+    }
+
+    const tick = (ts: number) => {
+      if (!start) start = ts
+      const p = ((ts - start) % CYCLE) / CYCLE
+      const t = (Math.cos(p * Math.PI * 2) + 1) / 2 // smooth 1→0→1
+
+      const income = Math.round(800 + 400 * t)
+      if (incomeRef.current) incomeRef.current.textContent = income.toLocaleString()
+
+      const pct = 50 + 25 * t
+      if (sliderFillRef.current) sliderFillRef.current.style.width = `${pct}%`
+      if (sliderKnobRef.current) sliderKnobRef.current.style.left = `${pct - 2}%`
+
+      if (pathARef.current) pathARef.current.setAttribute('d', buildPath(aHi, aLo, t))
+      if (pathBRef.current) pathBRef.current.setAttribute('d', buildPath(bHi, bLo, t))
+      if (labelBRef.current) labelBRef.current.setAttribute('y', String(Math.round(lerp(130, 106, t) - 5)))
+
+      frame = requestAnimationFrame(tick)
+    }
+
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
+  }, [])
+
+  return (
+    <div className="bg-white rounded-xl border border-brand-sand shadow-sm p-4 sm:p-6">
+      {/* Mock income slider */}
+      <div className="mb-4">
+        <p className="text-[10px] sm:text-xs text-brand-bronze mb-1">本人年収</p>
+        <div className="flex items-baseline gap-1 mb-2">
+          <span
+            ref={incomeRef}
+            className="text-base sm:text-lg font-bold text-brand-night font-[family-name:var(--font-dm-sans)] tabular-nums"
+          >
+            1,200
+          </span>
+          <span className="text-[10px] sm:text-xs text-brand-bronze">万円</span>
+        </div>
+        <div className="h-1.5 bg-brand-sand/40 rounded-full relative max-w-[180px]">
+          <div
+            ref={sliderFillRef}
+            className="absolute top-0 left-0 h-full bg-brand-gold rounded-full"
+            style={{ width: '75%' }}
+          />
+          <div
+            ref={sliderKnobRef}
+            className="absolute w-3 h-3 bg-brand-gold rounded-full shadow-sm border-2 border-white"
+            style={{ top: '-3px', left: '73%' }}
+          />
+        </div>
+      </div>
+
+      {/* Animated chart */}
+      <svg viewBox="0 0 520 165" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
+        {/* Grid */}
+        <line x1="40" y1="10" x2="40" y2="140" stroke="var(--brand-sand)" strokeWidth="1" />
+        <line x1="40" y1="140" x2="480" y2="140" stroke="var(--brand-sand)" strokeWidth="1" />
+        <line x1="40" y1="70" x2="480" y2="70" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
+        <line x1="40" y1="40" x2="480" y2="40" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
+        <line x1="40" y1="110" x2="480" y2="110" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
+
+        {/* Safety line */}
+        <line x1="40" y1="95" x2="480" y2="95" stroke="var(--danger)" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.5" />
+        <text x="482" y="99" fill="var(--danger)" fontSize="8" opacity="0.6">安心ライン</text>
+
+        {/* World line A */}
+        <path
+          ref={pathARef}
+          d="M40,100 C130,82 220,55 300,38 S400,22 460,18"
+          stroke="var(--safe)" strokeWidth="2.5" fill="none" strokeLinecap="round"
+        />
+
+        {/* World line B */}
+        <path
+          ref={pathBRef}
+          d="M40,106 C130,98 220,86 300,80 S400,90 460,106"
+          stroke="var(--brand-gold)" strokeWidth="2" fill="none" strokeDasharray="8 4" strokeLinecap="round"
+        />
+
+        {/* Labels */}
+        <text x="400" y="13" fill="var(--safe)" fontSize="9" fontWeight="bold">A: 6,000万</text>
+        <text ref={labelBRef} x="400" y="101" fill="var(--brand-gold)" fontSize="9" fontWeight="bold">B: 8,000万</text>
+
+        {/* Y-axis */}
+        <text x="8" y="44" fill="var(--brand-bronze)" fontSize="7">3億</text>
+        <text x="8" y="74" fill="var(--brand-bronze)" fontSize="7">2億</text>
+        <text x="8" y="114" fill="var(--brand-bronze)" fontSize="7">1億</text>
+        <text x="22" y="144" fill="var(--brand-bronze)" fontSize="7">0</text>
+
+        {/* X-axis */}
+        <text x="38" y="158" fill="var(--brand-bronze)" fontSize="7">35歳</text>
+        <text x="160" y="158" fill="var(--brand-bronze)" fontSize="7">50歳</text>
+        <text x="280" y="158" fill="var(--brand-bronze)" fontSize="7">65歳</text>
+        <text x="400" y="158" fill="var(--brand-bronze)" fontSize="7">80歳</text>
+      </svg>
+    </div>
+  )
+}
+
 /* ── Main LP Content ── */
 export function LPContent() {
   return (
@@ -118,7 +244,7 @@ export function LPContent() {
         </div>
       </header>
 
-      {/* S1: Hero */}
+      {/* S0: Hero */}
       <section className="py-20 sm:py-28 px-4">
         <motion.div
           className="max-w-3xl mx-auto text-center"
@@ -160,56 +286,14 @@ export function LPContent() {
             </Link>
           </motion.div>
 
-          {/* Product preview SVG */}
+          {/* Animated demo — income slider → graph change (loops every 5s) */}
+          {/* To swap for a real recording: replace <DemoPreview /> with
+              <video autoPlay loop muted playsInline className="w-full h-auto rounded-xl">
+                <source src="/videos/demo-preview.mp4" type="video/mp4" />
+              </video>
+          */}
           <motion.div className="mt-12 max-w-2xl mx-auto" variants={fadeUp}>
-            <div className="bg-white rounded-xl border border-brand-sand shadow-sm p-6 sm:p-8">
-              <svg viewBox="0 0 480 180" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-                {/* Grid lines */}
-                <line x1="40" y1="20" x2="40" y2="160" stroke="var(--brand-sand)" strokeWidth="1" />
-                <line x1="40" y1="160" x2="460" y2="160" stroke="var(--brand-sand)" strokeWidth="1" />
-                <line x1="40" y1="90" x2="460" y2="90" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="40" y1="50" x2="460" y2="50" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
-                <line x1="40" y1="130" x2="460" y2="130" stroke="var(--brand-sand)" strokeWidth="0.5" strokeDasharray="4 4" />
-
-                {/* Safety line */}
-                <line x1="40" y1="110" x2="460" y2="110" stroke="var(--danger)" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.6" />
-                <text x="462" y="114" fill="var(--danger)" fontSize="9" opacity="0.6">安心ライン</text>
-
-                {/* World line A (6,000万 purchase) */}
-                <motion.path
-                  d="M40,130 C130,115 220,90 300,70 S400,50 460,45"
-                  stroke="var(--safe)" strokeWidth="2.5" fill="none" strokeLinecap="round"
-                  initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
-                />
-
-                {/* World line B (8,000万 purchase) */}
-                <motion.path
-                  d="M40,138 C130,130 220,120 300,118 S400,132 460,145"
-                  stroke="var(--brand-gold)" strokeWidth="2" fill="none" strokeDasharray="8 4" strokeLinecap="round"
-                  initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
-                />
-
-                {/* Labels */}
-                <text x="390" y="38" fill="var(--safe)" fontSize="10" fontWeight="bold">A: 6,000万</text>
-                <text x="390" y="155" fill="var(--brand-gold)" fontSize="10" fontWeight="bold">B: 8,000万</text>
-
-                {/* Y-axis labels */}
-                <text x="8" y="54" fill="var(--brand-bronze)" fontSize="8">3億</text>
-                <text x="8" y="94" fill="var(--brand-bronze)" fontSize="8">2億</text>
-                <text x="8" y="134" fill="var(--brand-bronze)" fontSize="8">1億</text>
-                <text x="22" y="164" fill="var(--brand-bronze)" fontSize="8">0</text>
-
-                {/* X-axis labels */}
-                <text x="38" y="175" fill="var(--brand-bronze)" fontSize="8">35歳</text>
-                <text x="148" y="175" fill="var(--brand-bronze)" fontSize="8">50歳</text>
-                <text x="258" y="175" fill="var(--brand-bronze)" fontSize="8">65歳</text>
-                <text x="368" y="175" fill="var(--brand-bronze)" fontSize="8">80歳</text>
-              </svg>
-            </div>
+            <DemoPreview />
           </motion.div>
         </motion.div>
       </section>
