@@ -339,7 +339,7 @@ export function NextBestActionsCard({
                   ) : (
                     <Button
                       size="sm"
-                      className="min-h-[44px] gap-1.5 text-xs px-4 py-2 bg-brand-gold text-brand-night hover:bg-brand-gold/90"
+                      className="min-h-[44px] gap-1.5 text-xs px-4 py-2 border border-brand-gold text-brand-gold bg-transparent hover:bg-brand-gold/10"
                       onClick={() => handleApplyAction(action)}
                     >
                       <ArrowRight className="h-3 w-3" />

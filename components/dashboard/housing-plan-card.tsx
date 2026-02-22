@@ -596,7 +596,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
           最大3つの購入プランを並べて比較できます。
         </p>
         <Link href="/pricing">
-          <Button className="w-full bg-brand-gold text-brand-night hover:bg-brand-gold/90">
+          <Button className="w-full bg-brand-gold text-white hover:bg-brand-gold/90">
             Pro を始める
           </Button>
         </Link>

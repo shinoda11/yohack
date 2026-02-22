@@ -166,7 +166,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
 
               <div className="flex flex-col items-center gap-2">
                 <Button
-                  className="w-full sm:w-auto px-8 bg-brand-gold text-brand-night"
+                  className="w-full sm:w-auto px-8 bg-brand-gold text-white"
                   onClick={() => setStep(1)}
                 >
                   はじめる
@@ -244,7 +244,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" onClick={() => setStep(0)}>戻る</Button>
                 <Button
-                  className="bg-brand-gold text-brand-night"
+                  className="bg-brand-gold text-white"
                   onClick={() => setStep(2)}
                 >
                   次へ
@@ -309,7 +309,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" onClick={() => setStep(1)}>戻る</Button>
                 <Button
-                  className="bg-brand-gold text-brand-night"
+                  className="bg-brand-gold text-white"
                   onClick={() => setStep(3)}
                 >
                   次へ
@@ -355,7 +355,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
               <div className="flex justify-between pt-2">
                 <Button variant="ghost" onClick={() => setStep(2)}>戻る</Button>
                 <Button
-                  className="bg-brand-gold text-brand-night"
+                  className="bg-brand-gold text-white"
                   onClick={handleComplete}
                 >
                   結果を見る

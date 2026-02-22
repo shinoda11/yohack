@@ -116,7 +116,7 @@ export function WorldlinePreview({
           size="sm"
           onClick={onCompare}
           disabled={selectedIds.size < 2}
-          className="flex-1 gap-1 bg-brand-night text-brand-linen hover:bg-brand-night/90"
+          className="flex-1 gap-1 bg-brand-gold text-white hover:bg-brand-gold/90"
         >
           選んだ世界線を比較する
           <ArrowRight className="h-4 w-4" />

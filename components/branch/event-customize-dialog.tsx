@@ -233,7 +233,7 @@ export function EventCustomizeDialog({
           )}
           <Button
             onClick={handleSave}
-            className="bg-brand-night text-brand-linen hover:bg-brand-night/90"
+            className="bg-brand-gold text-white hover:bg-brand-gold/90"
           >
             {isEditing ? '保存' : '追加'}
           </Button>

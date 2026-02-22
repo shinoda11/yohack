@@ -350,7 +350,7 @@ estimate: M
 完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P1-6 number input slider improvement" && git push
 
 ## P1-7: Toast / Progress Bar実装
-status: todo
+status: done
 priority: P1
 estimate: S
 
@@ -372,7 +372,7 @@ Toast通知とProfileCompletenessのProgress Barを改善する。
 完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P1-7 toast and progress bar" && git push
 
 ## P1-8: CTAの優先順位整理（プライマリボタン1つルール）
-status: todo
+status: done
 priority: P1
 estimate: M
 

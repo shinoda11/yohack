@@ -86,7 +86,7 @@ export default function WorldlinePage() {
                 世界線が自動生成され、ここで比較できます
               </p>
             </div>
-            <Button asChild className="gap-2 bg-brand-gold text-brand-night hover:bg-brand-gold/90 h-11 px-6">
+            <Button asChild className="gap-2 bg-brand-gold text-white hover:bg-brand-gold/90 h-11 px-6">
               <Link href="/app/branch">
                 分岐ビルダーで世界線を作る
               </Link>
@@ -139,7 +139,7 @@ export default function WorldlinePage() {
                 余白で比較し、次の一手を決める
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild className="gap-2 bg-transparent">
+            <Button variant="outline" size="sm" asChild className="gap-2 border-brand-gold text-brand-gold bg-transparent hover:bg-brand-gold/10">
               <Link href="/app/branch">
                 <GitBranch className="h-4 w-4" />
                 <span className="hidden sm:inline">分岐を変更する</span>
