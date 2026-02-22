@@ -215,7 +215,7 @@ export async function POST(req: Request) {
 ---
 
 ### [P1-2] モバイルLP 375px確認・修正
-**status:** [ ]
+**status:** [x]
 
 **意図:** LP全体を375px幅で確認し、崩れている箇所を修正する。
 
