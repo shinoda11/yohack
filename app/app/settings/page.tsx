@@ -21,16 +21,12 @@ import {
   Settings,
   Info,
   ExternalLink,
-  LogOut,
-  User,
 } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
 
 const APP_VERSION = '0.1.0';
 
 export default function SettingsPage() {
   const { profile, scenarios, resetProfile } = useProfileStore();
-  const { user, signOut } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
@@ -143,58 +139,6 @@ export default function SettingsPage() {
               データ管理とアプリケーション情報
             </p>
           </div>
-
-          {/* 0. アカウント */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                アカウント
-              </CardTitle>
-              <CardDescription>
-                {user ? 'ログイン中' : 'クラウド同期にはログインが必要です'}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {user ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">メールアドレス</span>
-                    <span className="text-sm font-normal">{user.email}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">データ同期</span>
-                    <span className="text-sm font-normal text-safe">有効</span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="justify-start gap-2"
-                    onClick={async () => {
-                      await signOut();
-                      toast({ title: 'ログアウトしました' });
-                    }}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    ログアウト
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">
-                    ログインすると、プロファイルとシナリオがクラウドに自動保存されます。
-                  </p>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Button variant="outline" className="justify-start gap-2" asChild>
-                      <a href="/auth/login">ログイン</a>
-                    </Button>
-                    <Button variant="outline" className="justify-start gap-2" asChild>
-                      <a href="/auth/signup">新規登録</a>
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           {/* 1. データ管理 */}
           <Card>

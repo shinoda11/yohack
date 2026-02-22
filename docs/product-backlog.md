@@ -272,7 +272,7 @@ export async function POST(req: Request) {
 - Webhook: `checkout.session.completed` → Pass有効化
 
 ### [P2-6] Supabase導入（Phase 2）
-**status:** [x]
+**status:** [ ]
 
 - 認証: Supabase Auth
 - テーブル: fitGateResponses / passSubscriptions / prepModeSubscribers
