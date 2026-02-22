@@ -220,7 +220,7 @@ export function BranchTreeViz({
   // ── 0 uncertain events: simple baseline ──
   if (uncertain.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="py-4">
         <p className="text-xs font-normal text-muted-foreground mb-2">デシジョンツリー</p>
         <svg viewBox={`0 0 ${SVG_W} 120`} className="w-full h-auto" role="img" aria-label="デシジョンツリー">
           <circle cx={PAD_X} cy={50} r={6} fill="var(--brand-night)" />
@@ -272,7 +272,7 @@ export function BranchTreeViz({
   const realLeaves = leaves.filter((l) => !l.clipped);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="py-4">
       <p className="text-xs font-normal text-muted-foreground mb-2">デシジョンツリー</p>
       <svg
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
