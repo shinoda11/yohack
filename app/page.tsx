@@ -126,7 +126,7 @@ export default function LandingPage() {
           </h2>
 
           {/* Two-column chain comparison */}
-          <div className="grid grid-cols-2 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
             {/* Column A */}
             <div className="space-y-0">
               <div className="text-xs tracking-widest text-brand-bronze mb-4">世界線 A</div>
@@ -137,9 +137,9 @@ export default function LandingPage() {
               ].map((step, i) => (
                 <div key={i}>
                   <div className="rounded-lg border border-brand-sand bg-white p-3 sm:p-4">
-                    <p className="text-[10px] sm:text-xs text-brand-bronze mb-1">{step.age}</p>
+                    <p className="text-xs text-brand-bronze mb-1">{step.age}</p>
                     <p className="text-xs sm:text-sm font-normal text-brand-night">{step.text}</p>
-                    {step.sub && <p className="text-[10px] sm:text-xs text-brand-stone mt-1">（{step.sub}）</p>}
+                    {step.sub && <p className="text-xs text-brand-stone mt-1">（{step.sub}）</p>}
                   </div>
                   {i < 2 && (
                     <div className="flex justify-center py-1.5 text-brand-bronze/40">
@@ -164,9 +164,9 @@ export default function LandingPage() {
               ].map((step, i) => (
                 <div key={i}>
                   <div className="rounded-lg border border-brand-sand bg-white p-3 sm:p-4">
-                    <p className="text-[10px] sm:text-xs text-brand-bronze mb-1">{step.age}</p>
+                    <p className="text-xs text-brand-bronze mb-1">{step.age}</p>
                     <p className="text-xs sm:text-sm font-normal text-brand-night">{step.text}</p>
-                    {step.sub && <p className="text-[10px] sm:text-xs text-brand-stone mt-1">（{step.sub}）</p>}
+                    {step.sub && <p className="text-xs text-brand-stone mt-1">（{step.sub}）</p>}
                   </div>
                   {i < 2 && (
                     <div className="flex justify-center py-1.5 text-brand-bronze/40">
