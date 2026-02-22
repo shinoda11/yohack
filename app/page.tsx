@@ -83,15 +83,15 @@ export default function LandingPage() {
                 <line x1="40" y1="110" x2="460" y2="110" stroke="var(--danger)" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.6" />
                 <text x="462" y="114" fill="var(--danger)" fontSize="9" opacity="0.6">安心ライン</text>
 
-                {/* World line A (purchase) — solid */}
-                <path d="M40,140 C100,130 140,100 200,85 S300,50 380,40 L460,35" stroke="var(--safe)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                {/* World line A (6,000万 purchase) — rises above safety line */}
+                <path d="M40,130 C130,115 220,90 300,70 S400,50 460,45" stroke="var(--safe)" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
-                {/* World line B (rent) — dashed */}
-                <path d="M40,140 C100,135 140,120 200,115 S300,105 380,100 L460,95" stroke="var(--brand-gold)" strokeWidth="2" fill="none" strokeDasharray="8 4" strokeLinecap="round" />
+                {/* World line B (8,000万 purchase) — flat then declines below safety line */}
+                <path d="M40,138 C130,130 220,120 300,118 S400,132 460,145" stroke="var(--brand-gold)" strokeWidth="2" fill="none" strokeDasharray="8 4" strokeLinecap="round" />
 
                 {/* Labels */}
-                <text x="410" y="30" fill="var(--safe)" fontSize="10" fontWeight="bold">世界線A</text>
-                <text x="410" y="92" fill="var(--brand-gold)" fontSize="10" fontWeight="bold">世界線B</text>
+                <text x="390" y="38" fill="var(--safe)" fontSize="10" fontWeight="bold">A: 6,000万</text>
+                <text x="390" y="155" fill="var(--brand-gold)" fontSize="10" fontWeight="bold">B: 8,000万</text>
 
                 {/* Y-axis labels */}
                 <text x="8" y="54" fill="var(--brand-bronze)" fontSize="8">3億</text>
