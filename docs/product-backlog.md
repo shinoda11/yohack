@@ -309,7 +309,7 @@ export async function POST(req: Request) {
 ---
 
 ### [DS-2] 「次の一手」セクションをYOHACK固有の内容に置き換える
-**status:** [ ]
+**status:** [x]
 
 **意図:**
 現在の「iDeCo/DC拠出を最大化」「定期的なリバランス」はMoneyForwardと区別がつかない。
