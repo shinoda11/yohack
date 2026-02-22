@@ -534,7 +534,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
         {/* 結論テキスト */}
         <p className={cn(
           "text-sm font-normal text-center inline-flex items-center justify-center gap-1 w-full",
-          bestPlanId === 'rent' ? 'text-safe' : 'text-[#4A6FA5]'
+          bestPlanId === 'rent' ? 'text-[#5A5550]' : 'text-[#4A6FA5]'
         )}>
           <Check className="h-4 w-4 shrink-0" />
           {conclusionText}
@@ -559,7 +559,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                 <TableRow
                   key={s.id}
                   className={cn(
-                    s.id === bestPlanId && bestPlanId === 'rent' && 'bg-safe/10',
+                    s.id === bestPlanId && bestPlanId === 'rent' && '',
                     s.id === bestPlanId && bestPlanId !== 'rent' && 'bg-[#4A6FA5]/10',
                   )}
                 >
