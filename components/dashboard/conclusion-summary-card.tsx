@@ -3,12 +3,13 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, AlertTriangle, XCircle, Loader2, ArrowRight, GitBranch, TrendingUp, TrendingDown } from 'lucide-react';
+import { Loader2, ArrowRight, GitBranch, TrendingUp, TrendingDown } from 'lucide-react';
+import { formatCurrency } from '@/lib/types';
 import type { ExitScoreDetail, KeyMetrics, Profile } from '@/lib/types';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { EventIcon } from '@/components/branch/event-icon';
 import { cn } from '@/lib/utils';
-import { useScoreAnimation } from '@/hooks/useScoreAnimation';
+import { useScoreAnimation, useAnimatedValue } from '@/hooks/useScoreAnimation';
 
 type Status = 'GREEN' | 'YELLOW' | 'RED' | 'CALCULATING';
 
@@ -40,63 +41,53 @@ function getStatusConfig(status: Status) {
       return {
         bgColor: 'bg-brand-gold/10 dark:bg-brand-gold/5',
         borderColor: 'border-brand-gold/30 dark:border-brand-gold/20',
-        iconColor: 'text-brand-gold',
-        textColor: 'text-brand-bronze',
-        icon: CheckCircle2,
       };
     case 'YELLOW':
       return {
         bgColor: 'bg-brand-stone/10 dark:bg-brand-stone/10',
         borderColor: 'border-brand-stone/30 dark:border-brand-stone/20',
-        iconColor: 'text-brand-stone',
-        textColor: 'text-brand-stone',
-        icon: AlertTriangle,
       };
     case 'RED':
       return {
         bgColor: 'bg-danger/10',
         borderColor: 'border-danger/40',
-        iconColor: 'text-danger',
-        textColor: 'text-danger',
-        icon: XCircle,
       };
     case 'CALCULATING':
     default:
       return {
         bgColor: 'bg-secondary',
         borderColor: 'border-border',
-        iconColor: 'text-muted-foreground',
-        textColor: 'text-muted-foreground',
-        icon: Loader2,
       };
   }
 }
 
 function generateConclusion(
-  status: Status,
   metrics: KeyMetrics | null,
   targetRetireAge: number
-): string {
-  if (!metrics) return 'シミュレーション中です';
+): { headline: string; subMetrics: Array<{ label: string; value: string }> } {
+  if (!metrics) return { headline: '計算中…', subMetrics: [] };
 
   const fireAge = metrics.fireAge;
-  const gap = fireAge ? fireAge - targetRetireAge : null;
+  const gap = fireAge ? targetRetireAge - fireAge : null;
 
-  if (status === 'GREEN') {
-    return gap && gap < 0
-      ? `目標より${Math.abs(gap)}年の余裕がありそうです`
-      : '現在のペースで目標達成が見えています';
+  let headline: string;
+  if (!fireAge) {
+    headline = '現在の条件では安心ラインに届いていません。';
+  } else if (gap !== null && gap > 2) {
+    headline = `${fireAge}歳で安心ライン到達。目標より${gap}年の余白。`;
+  } else if (gap !== null && gap >= 0) {
+    headline = `${fireAge}歳で到達。余白は${gap}年。`;
+  } else {
+    headline = `安心ラインは${fireAge}歳の見通し。目標の${targetRetireAge}歳まで${Math.abs(gap!)}年の差。`;
   }
 
-  if (status === 'YELLOW') {
-    return fireAge
-      ? `安心ラインは${fireAge}歳の見通し（目標${targetRetireAge}歳）`
-      : 'もう少しで安心ラインに届きそうです';
-  }
+  const subMetrics = [
+    { label: '生存率', value: `${Math.round(metrics.survivalRate)}%` },
+    { label: '安心ライン到達', value: fireAge ? `${fireAge}歳` : '—' },
+    { label: '100歳時点 中央値', value: formatCurrency(metrics.assetAt100) },
+  ];
 
-  return gap && gap > 0
-    ? `安心ラインまであと${gap}年の差があります`
-    : '現在の条件では安心ラインへの到達が難しそうです';
+  return { headline, subMetrics };
 }
 
 // --- Change badge with auto-fade ---
@@ -173,10 +164,11 @@ export function ConclusionSummaryCard({
 
   // Track score direction: up resets after 600ms, down (flash) after 300ms
   const scoreDirection = useScoreAnimation(score?.overall ?? null);
+  const animatedScore = useAnimatedValue(score?.overall ?? 0, 600);
 
-  const stateLine = useMemo(
-    () => generateConclusion(displayStatus, metrics, targetRetireAge),
-    [displayStatus, metrics, targetRetireAge]
+  const conclusion = useMemo(
+    () => generateConclusion(metrics, targetRetireAge),
+    [metrics, targetRetireAge]
   );
 
   // Compute changes from previous result
@@ -225,17 +217,63 @@ export function ConclusionSummaryCard({
           {targetRetireAge}歳を目標に試算
         </p>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-lg font-bold text-foreground leading-snug">
-            {stateLine}
-          </p>
-          {changes && (
-            <div className="flex items-center gap-1">
-              <ChangeBadge value={changes.score} unit="pt" />
-              <ChangeBadge value={changes.fireAge} unit="年" invertColor />
-              <ChangeBadge value={changes.survival} unit="%" />
-            </div>
-          )}
+        <div className="flex items-start gap-6">
+          {/* Score Ring */}
+          {score && (() => {
+            const radius = 48;
+            const strokeWidth = 6;
+            const size = 120;
+            const center = size / 2;
+            const circumference = 2 * Math.PI * radius;
+            const progress = Math.min(Math.max(animatedScore, 0), 100);
+            const offset = circumference - (progress / 100) * circumference;
+            return (
+              <div className="flex-shrink-0">
+                <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+                  <circle cx={center} cy={center} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} className="text-muted/60" />
+                  <circle
+                    cx={center} cy={center} r={radius} fill="none"
+                    stroke="hsl(var(--brand-gold))"
+                    strokeWidth={strokeWidth} strokeLinecap="round"
+                    strokeDasharray={circumference} strokeDashoffset={offset}
+                    className="transition-all duration-[600ms] ease-out"
+                    style={{ transform: 'rotate(-90deg)', transformOrigin: `${center}px ${center}px` }}
+                  />
+                  <text x={center} y={center - 4} textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="36" fontWeight="bold">
+                    {animatedScore}
+                  </text>
+                  <text x={center} y={center + 20} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="12">
+                    /100
+                  </text>
+                </svg>
+              </div>
+            );
+          })()}
+
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-foreground leading-snug">
+              {conclusion.headline}
+            </p>
+
+            {conclusion.subMetrics.length > 0 && (
+              <div className="flex gap-6 mt-2">
+                {conclusion.subMetrics.map((m, i) => (
+                  <div key={i} className="text-center">
+                    <div className="text-lg font-semibold tabular-nums">{m.value}</div>
+                    <div className="text-xs text-muted-foreground">{m.label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {changes && (
+              <div className="flex items-center gap-1 mt-2">
+                <ChangeBadge value={changes.score} unit="pt" />
+                <ChangeBadge value={changes.fireAge} unit="年" invertColor />
+                <ChangeBadge value={changes.survival} unit="%" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 世界線比較への導線 */}

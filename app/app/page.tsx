@@ -565,13 +565,7 @@ export default function DashboardPage() {
 
                   {/* Capture target for share */}
                   <div ref={captureRef} className="space-y-6">
-                    {/* Hero: Score — most important single card */}
-                    <ExitReadinessCard
-                      score={simResult?.score ?? null}
-                      isLoading={isLoading && !simResult}
-                    />
-
-                    {/* Key metrics — secondary */}
+                    {/* Key metrics */}
                     <KeyMetricsCard
                       metrics={simResult?.metrics ?? null}
                       currentAge={profile.currentAge}

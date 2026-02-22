@@ -86,6 +86,9 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - ダッシュボードに「こうすべき」系のFPアドバイスを表示しない（ブランド約束: 答えを出さない、土台を返す）
 - カラーは CSS トークン（safe/danger/brand-gold/brand-bronze）を使用。emerald/amber/red 等の生 Tailwind カラーを dashboard コンポーネントで使わない
 - 低スコア表現に red/danger を使わない。brand-bronze で「改善の余地」を表現する（決断の静けさ）
+- ダッシュボードのヒーローは ConclusionSummaryCard。スコアリング + 数字結論 + 世界線テンプレートを1枚に集約
+- 入力カードはデフォルト非表示（`<details>` 折りたたみ）。結果が画面の主役
+- 数字が語る。headline には具体的な年齢・年数を表示し、形容詞や曖昧表現は使わない
 
 ### カラー
 - ブランド: Night #1A1916 / Linen #F0ECE4 / Gold #C8B89A / Stone #5A5550 / Canvas #FAF9F7 / Bronze #8A7A62
