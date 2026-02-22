@@ -252,7 +252,7 @@ export async function POST(req: Request) {
 - LP S0に埋め込み、`autoPlay loop muted playsInline`
 
 ### [P2-3] ケース台帳LP展開（6ケース）
-**status:** [ ]
+**status:** [x]
 
 - C01〜C18 + C19（6,000万 vs 8,000万）から6件選定
 - LP S3 を `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` に拡張
