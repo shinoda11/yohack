@@ -2,21 +2,16 @@
 
 import type { SimulationResult, Profile } from '@/lib/types';
 import type { SavedScenario } from '@/lib/store';
-import type { OverallAssessment, StrategyRecommendation, StrategicInsight } from '@/hooks/useStrategy';
+import type { OverallAssessment } from '@/hooks/useStrategy';
 import type { MoneyMargin } from '@/lib/v2/margin';
 
 import { MoneyMarginCard } from '@/components/v2/MoneyMarginCard';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
   Target,
   TrendingUp,
   Shield,
-  ArrowRight,
-  Sparkles,
-  CheckCircle2,
-  Info,
   GitBranch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -32,13 +27,9 @@ interface V2ResultSectionProps {
   overallAssessment: OverallAssessment;
   scenarios: SavedScenario[];
   selectedComparisonIds: string[];
-  onViewStrategy?: () => void;
   // margins
   moneyMargin: MoneyMargin | null;
   moneyHealth: 'excellent' | 'good' | 'fair' | 'poor' | null;
-  // strategy
-  primaryStrategy: StrategyRecommendation;
-  strategicInsights: StrategicInsight[];
 }
 
 export function V2ResultSection(props: V2ResultSectionProps) {
@@ -51,11 +42,8 @@ export function V2ResultSection(props: V2ResultSectionProps) {
     overallAssessment,
     scenarios,
     selectedComparisonIds,
-    onViewStrategy,
     moneyMargin,
     moneyHealth,
-    primaryStrategy,
-    strategicInsights,
   } = props;
 
   if (renderMode === 'hero') {
@@ -129,13 +117,6 @@ export function V2ResultSection(props: V2ResultSectionProps) {
                 </div>
               </div>
 
-              {/* Quick Actions */}
-              <div className="flex-shrink-0">
-                <Button className="gap-2" onClick={onViewStrategy}>
-                  戦略を見る
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
@@ -257,120 +238,20 @@ export function V2ResultSection(props: V2ResultSectionProps) {
 
   // renderMode === 'strategy'
   return (
-    <>
-      {/* Primary Strategy */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-brand-bronze" />
-                推奨戦略: {primaryStrategy.name}
-              </CardTitle>
-              <CardDescription className="mt-1">
-                {primaryStrategy.description}
-              </CardDescription>
-            </div>
-            <Badge variant="outline" className="text-lg px-4 py-1">
-              信頼度 {primaryStrategy.confidence.toFixed(0)}%
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Expected Outcomes */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                +{primaryStrategy.expectedOutcome.scoreImprovement}
-              </div>
-              <div className="text-sm text-muted-foreground">予測スコア改善</div>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                {primaryStrategy.expectedOutcome.timeToFire ?? '--'}年
-              </div>
-              <div className="text-sm text-muted-foreground">安心ラインまで</div>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                {primaryStrategy.expectedOutcome.riskReduction > 0 ? '-' : '+'}
-                {Math.abs(primaryStrategy.expectedOutcome.riskReduction)}%
-              </div>
-              <div className="text-sm text-muted-foreground">リスク変化</div>
-            </div>
-          </div>
-
-          {/* Required Actions */}
-          <div>
-            <h4 className="font-normal mb-4">必要なアクション</h4>
-            <div className="space-y-2">
-              {primaryStrategy.requiredActions.map((action: string, index: number) => (
-                <div key={index} className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
-                  <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
-                  <span>{action}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Assumptions */}
-          <div>
-            <h4 className="font-normal mb-4 flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              前提条件
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {primaryStrategy.assumptions.map((assumption: string, index: number) => (
-                <Badge key={index} variant="secondary">
-                  {assumption}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Strategic Insights */}
-      <Card>
-        <CardHeader>
-          <CardTitle>戦略的インサイト</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            {strategicInsights.map((insight) => (
-              <div
-                key={insight.id}
-                className="rounded-lg border border-brand-linen bg-brand-canvas/50 p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      insight.category === 'strength' && 'bg-[#E8F5E8] text-safe border-safe/30',
-                      insight.category === 'weakness' && 'bg-[#FDE8E8] text-danger border-danger/30',
-                      insight.category === 'opportunity' && 'bg-[#E8EFF5] text-[#4A6FA5] border-[#4A6FA5]/30',
-                      insight.category === 'threat' && 'border-brand-bronze/60 text-brand-stone',
-                    )}
-                  >
-                    {insight.category === 'strength' && '強み'}
-                    {insight.category === 'weakness' && '弱み'}
-                    {insight.category === 'opportunity' && '機会'}
-                    {insight.category === 'threat' && '脅威'}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    関連度 {insight.relevance}%
-                  </span>
-                </div>
-                <h4 className="font-normal">{insight.title}</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {insight.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </>
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-gold/30 bg-brand-canvas p-12 text-center space-y-4">
+      <div className="rounded-full bg-brand-gold/10 p-4">
+        <GitBranch className="h-8 w-8 text-brand-gold/30" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-base font-bold text-brand-stone">
+          戦略はシナリオ比較から導出されます
+        </h3>
+        <p className="text-sm text-brand-bronze max-w-md leading-relaxed">
+          分岐ビルダーで複数の世界線を作成し、比較すると、
+          シナリオ間の差分に基づいた戦略が生成されます
+        </p>
+      </div>
+    </div>
   );
 }
 
