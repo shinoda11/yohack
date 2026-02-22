@@ -215,7 +215,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                       <button
                         key={m}
                         type="button"
-                        className={`flex-1 rounded-md border px-4 py-2.5 text-sm min-h-[44px] transition-colors ${
+                        className={`flex-1 rounded-lg border px-4 py-2.5 text-sm min-h-[44px] transition-colors ${
                           formData.mode === m
                             ? 'border-brand-gold bg-brand-gold/15 text-foreground font-normal'
                             : 'border-border text-muted-foreground hover:border-foreground/30'
@@ -341,7 +341,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     現金30% / 投資70% で自動配分されます（後から変更可）
                   </p>
                 </div>
-                <div className="rounded-md bg-muted/50 p-4 text-sm space-y-1">
+                <div className="rounded-lg bg-muted/50 p-4 text-sm space-y-1">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">現金</span>
                     <span>{Math.round(formData.totalAssets * 0.3).toLocaleString()} 万円</span>

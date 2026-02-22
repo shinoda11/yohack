@@ -178,7 +178,7 @@ export function EventCustomizeDialog({
                 type="button"
                 onClick={() => setCertainty('planned')}
                 className={cn(
-                  'flex-1 px-3 py-2 rounded-md text-sm font-normal transition-colors min-h-[44px]',
+                  'flex-1 px-3 py-2 rounded-lg text-sm font-normal transition-colors min-h-[44px]',
                   certainty === 'planned'
                     ? 'bg-safe text-white'
                     : 'bg-accent/50 text-muted-foreground hover:bg-accent'
@@ -190,7 +190,7 @@ export function EventCustomizeDialog({
                 type="button"
                 onClick={() => setCertainty('uncertain')}
                 className={cn(
-                  'flex-1 px-3 py-2 rounded-md text-sm font-normal transition-colors min-h-[44px]',
+                  'flex-1 px-3 py-2 rounded-lg text-sm font-normal transition-colors min-h-[44px]',
                   certainty === 'uncertain'
                     ? 'bg-brand-bronze text-white'
                     : 'bg-accent/50 text-muted-foreground hover:bg-accent'

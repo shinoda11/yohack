@@ -27,7 +27,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
   return (
     <label
       className={cn(
-        'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md border-l-4 cursor-pointer transition-colors',
+        'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-lg border-l-4 cursor-pointer transition-colors',
         borderColor,
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent/50',
         selected && !disabled && 'bg-accent/30'
@@ -50,7 +50,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
                 e.stopPropagation();
                 onEdit();
               }}
-              className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded hover:bg-accent transition-colors -my-2"
+              className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-accent transition-colors -my-2"
               aria-label="編集"
             >
               <Pencil className="h-4 w-4 text-muted-foreground" />
@@ -70,7 +70,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
             e.stopPropagation();
             onHide();
           }}
-          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded hover:bg-accent transition-colors"
+          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-accent transition-colors"
           aria-label="非表示"
         >
           <Trash2 className="h-4 w-4 text-muted-foreground hover:text-foreground" />
@@ -84,7 +84,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
             e.stopPropagation();
             onDelete();
           }}
-          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded hover:bg-destructive/10 transition-colors"
+          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
           aria-label="削除"
         >
           <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />

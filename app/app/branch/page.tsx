@@ -488,7 +488,7 @@ export default function BranchPage() {
                     {hiddenDefaults.map((branch) => (
                       <div
                         key={branch.id}
-                        className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/30 text-sm"
+                        className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/30 text-sm"
                       >
                         <span className="text-muted-foreground">{branch.label}</span>
                         <Button

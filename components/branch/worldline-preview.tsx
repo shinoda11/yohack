@@ -48,7 +48,7 @@ export function WorldlinePreview({
             <label
               key={c.id}
               className={cn(
-                'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md border cursor-pointer transition-colors',
+                'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-lg border cursor-pointer transition-colors',
                 isSelected ? 'border-brand-gold bg-accent/30' : 'border-border hover:bg-accent/50'
               )}
             >
@@ -68,7 +68,7 @@ export function WorldlinePreview({
                   {diffLabel && (
                     <span
                       className={cn(
-                        'text-xs font-normal px-1.5 py-0.5 rounded',
+                        'text-xs font-normal px-1.5 py-0.5 rounded-lg',
                         diff! >= 0
                           ? 'bg-safe/10 text-safe'
                           : 'bg-red-50 text-red-700'

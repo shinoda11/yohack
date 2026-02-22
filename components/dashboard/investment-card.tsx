@@ -184,7 +184,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
               type="checkbox"
               checked={!profile.useAutoTaxRate}
               onChange={(e) => onUpdate({ useAutoTaxRate: !e.target.checked })}
-              className="rounded border-input"
+              className="rounded-md border-input"
             />
             <span className="text-muted-foreground">実効税率を手動で設定する</span>
           </label>

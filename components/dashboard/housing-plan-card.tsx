@@ -412,7 +412,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
               </div>
 
               {/* 月々返済表示 */}
-              <div className="flex items-center justify-between text-xs text-muted-foreground rounded bg-background/50 px-2 py-1.5">
+              <div className="flex items-center justify-between text-xs text-muted-foreground rounded-lg bg-background/50 px-2 py-1.5">
                 <span>月々返済</span>
                 <span className="font-normal text-foreground">
                   {computeMonthlyPaymentManYen(

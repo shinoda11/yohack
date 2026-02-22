@@ -110,7 +110,7 @@ export function EventPickerDialog({
                 <div
                   key={preset.id}
                   className={cn(
-                    'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md transition-colors',
+                    'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-lg transition-colors',
                     isAdded ? 'opacity-50' : 'hover:bg-accent/50'
                   )}
                 >
@@ -160,7 +160,7 @@ export function EventPickerDialog({
                     <div
                       key={bundle.id}
                       className={cn(
-                        'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md transition-colors',
+                        'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-lg transition-colors',
                         isAdded ? 'opacity-50' : 'hover:bg-accent/50'
                       )}
                     >

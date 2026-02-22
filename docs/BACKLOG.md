@@ -177,7 +177,7 @@ estimate: M
 完了後: git add -A && git commit -m "ui: P0-8 spacing system 8pt grid" && git push
 
 ## P0-9: フォントウェイトをRegular/Boldの2種に統一
-status: todo
+status: done
 priority: P0
 estimate: S
 

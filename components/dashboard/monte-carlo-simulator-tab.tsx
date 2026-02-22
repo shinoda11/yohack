@@ -83,7 +83,7 @@ function CustomTooltip({ active, payload, label }: any) {
   };
 
   return (
-    <div className="rounded border border-brand-linen bg-white px-3 py-2 shadow-sm dark:border-brand-bronze dark:bg-brand-night">
+    <div className="rounded-lg border border-brand-linen bg-white px-3 py-2 shadow-sm dark:border-brand-bronze dark:bg-brand-night">
       <p className="text-xs font-normal text-brand-night dark:text-brand-linen">{label}歳</p>
       <div className="mt-1 space-y-0.5 text-xs">
         <div className="flex justify-between gap-4">

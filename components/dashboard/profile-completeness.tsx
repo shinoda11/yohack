@@ -53,7 +53,7 @@ export function ProfileCompleteness({ profile, onOpenCard }: ProfileCompleteness
   return (
     <div
       className={cn(
-        'mb-4 rounded-lg border border-border p-4 transition-opacity duration-500',
+        'mb-4 rounded-xl border border-border p-4 transition-opacity duration-500',
         fadingOut && 'opacity-0'
       )}
     >

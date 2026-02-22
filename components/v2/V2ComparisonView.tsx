@@ -116,7 +116,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                   className="rounded-lg border p-4 text-left"
                 >
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gold/10">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-md bg-brand-gold/10">
                       {step.icon}
                     </div>
                     <span className="text-xs font-normal text-brand-gold">ステップ{i + 1}</span>
@@ -241,7 +241,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                         type="button"
                         onClick={() => toggleComparisonId(scenario.id)}
                         className={cn(
-                          "px-3 py-2 min-h-[44px] rounded text-xs font-normal transition-colors",
+                          "px-3 py-2 min-h-[44px] rounded-lg text-xs font-normal transition-colors",
                           selectedComparisonIds.includes(scenario.id)
                             ? "bg-accent text-accent-foreground"
                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"

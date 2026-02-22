@@ -539,11 +539,11 @@ export function AssetProjectionChart({
       {/* Legend */}
       <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="h-1 w-5 rounded bg-brand-stone" />
+          <div className="h-1 w-5 rounded-md bg-brand-stone" />
           <span className="text-muted-foreground">中央値</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-5 rounded" style={{ backgroundColor: 'rgba(200,184,154,0.3)' }} />
+          <div className="h-3 w-5 rounded-md" style={{ backgroundColor: 'rgba(200,184,154,0.3)' }} />
           <span className="text-muted-foreground">25-75%</span>
         </div>
         <div className="flex items-center gap-2">

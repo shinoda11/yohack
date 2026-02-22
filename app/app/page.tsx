@@ -399,7 +399,7 @@ export default function DashboardPage() {
                     localStorage.setItem('yohack-profile-edited', '1');
                   }
                 }}
-                className="flex-shrink-0 rounded p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-brand-bronze/60 hover:text-brand-bronze transition-colors"
+                className="flex-shrink-0 rounded-md p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-brand-bronze/60 hover:text-brand-bronze transition-colors"
                 aria-label="閉じる"
               >
                 <X className="h-4 w-4" />

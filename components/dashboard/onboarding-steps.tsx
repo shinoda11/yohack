@@ -66,7 +66,7 @@ export function OnboardingSteps({ profile }: OnboardingStepsProps) {
   return (
     <div
       className={cn(
-        'mb-4 rounded-lg border bg-card p-4 transition-opacity duration-500',
+        'mb-4 rounded-xl border bg-card p-4 transition-opacity duration-500',
         fadingOut && 'opacity-0'
       )}
     >

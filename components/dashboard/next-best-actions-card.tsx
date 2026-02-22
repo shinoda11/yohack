@@ -169,7 +169,7 @@ function ImpactBadge({ value, label, unit, isPositive }: {
   
   return (
     <div className={cn(
-      'flex items-center gap-1 rounded-md px-2 py-1 text-xs font-normal',
+      'flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-normal',
       isGood
         ? 'bg-brand-canvas text-brand-stone dark:bg-brand-night dark:text-brand-linen'
         : 'bg-brand-canvas text-brand-bronze dark:bg-brand-night dark:text-brand-bronze'

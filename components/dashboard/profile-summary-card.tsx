@@ -97,7 +97,7 @@ export function ProfileSummaryCard({ profile, onUpdate }: ProfileSummaryCardProp
                       if (e.key === 'Enter') commitRent();
                       if (e.key === 'Escape') setEditingRent(false);
                     }}
-                    className="w-16 rounded border border-brand-gold bg-transparent px-1.5 py-0.5 text-right text-sm font-normal focus:outline-none focus:ring-1 focus:ring-brand-gold"
+                    className="w-16 rounded-lg border border-brand-gold bg-transparent px-1.5 py-0.5 text-right text-sm font-normal focus:outline-none focus:ring-1 focus:ring-brand-gold"
                     min={0}
                     max={100}
                   />

@@ -166,7 +166,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                         {item.name}
                       </span>
                       {item.isCurrent && (
-                        <span className="text-[10px] px-1 py-0.5 rounded bg-brand-linen text-brand-bronze dark:bg-brand-stone dark:text-brand-bronze/60">
+                        <span className="text-[10px] px-1 py-0.5 rounded-lg bg-brand-linen text-brand-bronze dark:bg-brand-stone dark:text-brand-bronze/60">
                           今
                         </span>
                       )}

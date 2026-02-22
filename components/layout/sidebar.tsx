@@ -117,7 +117,7 @@ export function Sidebar() {
               {item.icon}
               {item.label}
               {item.badge && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-brand-gold/20 text-brand-gold font-normal">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-lg bg-brand-gold/20 text-brand-gold font-normal">
                   {item.badge}
                 </span>
               )}
