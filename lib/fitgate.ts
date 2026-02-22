@@ -1,7 +1,7 @@
 // FitGate judgment logic + profile conversion + localStorage persistence
 // Ported from docs/fitgate-reference/judgment-logic.ts and FitGate.tsx
 
-import type { Profile } from './types';
+import type { Profile, HousingPlan } from './types';
 
 // --- Types ---
 
@@ -70,6 +70,13 @@ const ASSET_MAP: Record<string, number> = {
   '5,000万以上': 7500,
 };
 
+const PRICE_MAP: Record<string, number> = {
+  '5,000万円未満': 4000,
+  '5,000万〜6,999万': 6000,
+  '7,000万〜9,999万': 8500,
+  '1億以上': 12000,
+};
+
 export function fitGateToProfile(answers: FitGateAnswers): Partial<Profile> {
   const preset: Partial<Profile> = {};
 
@@ -84,6 +91,22 @@ export function fitGateToProfile(answers: FitGateAnswers): Partial<Profile> {
   if (totalAsset !== undefined) {
     preset.assetCash = Math.round(totalAsset * 0.3);
     preset.assetInvest = Math.round(totalAsset * 0.7);
+  }
+
+  // housingPlans[0].price from q3
+  const price = PRICE_MAP[answers.q3PriceRange];
+  if (price !== undefined) {
+    const plan: HousingPlan = {
+      id: 'fitgate-preset',
+      name: '検討物件',
+      price,
+      downPayment: Math.round(price * 0.1),
+      rate: 0.5,
+      years: 35,
+      maintenanceCost: 40,
+      purchaseCostRate: 7,
+    };
+    preset.housingPlans = [plan];
   }
 
   return preset;
