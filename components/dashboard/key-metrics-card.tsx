@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { Gauge, Calendar, PiggyBank, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Gauge, Calendar, PiggyBank, ShieldCheck } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TermTooltip } from '@/components/ui/term-tooltip';
@@ -26,26 +26,25 @@ interface MetricItemProps {
   highlight?: 'success' | 'warning' | 'danger' | 'neutral';
 }
 
-// Semantic colors using Tailwind standard classes
 function getHighlightStyles(highlight?: 'success' | 'warning' | 'danger' | 'neutral') {
   switch (highlight) {
     case 'success':
       return {
-        icon: 'text-emerald-600 dark:text-emerald-400',
-        value: 'text-emerald-700 dark:text-emerald-300',
-        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+        icon: 'text-safe',
+        value: 'text-safe',
+        bg: 'bg-safe/5',
       };
     case 'warning':
       return {
-        icon: 'text-amber-600 dark:text-amber-400',
-        value: 'text-amber-700 dark:text-amber-300',
-        bg: 'bg-amber-50 dark:bg-amber-950/20',
+        icon: 'text-brand-bronze',
+        value: 'text-brand-bronze',
+        bg: 'bg-brand-gold/5',
       };
     case 'danger':
       return {
-        icon: 'text-red-700 dark:text-red-400',
-        value: 'text-red-700 dark:text-red-300',
-        bg: 'bg-red-50 dark:bg-red-950/20',
+        icon: 'text-danger',
+        value: 'text-danger',
+        bg: 'bg-danger/5',
       };
     default:
       return {
@@ -64,33 +63,20 @@ function MetricItem({
   highlight,
 }: MetricItemProps) {
   const styles = getHighlightStyles(highlight);
-  const isDanger = highlight === 'danger';
-  const isWarning = highlight === 'warning';
-  const showAlert = isDanger || isWarning;
 
   return (
     <div className={cn(
       "flex items-center gap-4 py-4 px-2 rounded-lg transition-all duration-[600ms] ease-out",
       styles.bg,
-      isDanger && "border-2 border-danger/40 dark:border-danger/30",
-      isWarning && "border border-amber-400/40 dark:border-amber-500/30",
     )}>
       <div className={cn("flex h-8 w-8 items-center justify-center", styles.icon)}>
         {icon}
       </div>
       <div className="flex-1">
         <p className="text-xs text-brand-bronze dark:text-brand-bronze/60">{label}</p>
-        <div className="flex items-center gap-1.5">
-          <p className={cn("text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-colors duration-[600ms]", styles.value)}>
-            {value}
-          </p>
-          {showAlert && (
-            <AlertTriangle className={cn(
-              "h-4 w-4 flex-shrink-0",
-              isDanger ? "text-danger dark:text-red-400" : "text-amber-500 dark:text-amber-400",
-            )} />
-          )}
-        </div>
+        <p className={cn("text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-colors duration-[600ms]", styles.value)}>
+          {value}
+        </p>
         {subValue && (
           <p className="text-xs text-brand-bronze/60 dark:text-brand-bronze">{subValue}</p>
         )}

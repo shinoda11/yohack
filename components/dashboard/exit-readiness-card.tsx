@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 
-import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, Lightbulb, AlertTriangle, Check } from 'lucide-react';
+import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, AlertTriangle, Check } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -26,25 +26,16 @@ interface SubScoreProps {
   value: number;
   icon: React.ReactNode;
   description: string;
-  warningThreshold?: number;
 }
 
-function SubScore({ label, value, icon, description, warningThreshold = 50 }: SubScoreProps) {
-  const belowSafety = value < warningThreshold;
+function SubScore({ label, value, icon, description }: SubScoreProps) {
   return (
     <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
-        <div className={cn(
-          "flex cursor-help flex-col items-center rounded-lg bg-muted/50 p-4 transition-all duration-[600ms] hover:bg-muted",
-          belowSafety && "border-2 border-danger/40 bg-red-50/50 dark:bg-red-950/10",
-        )}>
+        <div className="flex cursor-help flex-col items-center rounded-lg bg-muted/50 p-4 transition-all duration-[600ms] hover:bg-muted">
           <div className="mb-1 text-muted-foreground">{icon}</div>
-          <div className="flex items-center gap-1">
-            {belowSafety && <AlertTriangle className="h-3.5 w-3.5 text-danger" />}
-            <div className={cn(
-              "text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-all duration-[600ms]",
-              belowSafety && "text-danger",
-            )}>{value}</div>
+          <div className="text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-all duration-[600ms]">
+            {value}
           </div>
           <div className="text-xs text-muted-foreground">{label}</div>
         </div>
@@ -67,54 +58,24 @@ interface ScoreAxis {
   label: string;
   weight: number;
   icon: React.ReactNode;
-  getHint: (value: number) => string | null;
 }
 
 const SCORE_AXES: ScoreAxis[] = [
-  {
-    key: 'survival',
-    label: 'サバイバル',
-    weight: 55,
-    icon: <ShieldCheck className="h-4 w-4" />,
-    getHint: (v) => v < 70 ? '投資額を増やすか、目標年齢を遅らせると改善します' : null,
-  },
-  {
-    key: 'lifestyle',
-    label: '生活水準',
-    weight: 20,
-    icon: <Heart className="h-4 w-4" />,
-    getHint: (v) => v < 70 ? '支出を見直すか、資産を増やすと改善します' : null,
-  },
-  {
-    key: 'risk',
-    label: 'リスク',
-    weight: 15,
-    icon: <Activity className="h-4 w-4" />,
-    getHint: (v) => v < 50 ? '現預金の比率を増やすとリスクが下がります' : null,
-  },
-  {
-    key: 'liquidity',
-    label: '流動性',
-    weight: 10,
-    icon: <Droplets className="h-4 w-4" />,
-    getHint: (v) => v < 50 ? '現預金を増やすと緊急時の備えが改善します' : null,
-  },
+  { key: 'survival', label: 'サバイバル', weight: 55, icon: <ShieldCheck className="h-4 w-4" /> },
+  { key: 'lifestyle', label: '生活水準', weight: 20, icon: <Heart className="h-4 w-4" /> },
+  { key: 'risk', label: 'リスク', weight: 15, icon: <Activity className="h-4 w-4" /> },
+  { key: 'liquidity', label: '流動性', weight: 10, icon: <Droplets className="h-4 w-4" /> },
 ];
 
 function getBarColor(value: number): string {
   if (value >= 80) return 'bg-safe';
   if (value >= 50) return 'bg-brand-gold';
-  return 'bg-danger';
+  return 'bg-brand-bronze';
 }
 
 function ScoreBreakdown({ score }: { score: ExitScoreDetail }) {
-  const hints = SCORE_AXES
-    .map(axis => ({ axis, hint: axis.getHint(score[axis.key]) }))
-    .filter((h): h is { axis: ScoreAxis; hint: string } => h.hint !== null);
-
   return (
     <div className="w-full space-y-4 border-t pt-4">
-      {/* Bar charts */}
       <div className="space-y-4">
         {SCORE_AXES.map(axis => {
           const value = score[axis.key];
@@ -144,21 +105,6 @@ function ScoreBreakdown({ score }: { score: ExitScoreDetail }) {
           );
         })}
       </div>
-
-      {/* Improvement hints */}
-      {hints.length > 0 && (
-        <div className="space-y-2">
-          {hints.map(({ axis, hint }) => (
-            <div
-              key={axis.key}
-              className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 p-2.5 text-sm text-amber-800 dark:text-amber-300"
-            >
-              <Lightbulb className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <span>{hint}</span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -215,7 +161,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
           const circumference = 2 * Math.PI * radius;
           const progress = Math.min(Math.max(animatedScore, 0), 100);
           const offset = circumference - (progress / 100) * circumference;
-          const strokeColor = animatedScore >= 80 ? '#4A7C59' : animatedScore >= 50 ? '#C8B89A' : '#CC3333';
+          const strokeColor = animatedScore >= 80 ? 'var(--safe)' : animatedScore >= 50 ? 'var(--brand-gold)' : 'var(--brand-bronze)';
 
           return (
             <div className="relative">
@@ -253,8 +199,8 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
                   className={cn(
                     "text-5xl font-bold tabular-nums transition-[fill] duration-[600ms]",
                     animatedScore >= 80 && "fill-safe",
-                    animatedScore >= 50 && animatedScore < 80 && "fill-brand-bronze",
-                    animatedScore < 50 && "fill-danger",
+                    animatedScore >= 50 && animatedScore < 80 && "fill-brand-gold",
+                    animatedScore < 50 && "fill-brand-bronze",
                   )}
                   fontSize="48"
                   fontWeight="bold"
@@ -277,7 +223,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
                   "absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold border transition-colors duration-[600ms]",
                   score.overall >= 80 && "bg-safe text-white border-safe",
                   score.overall >= 50 && score.overall < 80 && "bg-brand-gold text-brand-night border-brand-gold",
-                  score.overall < 50 && "bg-danger text-white border-danger",
+                  score.overall < 50 && "bg-brand-bronze text-white border-brand-bronze",
                 )}
               >
                 {levelText[score.level]}
@@ -290,8 +236,8 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
         <p className={cn(
           "mt-6 text-sm font-normal transition-colors duration-[600ms]",
           score.overall >= 80 && "text-safe",
-          score.overall >= 50 && score.overall < 80 && "text-brand-bronze",
-          score.overall < 50 && "text-danger",
+          score.overall >= 50 && score.overall < 80 && "text-brand-gold",
+          score.overall < 50 && "text-brand-bronze",
         )}>
           {score.level === 'GREEN' && <><Check className="inline h-4 w-4 mr-1" />目標達成の可能性が非常に高いです</>}
           {score.level === 'YELLOW' && <><Check className="inline h-4 w-4 mr-1" />目標達成の見込みは良好です</>}
@@ -306,28 +252,24 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
             value={score.survival}
             icon={<ShieldCheck className="h-4 w-4" />}
             description="資産が尽きない確率。シミュレーションで資産がマイナスにならなかったシナリオの割合です。"
-            warningThreshold={70}
           />
           <SubScore
             label="生活水準"
             value={score.lifestyle}
             icon={<Heart className="h-4 w-4" />}
             description="退職後も望む生活水準を維持できる可能性。資産に対する年間支出の比率で評価します。"
-            warningThreshold={50}
           />
           <SubScore
             label="リスク"
             value={score.risk}
             icon={<Activity className="h-4 w-4" />}
             description="ポートフォリオのリスク評価（高いほど安全）。投資資産比率とボラティリティを考慮しています。"
-            warningThreshold={50}
           />
           <SubScore
             label="流動性"
             value={score.liquidity}
             icon={<Droplets className="h-4 w-4" />}
             description="緊急時に使える現金の割合。予期せぬ支出に対応できる余裕度を示します。"
-            warningThreshold={50}
           />
         </div>
 

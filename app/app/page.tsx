@@ -28,7 +28,6 @@ import { ExitReadinessCard } from '@/components/dashboard/exit-readiness-card';
 import { AssetProjectionChart } from '@/components/dashboard/asset-projection-chart';
 import { KeyMetricsCard } from '@/components/dashboard/key-metrics-card';
 import { CashFlowCard } from '@/components/dashboard/cash-flow-card';
-import { NextBestActionsCard } from '@/components/dashboard/next-best-actions-card';
 import { ScenarioComparisonCard } from '@/components/dashboard/scenario-comparison-card';
 import { MonteCarloSimulatorTab } from '@/components/dashboard/monte-carlo-simulator-tab';
 
@@ -235,11 +234,6 @@ export default function DashboardPage() {
       localStorage.setItem('yohack-profile-edited', '1');
       localStorage.setItem('yohack-brand-story-seen', '1');
     }
-  };
-
-  // Handle applying recommended actions
-  const handleApplyAction = (updates: Partial<typeof profile>) => {
-    updateProfile(updates);
   };
 
   // Handle worldline template selection
@@ -551,13 +545,6 @@ export default function DashboardPage() {
                     isLoading={isLoading}
                   />
                 </div>
-                <NextBestActionsCard
-                  metrics={simResult?.metrics ?? null}
-                  score={simResult?.score ?? null}
-                  profile={profile}
-                  isLoading={isLoading && !simResult}
-                  onApplyAction={handleApplyAction}
-                />
                 <CashFlowCard
                   cashFlow={simResult?.cashFlow ?? null}
                   paths={simResult?.paths ?? null}
@@ -684,15 +671,6 @@ export default function DashboardPage() {
                       isLoading={isLoading}
                     />
                   </div>
-
-                  {/* Next Best Actions - With quantified impact */}
-                  <NextBestActionsCard
-                    metrics={simResult?.metrics ?? null}
-                    score={simResult?.score ?? null}
-                    profile={profile}
-                    isLoading={isLoading && !simResult}
-                    onApplyAction={handleApplyAction}
-                  />
 
                   {/* Cash flow + withdrawal simulation */}
                   <CashFlowCard
