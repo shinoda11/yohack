@@ -238,7 +238,7 @@ export async function POST(req: Request) {
 ## 🟢 P2 — 来週以降
 
 ### [P2-1] LP Next.js本実装
-**status:** [ ]
+**status:** [x]
 
 - `app/(marketing)/lp/page.tsx` に切り出し
 - Framer Motion で CSS animation を置換
