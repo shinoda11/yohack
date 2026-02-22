@@ -24,18 +24,19 @@ export default function LandingPage() {
           {/* Y-branch logo */}
           <div className="flex justify-center mb-10">
             <svg
+              className="y-svg"
               width="64"
               height="64"
               viewBox="0 0 180 180"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <line x1="90" y1="94" x2="42" y2="34" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
-              <line x1="90" y1="94" x2="138" y2="34" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
-              <line x1="90" y1="94" x2="90" y2="156" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
-              <circle cx="90" cy="94" r="9" fill="var(--brand-gold)" />
-              <circle cx="42" cy="34" r="6" fill="var(--brand-gold)" />
-              <circle cx="138" cy="34" r="6" fill="var(--brand-gold)" />
+              <line className="stem" pathLength="1" x1="90" y1="94" x2="90" y2="156" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
+              <line className="left" pathLength="1" x1="90" y1="94" x2="42" y2="34" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
+              <line className="right" pathLength="1" x1="90" y1="94" x2="138" y2="34" stroke="var(--brand-gold)" strokeWidth="7" strokeLinecap="round" />
+              <circle className="node" cx="90" cy="94" r="9" fill="var(--brand-gold)" />
+              <circle className="dot-l" cx="42" cy="34" r="6" fill="var(--brand-gold)" />
+              <circle className="dot-r" cx="138" cy="34" r="6" fill="var(--brand-gold)" />
             </svg>
           </div>
 
