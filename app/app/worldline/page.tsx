@@ -75,19 +75,20 @@ export default function WorldlinePage() {
             <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
             <p className="text-sm text-brand-bronze mt-1">余白で比較し、次の一手を決める</p>
           </div>
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-brand-gold/30 bg-brand-canvas p-16 text-center space-y-6">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-gold/30 bg-brand-canvas p-16 text-center space-y-6">
             <div className="rounded-full bg-brand-gold/10 p-5">
-              <GitBranch className="h-10 w-10 text-brand-gold" />
+              <GitBranch className="h-10 w-10 text-brand-gold/30" />
             </div>
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-brand-stone">世界線がまだありません</h2>
+              <h2 className="text-lg font-bold text-brand-stone">世界線がまだありません</h2>
               <p className="text-sm text-brand-bronze max-w-md leading-relaxed">
-                選択肢を世界線として並べると、比較が始まります
+                分岐ビルダーで「住宅購入」「年収変化」などの選択肢を組み合わせると、<br className="hidden sm:inline" />
+                世界線が自動生成され、ここで比較できます
               </p>
             </div>
-            <Button asChild className="gap-2 bg-brand-night text-brand-linen hover:bg-brand-night/90 h-11 px-6">
+            <Button asChild className="gap-2 bg-brand-gold text-brand-night hover:bg-brand-gold/90 h-11 px-6">
               <Link href="/app/branch">
-                世界線を作る
+                分岐ビルダーで世界線を作る
               </Link>
             </Button>
           </div>

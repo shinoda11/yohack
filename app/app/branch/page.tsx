@@ -377,10 +377,18 @@ export default function BranchPage() {
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-bold tracking-tight text-foreground">分岐ビルダー</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 text-sm text-brand-bronze">
           分岐を選び、世界線を生成します
         </p>
       </div>
+
+      {/* First-visit guidance */}
+      {nonAutoSelectedCount === 0 && step === 'select' && (
+        <div className="mb-6 rounded-xl bg-brand-canvas border border-brand-sand p-4 text-sm text-brand-bronze space-y-1">
+          <p>「計画」や「不確定」の分岐にチェックを入れて、下の「世界線を生成する」を押してください。</p>
+          <p className="text-xs text-brand-bronze/60">組み合わせから最大5本の世界線を自動生成し、スコアで比較できます</p>
+        </div>
+      )}
 
       {/* PC: Full-width timeline above 2-column layout */}
       <div className="hidden md:block mb-6">
