@@ -83,6 +83,9 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - `'use client'` ディレクティブ必須
 - 免責表示: 計算結果を表示するすべての画面に記載
 - モバイルファースト（タッチターゲット 44px 以上）
+- ダッシュボードに「こうすべき」系のFPアドバイスを表示しない（ブランド約束: 答えを出さない、土台を返す）
+- カラーは CSS トークン（safe/danger/brand-gold/brand-bronze）を使用。emerald/amber/red 等の生 Tailwind カラーを dashboard コンポーネントで使わない
+- 低スコア表現に red/danger を使わない。brand-bronze で「改善の余地」を表現する（決断の静けさ）
 
 ### カラー
 - ブランド: Night #1A1916 / Linen #F0ECE4 / Gold #C8B89A / Stone #5A5550 / Canvas #FAF9F7 / Bronze #8A7A62
