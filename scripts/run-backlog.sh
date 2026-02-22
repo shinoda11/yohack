@@ -131,6 +131,8 @@ main() {
 
     # Claude Code にタスクを投げる（ヘッドレスモード）
     # 本文はファイルから読み込み、バッククォート等の誤解釈を防ぐ
+    # claude の終了コードを確実に取得するため一時的に set -e を無効化
+    set +eo pipefail
     claude --dangerously-skip-permissions -p "
 ## 実行指示
 
@@ -149,8 +151,8 @@ main() {
 
 $(cat "$tmp_body")
 " 2>&1 | tee -a "$LOG"
-
-    exit_code=${PIPESTATUS[0]}
+    local exit_code=${PIPESTATUS[0]}
+    set -eo pipefail
 
     if [ $exit_code -eq 0 ]; then
       # 成功: 自動マーク＋次のタスクへ自動進行
