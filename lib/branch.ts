@@ -307,11 +307,11 @@ export interface BranchDisplayItem {
 }
 
 const BRANCH_ICONS: Record<string, string> = {
-  housing_purchase: '🏠',
-  child: '👶',
-  income_change: '💼',
-  partner_income_change: '👤',
-  _direct: '📋',
+  housing_purchase: 'Home',
+  child: 'Baby',
+  income_change: 'Briefcase',
+  partner_income_change: 'Users',
+  _direct: 'ScrollText',
 };
 
 /**
@@ -344,9 +344,7 @@ export function getBranchDisplayItems(
     detail: b.detail,
     age: b.age ?? null,
     certainty: b.certainty,
-    icon: b.presetId
-      ? '📋'
-      : BRANCH_ICONS[b.eventType] ?? '📋',
+    icon: BRANCH_ICONS[b.eventType] ?? 'ScrollText',
   }));
 }
 
@@ -609,7 +607,7 @@ export function branchToVirtualPreset(branch: Branch, profile: Profile): PresetE
         name: branch.label,
         category: 'housing',
         description: `${price}万円の住宅購入`,
-        icon: '🏠',
+        icon: 'Home',
         ageOffset: (branch.age ?? profile.currentAge + 2) - profile.currentAge,
         defaultAmount: price,
         defaultDuration: 1,
@@ -634,7 +632,7 @@ export function branchToVirtualPreset(branch: Branch, profile: Profile): PresetE
         name: branch.label,
         category: 'family',
         description: '育児費＋教育費（自動計算）',
-        icon: '👶',
+        icon: 'Baby',
         ageOffset: (branch.age ?? profile.currentAge + 2) - profile.currentAge,
         defaultAmount: 100,
         defaultDuration: 6,
@@ -654,7 +652,7 @@ export function branchToVirtualPreset(branch: Branch, profile: Profile): PresetE
         name: branch.label,
         category: 'career',
         description: branch.detail,
-        icon: pct > 0 ? '📈' : '📉',
+        icon: 'TrendingUp',
         ageOffset: (branch.age ?? profile.currentAge + 3) - profile.currentAge,
         defaultAmount: amount,
         defaultDuration: dur ?? 0,
@@ -672,7 +670,7 @@ export function branchToVirtualPreset(branch: Branch, profile: Profile): PresetE
         name: branch.label,
         category: 'career',
         description: branch.detail,
-        icon: '👤',
+        icon: 'Users',
         ageOffset: (branch.age ?? profile.currentAge + 2) - profile.currentAge,
         defaultAmount: profile.partnerGrossIncome,
         defaultDuration: 0,

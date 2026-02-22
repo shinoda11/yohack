@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CheckCircle2, AlertTriangle, XCircle, Loader2, ArrowRight, GitBranch, TrendingUp, TrendingDown } from 'lucide-react';
 import type { ExitScoreDetail, KeyMetrics, Profile } from '@/lib/types';
 import { worldlineTemplates } from '@/lib/worldline-templates';
+import { EventIcon } from '@/components/branch/event-icon';
 import { cn } from '@/lib/utils';
 import { useScoreAnimation } from '@/hooks/useScoreAnimation';
 
@@ -285,7 +286,9 @@ export function ConclusionSummaryCard({
                               : 'hover:bg-brand-gold/10 hover:border-brand-gold/50',
                           )}
                         >
-                          <span className="text-base leading-none">{t.icon}</span>
+                          <span className="leading-none">
+                            <EventIcon iconName={t.icon} className="h-4 w-4 text-brand-bronze/60 stroke-[1.5]" />
+                          </span>
                           <span className="flex-1 truncate">{t.label}</span>
                           {isCreating ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin flex-shrink-0" />

@@ -96,6 +96,24 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - カード内フォーム要素間: `space-y-6`
 - カード内情報表示要素間: `space-y-4`
 
+## デザイン原則
+
+### 決断の静けさ（Design Philosophy）
+YOHACKは ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop水準の静謐さを目指す。
+
+- **数字で語る、形容詞で語らない**: 「目標に近づいています」→「52歳で安心ライン到達。目標より3年の余白。」
+- **FPアドバイスは出さない**: 「iDeCo拠出を最大化」「貯蓄率を上げましょう」等の助言は禁止。LP宣言「答えを出さない、土台を返す」と整合させる
+- **絵文字禁止**: アイコンは Lucide（`components/branch/event-icon.tsx` の EventIcon）で統一
+- **カラーはトークンのみ**: emerald-600, amber-600, red-700 等の直値禁止。`--safe`, `--danger`, `--brand-gold`, `--brand-bronze` を使う
+- **警告表現は最小限**: 赤背景+赤ボーダー+AlertTriangleの三重表現を禁止。数値が低い場合は `brand-bronze` で静かに伝える
+- **SectionCard の description は非表示**: カードヘッダーはアイコン+タイトルのみ
+
+### ダッシュボード構造（確定済み）
+- ダッシュボードは1カラムレイアウト。入力カードは `<details>` で折りたたみ（デフォルト閉）
+- ConclusionSummaryCard にスコア数字は表示しない（ExitReadinessCard に一本化）
+- NextBestActionsCard は削除済み（ブランドボイス違反のため）。復活させない
+- mobileTab による入力/結果切り替えは廃止済み。モバイルもデスクトップも同じ1カラム構造
+
 ## 絶対にやらないこと
 - Phase1 で Supabase / Stripe / SendGrid を導入しない（`docs/constraints.md`）
 - 新規 npm パッケージの導入は事前承認が必要

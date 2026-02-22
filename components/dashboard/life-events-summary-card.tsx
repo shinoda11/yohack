@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import { CalendarDays, ArrowRight } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
+import { EventIcon } from '@/components/branch/event-icon';
 import { useProfileStore } from '@/lib/store';
 import {
   createDefaultBranches,
@@ -18,18 +19,18 @@ import type { Profile, LifeEvent, LifeEventType } from '@/lib/types';
 // Helpers
 // ============================================================
 
-const EVENT_ICONS: Record<LifeEventType, string> = {
-  income_increase: '📈',
-  income_decrease: '📉',
-  expense_increase: '💸',
-  expense_decrease: '✂️',
-  asset_gain: '🎁',
-  housing_purchase: '🏠',
-  asset_purchase: '🏠',
-  child_birth: '👶',
-  education: '🎓',
-  retirement_partial: '🌴',
-  rental_income: '🏠',
+const EVENT_ICON_NAMES: Record<LifeEventType, string> = {
+  income_increase: 'TrendingUp',
+  income_decrease: 'TrendingUp',
+  expense_increase: 'Wallet',
+  expense_decrease: 'Scissors',
+  asset_gain: 'Wallet',
+  housing_purchase: 'Home',
+  asset_purchase: 'Home',
+  child_birth: 'Baby',
+  education: 'GraduationCap',
+  retirement_partial: 'Clock',
+  rental_income: 'Building2',
 };
 
 function formatEventAmount(e: LifeEvent): string {
@@ -130,7 +131,9 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
                     key={e.id}
                     className="flex items-center gap-2 text-sm text-muted-foreground"
                   >
-                    <span className="flex-shrink-0">{EVENT_ICONS[e.type] ?? '📋'}</span>
+                    <span className="flex-shrink-0">
+                      <EventIcon iconName={EVENT_ICON_NAMES[e.type] ?? 'ScrollText'} className="h-4 w-4 text-brand-bronze/60 stroke-[1.5]" />
+                    </span>
                     <span className="truncate">
                       {e.name}
                       {e.target === 'partner' ? ' (パートナー)' : ''}

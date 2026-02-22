@@ -16,7 +16,7 @@ export const worldlineTemplates: WorldlineTemplate[] = [
     id: 'buy-vs-rent',
     label: '購入する vs 賃貸を続ける',
     description: '同じ条件で、家を買った場合と賃貸を続けた場合を比較',
-    icon: '🏠',
+    icon: 'Home',
     baselineName: '賃貸を続ける',
     variantName: '購入した場合',
     createVariant: (p) => ({
@@ -30,7 +30,7 @@ export const worldlineTemplates: WorldlineTemplate[] = [
     id: 'job-change',
     label: '転職する vs 現職を続ける',
     description: '年収が変わった場合の余白への影響を比較',
-    icon: '💼',
+    icon: 'Briefcase',
     baselineName: '現職を続ける',
     variantName: '転職した場合',
     createVariant: (p) => ({
@@ -53,7 +53,7 @@ export const worldlineTemplates: WorldlineTemplate[] = [
     id: 'pace-down',
     label: 'ペースダウンする vs フルで働く',
     description: '年収を下げてゆとりを持った場合の影響を比較',
-    icon: '🌿',
+    icon: 'Heart',
     baselineName: 'フルで働く',
     variantName: 'ペースダウン',
     createVariant: (p) => ({
@@ -76,7 +76,7 @@ export const worldlineTemplates: WorldlineTemplate[] = [
     id: 'child-plan',
     label: '子どもあり vs DINKs継続',
     description: '子どもが生まれた場合の余白への影響を比較',
-    icon: '👶',
+    icon: 'Baby',
     baselineName: 'DINKs継続',
     variantName: '子ども1人',
     createVariant: (p) => ({
@@ -108,7 +108,7 @@ export const worldlineTemplates: WorldlineTemplate[] = [
     id: 'early-retire',
     label: '早期退職 vs 定年まで働く',
     description: '退職年齢を5年早めた場合の影響を比較',
-    icon: '🏖️',
+    icon: 'Clock',
     baselineName: '定年まで働く',
     variantName: '5年早く退職',
     createVariant: (p) => ({
