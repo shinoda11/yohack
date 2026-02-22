@@ -25,28 +25,39 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - 結果共有: html-to-image で PNG 生成 → Web Share API / ダウンロードフォールバック
 - **未導入**: Supabase（認証）、Stripe（決済）、SendGrid（メール）→ すべて Phase 2-3
 
-## 現在のルート構成
+## ルーティング構造
+
+### リクエストの流れ
+```
+ブラウザ → Vercel → proxy.ts（Basic認証: /app/* のみ）→ Next.js ルーター
+```
+- `/` → `redirect('/lp')` → LP表示（`app/(marketing)/lp/page.tsx`）
+- `/app/*` → `proxy.ts` でBasic認証（`SITE_PASSWORD` 環境変数）→ 認証通過後に各ページ表示
+- `/fit`, `/pricing`, `/legal/*` → 認証なし、直接表示
 
 ### 公開ページ（認証なし）
-| パス | 用途 | 行数 |
-|------|------|------|
-| `/` | LP（7セクション。Instagram → LP → FitGate の入口） | 348 |
-| `/fit` | FitGate（12問 → メアド入力 → 判定結果） | 419 |
-| `/fit/result` | FitGate 判定結果（Ready / Prep） | 238 |
-| `/fit/prep` | Prep Mode 案内 | 74 |
-| `/pricing` | 料金ページ | 160 |
-| `/legal/terms` | 利用規約 | 151 |
-| `/legal/privacy` | プライバシーポリシー | 146 |
-| `/legal/commercial` | 特商法 | 105 |
+| パス | 実体ファイル | 用途 |
+|------|-------------|------|
+| `/` | `app/page.tsx` → redirect('/lp') | LPへリダイレクト |
+| `/lp` | `app/(marketing)/lp/page.tsx` | LP（7セクション。Instagram → LP → FitGate の入口） |
+| `/fit` | `app/fit/page.tsx` | FitGate（12問 → メアド入力 → 判定結果） |
+| `/fit/result` | `app/fit/result/page.tsx` | FitGate 判定結果（Ready / Prep） |
+| `/fit/prep` | `app/fit/prep/page.tsx` | Prep Mode 案内 |
+| `/pricing` | `app/pricing/page.tsx` | 料金ページ |
+| `/legal/terms` | `app/legal/terms/page.tsx` | 利用規約 |
+| `/legal/privacy` | `app/legal/privacy/page.tsx` | プライバシーポリシー |
+| `/legal/commercial` | `app/legal/commercial/page.tsx` | 特商法 |
 
 ### プロダクト（Basic認証 `/app/*`）
-| パス | 用途 | 行数 |
-|------|------|------|
-| `/app` | メインダッシュボード（入力カード + 結果タブ） | 726 |
-| `/app/branch` | 分岐ビルダー（決定木 + カテゴリ選択 + イベントカタログ + 世界線プレビュー） | 545 |
-| `/app/profile` | プロファイル入力（単カラム） | 263 |
-| `/app/worldline` | 世界線比較（3タブ: 世界線比較/余白/戦略、最大3本同時比較） | 153 |
-| `/app/settings` | 設定（データ管理・バージョン情報） | 279 |
+| パス | 実体ファイル | 用途 |
+|------|-------------|------|
+| `/app` | `app/app/page.tsx` | メインダッシュボード（入力カード + 結果タブ） |
+| `/app/branch` | `app/app/branch/page.tsx` | 分岐ビルダー |
+| `/app/profile` | `app/app/profile/page.tsx` | プロファイル入力（単カラム） |
+| `/app/worldline` | `app/app/worldline/page.tsx` | 世界線比較（3タブ） |
+| `/app/settings` | `app/app/settings/page.tsx` | 設定（データ管理・バージョン情報） |
+
+共通レイアウト: `app/app/layout.tsx`（Sidebar + MobileHeader + BottomNav）
 
 ### リダイレクト（スタブ）
 | パス | リダイレクト先 |
@@ -59,20 +70,22 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 ## ディレクトリ構造
 ```
 app/
-  page.tsx              ← LP（マーケティングページ）
-  lp-client.tsx         ← LP クライアントコンポーネント
+  page.tsx              ← / → redirect('/lp')
   layout.tsx            ← ルートレイアウト
   not-found.tsx         ← 404ページ
+  (marketing)/
+    lp/page.tsx         ← LP（Route Group: URLは /lp）
+    lp-client.tsx       ← LP クライアントコンポーネント
   fit/                  ← FitGate（12問 + メアド収集 + 判定結果 + Prep）
     layout.tsx            ← FitGate専用レイアウト（ロゴヘッダー + 中央寄せ）
     page.tsx, result/page.tsx, prep/page.tsx
   app/
-    page.tsx            ← メインダッシュボード
+    page.tsx            ← メインダッシュボード（750行、最大のファイル）
     branch/page.tsx     ← 分岐ビルダー
     profile/page.tsx    ← プロファイル入力
     worldline/page.tsx  ← 世界線比較
     settings/page.tsx   ← 設定
-    layout.tsx          ← プロダクト共通レイアウト（Sidebar + MobileHeader + BottomNav）
+    layout.tsx          ← プロダクト共通レイアウト（Sidebar + MobileHeader + BottomNav + Basic認証）
   pricing/page.tsx      ← 料金
   legal/                ← 利用規約・プライバシー・特商法
 
@@ -102,12 +115,15 @@ hooks/                  ← 8ファイル
 
 docs/
   product-backlog.md      ← バックログ唯一のSoT（machine-readable形式）
+  constraints.md          ← 制約定義（バックログ実行前に必読）
+  roadmap.md              ← Phase2-3ロードマップ
   CHANGELOG.md            ← 変更ログ
   lp-design.md            ← LP設計書
   YOHACK_DESIGN_PHILOSOPHY.md ← デザイン哲学
   case-catalog-results.md ← 24ケースの賃貸vs購入比較結果
   sensitivity-analysis.md ← 感度分析結果
   quality-audit.md        ← 品質監査結果
+  ds-audit/               ← デザインスプリント監査（before/design/after）
   fitgate-reference/      ← 旧リポから抽出した移植対象コード（参照用）
   snapshot/               ← 自動生成コード状態スナップショット
   archive/                ← 完了済みフェーズ設計書
@@ -172,17 +188,53 @@ scripts/
 - 唯一の部分接続: `profile.mortgageInterestRate`（保留）
 - 詳細は `HARIBOTE-AUDIT.md`
 
-## ダッシュボード左カラム構成 (`app/app/page.tsx`)
+## ダッシュボードレイアウト骨格 (`app/app/page.tsx` — 750行)
 
-| # | カード | 種別 | 説明 |
-|---|--------|------|------|
-| 1 | ProfileSummaryCard | 読み取り専用 | 前提表示（年齢/世帯/家賃/資産）。「編集 →」で `/app/profile` に遷移 |
-| 2 | IncomeCard | レバー | 本人年収・パートナー年収・副業収入 |
-| 3 | RetirementCard | レバー | リタイア年齢スライダー・退職後事業収入・終了年齢 |
-| 4 | ExpenseCard | レバー | 生活費のみ（`hideHousing` で家賃非表示。家賃はサマリーに移動） |
-| 5 | InvestmentCard | レバー | 期待リターン・インフレ率 |
-| 6 | HousingPlanCard | レバー | 住宅シナリオ設定 |
+### 全体構造
+```
+L349  <header> sticky ヘッダー「ダッシュボード」
+L362  <main>
+L364    OnboardingSteps             ← 初回訪問ガイド
+L367    ProfileCompleteness         ← 入力完了度
+L370    世界線ガイダンスバナー        ← scenarios.length === 0 のとき
+L389    初回訪問バナー               ← サンプルデータ表示中の案内
+L411    ConclusionSummaryCard       ← ヒーロー（スコア + 次の一手）※常時表示
+L430    モバイル: 入力/結果 タブバー   ← md未満のみ表示
+L457    <grid lg:grid-cols-[1fr_2fr]>
+          左カラム（入力）  L459-L513
+          右カラム（結果）  L516-L738
+L743  WelcomeDialog               ← 初回ウェルカムダイアログ
+```
 
+### 左カラム: 入力カード（L459-L513）
+| # | 行 | カード | 種別 | 説明 |
+|---|-----|--------|------|------|
+| 1 | L461 | ProfileSummaryCard | 読み取り専用 | 前提表示（年齢/世帯/家賃/資産）。「編集 →」で `/app/profile` に遷移 |
+| 2 | L464 | IncomeCard | レバー | 本人年収・パートナー年収・副業収入 |
+| 3 | L474 | RetirementCard | レバー | リタイア年齢スライダー・退職後事業収入・終了年齢 |
+| 4 | L483 | ExpenseCard | レバー | 生活費のみ（`hideHousing` で家賃非表示） |
+| 5 | L494 | InvestmentCard | レバー | 期待リターン・インフレ率 |
+| 6 | L506 | HousingPlanCard | レバー | 住宅シナリオ設定 |
+
+### 右カラム: 結果カード（L516-L738）
+
+**モバイル（L518-L575）**: フラットリスト（タブなし）
+| 行 | カード |
+|-----|--------|
+| L537 | ExitReadinessCard（スコア円グラフ） |
+| L541 | KeyMetricsCard（安心ライン・余白維持率等） |
+| L547 | AssetProjectionChart（資産推移グラフ） |
+| L554 | NextBestActionsCard（次のアクション提案） |
+| L561 | CashFlowCard（退職後キャッシュフロー） |
+| L568 | MonteCarloSimulatorTab（確率分布） |
+| L574 | ScenarioComparisonCard（世界線比較） |
+
+**デスクトップ（L578-L737）**: 3タブ（サマリー / 確率分布 / 世界線）
+- サマリータブ（L591）: ExitReadinessCard → KeyMetricsCard → AssetProjectionChart → NextBestActionsCard → CashFlowCard
+- 確率分布タブ（L708）: MonteCarloSimulatorTab
+- 世界線タブ（L718）: ScenarioComparisonCard + ExitReadinessCard + KeyMetricsCard
+
+### 注意
 - BasicInfoCard / AssetCard はダッシュボードから除外（`/app/profile` のみに存在）
 - LifeEventsSummaryCard もダッシュボードから除外（分岐ビルダー `/app/branch` で管理）
 - ExitReadinessCard 内に折りたたみベンチマークセクション（`lib/benchmarks.ts` の C01-C24 データ参照）
