@@ -29,6 +29,9 @@ import { useValidation } from '@/hooks/useValidation';
 // Profile completeness
 import { ProfileCompleteness } from '@/components/dashboard/profile-completeness';
 
+// Live summary
+import { ProfileLiveSummary } from '@/components/dashboard/profile-live-summary';
+
 type CardKey = 'basicInfo' | 'income' | 'retirement' | 'expense' | 'asset' | 'investment' | 'lifeEvents' | 'housing';
 
 export default function ProfilePage() {
@@ -187,6 +190,8 @@ export default function ProfilePage() {
 
       <div className="max-w-2xl mx-auto px-4 py-4 md:py-6 md:px-6 space-y-4 overflow-x-hidden">
         <ProfileCompleteness profile={profile} onOpenCard={handleOpenCard} />
+
+        <ProfileLiveSummary profile={profile} />
 
         <div ref={cardRefs.basicInfo}>
           <BasicInfoCard
