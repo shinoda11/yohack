@@ -41,24 +41,27 @@ telegram_send() {
     -d parse_mode="Markdown" > /dev/null
 }
 
-# ── タスク抽出 ─────────────────────────────────────────────────
-get_next_task() {
-  # status: [ ] を含む最初のタスクブロックを抽出
-  # 1. **status:** [ ] がある行番号を取得
+# ── タスクID抽出 ──────────────────────────────────────────────
+get_next_task_id() {
+  # **status:** [ ] を持つ最初のタスクIDを返す
   local status_line
   status_line=$(grep -n '^\*\*status:\*\* \[ \]' "$BACKLOG" | head -1 | cut -d: -f1)
   [ -z "$status_line" ] && return
 
-  # 2. その行より上にある直近の ### [ID] 行を探す（タスクヘッダー）
   local header_line
   header_line=$(sed -n "1,${status_line}p" "$BACKLOG" | grep -n '^### \[' | tail -1 | cut -d: -f1)
   [ -z "$header_line" ] && return
 
-  # 3. タスクIDを抽出
-  local task_id
-  task_id=$(sed -n "${header_line}p" "$BACKLOG" | sed 's/^### \[\([A-Za-z0-9_-]*\)\].*/\1/')
+  sed -n "${header_line}p" "$BACKLOG" | sed 's/^### \[\([A-Za-z0-9_-]*\)\].*/\1/'
+}
 
-  # 4. タスクブロックの終端を探す（次の ### または --- または EOF）
+# ── タスク本文抽出 ────────────────────────────────────────────
+get_task_body() {
+  local task_id="$1"
+  local header_line
+  header_line=$(grep -n "^### \[${task_id}\]" "$BACKLOG" | head -1 | cut -d: -f1)
+  [ -z "$header_line" ] && return
+
   local total_lines
   total_lines=$(wc -l < "$BACKLOG")
   local end_line
@@ -69,14 +72,8 @@ get_next_task() {
     end_line=$total_lines
   fi
 
-  # 5. 末尾の空行を除去してブロックを出力
-  local body
-  body=$(sed -n "${header_line},${end_line}p" "$BACKLOG" | sed -e :a -e '/^[[:space:]]*$/{ $d; N; ba; }')
-
-  echo "TASK_ID=${task_id}"
-  echo "TASK_BODY<<HEREDOC"
-  echo "$body"
-  echo "HEREDOC"
+  # 末尾の空行を除去してブロックを出力
+  sed -n "${header_line},${end_line}p" "$BACKLOG" | sed -e :a -e '/^[[:space:]]*$/{ $d; N; ba; }'
 }
 
 # ── タスクを完了マーク ──────────────────────────────────────────
@@ -104,17 +101,22 @@ main() {
   log "🚀 バックログランナー起動"
   telegram_send "🚀 *YOHACK バックログランナー起動*"
 
+  local tmp_body
+  tmp_body=$(mktemp)
+  trap "rm -f '$tmp_body'" EXIT
+
   while true; do
-    # 次のタスクを取得
-    task_info=$(get_next_task)
-    if [ -z "$task_info" ]; then
+    # 次のタスクIDを取得
+    TASK_ID=$(get_next_task_id)
+    if [ -z "$TASK_ID" ]; then
       msg="🎉 *バックログ全タスク完了！*"
       log "$msg"
       telegram_send "$msg"
       break
     fi
 
-    eval "$task_info"
+    # タスク本文をファイルに書き出す（eval を使わない）
+    get_task_body "$TASK_ID" > "$tmp_body"
     log "📋 次のタスク: $TASK_ID"
 
     # タスクをClaudeに渡して実行
@@ -122,6 +124,7 @@ main() {
     telegram_send "⏳ *[$TASK_ID] 実行中...*"
 
     # Claude Code にタスクを投げる（ヘッドレスモード）
+    # 本文はファイルから読み込み、バッククォート等の誤解釈を防ぐ
     claude --dangerously-skip-permissions -p "
 ## 実行指示
 
@@ -138,7 +141,7 @@ main() {
 
 ---
 
-$TASK_BODY
+$(cat "$tmp_body")
 " 2>&1 | tee -a "$LOG"
 
     exit_code=${PIPESTATUS[0]}
