@@ -164,7 +164,6 @@ export default function ProfilePage() {
               {isLoading ? (
                 <span className="flex items-center gap-2 text-muted-foreground">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-brand-stone" />
-                  計算中
                 </span>
               ) : (
                 <span className="flex items-center gap-2 text-muted-foreground">

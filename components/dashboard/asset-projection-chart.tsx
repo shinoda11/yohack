@@ -222,7 +222,7 @@ export function AssetProjectionChart({
       <div className="relative h-[300px] sm:h-[360px] w-full overflow-x-hidden">
         {isLoading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/40">
-            <span className="text-xs text-muted-foreground">計算中</span>
+            <Skeleton className="h-4 w-16" />
           </div>
         )}
         <ResponsiveContainer width="100%" height="100%">

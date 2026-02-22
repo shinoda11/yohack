@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Check, Mail, ArrowRight } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
@@ -64,8 +65,10 @@ function DevPreview() {
 export default function FitResultPage() {
   return (
     <Suspense fallback={
-      <Card className="p-8 border-0 shadow-sm text-center">
-        <p className="text-brand-bronze">読み込み中...</p>
+      <Card className="p-8 border-0 shadow-sm space-y-4">
+        <Skeleton className="h-6 w-48 mx-auto" />
+        <Skeleton className="h-4 w-64 mx-auto" />
+        <Skeleton className="h-10 w-40 mx-auto" />
       </Card>
     }>
       <ResultContent />

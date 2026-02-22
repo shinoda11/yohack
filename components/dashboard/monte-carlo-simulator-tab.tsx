@@ -337,7 +337,7 @@ export function MonteCarloSimulatorTab({
           <div className="relative h-[300px] w-full sm:h-[400px] overflow-x-hidden">
             {isLoading && (
               <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/40">
-                <span className="text-xs text-muted-foreground">計算中</span>
+                <Skeleton className="h-4 w-16" />
               </div>
             )}
             <ResponsiveContainer width="100%" height="100%">

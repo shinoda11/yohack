@@ -182,7 +182,7 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
       icon={<ArrowDownUp className="h-5 w-5" />}
       title="退職後キャッシュフロー"
       description="退職後の収支バランス"
-      action={isLoading && <span className="text-xs text-brand-bronze/60">反映中...</span>}
+      action={isLoading && <Skeleton className="h-3 w-12" />}
     >
       <div className={cn("space-y-4", isLoading && "opacity-60")}>
         {/* Income section */}

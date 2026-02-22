@@ -165,7 +165,7 @@ export function KeyMetricsCard({
       icon={<Gauge className="h-5 w-5" />}
       title="余白の見通し"
       description="主要な数値の概要"
-      action={isLoading && <span className="text-xs text-brand-bronze/60">反映中...</span>}
+      action={isLoading && <Skeleton className="h-3 w-12" />}
     >
       <div className={cn("grid gap-2 sm:grid-cols-2", isLoading && "opacity-60")}>
         <MetricItem

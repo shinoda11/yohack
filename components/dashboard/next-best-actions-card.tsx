@@ -328,10 +328,7 @@ export function NextBestActionsCard({
                       disabled={isCalculating}
                     >
                       {isCalculating ? (
-                        <>
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          計算中
-                        </>
+                        <Loader2 className="h-3 w-3 animate-spin" />
                       ) : (
                         <>
                           <Target className="h-3 w-3" />

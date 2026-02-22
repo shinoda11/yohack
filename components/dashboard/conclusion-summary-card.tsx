@@ -329,9 +329,8 @@ export function ConclusionSummaryCard({
       )}
       {/* 計算中インジケータ（再計算時） */}
       {isLoading && score && (
-        <div className="absolute top-3 right-3 flex items-center gap-1.5 text-xs text-brand-bronze/60">
-          <Loader2 className="h-3 w-3 animate-spin" />
-          <span>更新中</span>
+        <div className="absolute top-3 right-3">
+          <Loader2 className="h-3 w-3 animate-spin text-brand-bronze/40" />
         </div>
       )}
       <CardContent className="p-5">
