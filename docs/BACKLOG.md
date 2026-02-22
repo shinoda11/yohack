@@ -195,7 +195,7 @@ font-weight を Regular(400) と Bold(700) の2種のみに整理する。
 完了後: git add -A && git commit -m "ui: P0-9 font weight to regular/bold only" && git push
 
 ## P0-10: Border-radius統一
-status: todo
+status: done
 priority: P0
 estimate: S
 
@@ -265,7 +265,7 @@ estimate: M
 ```
 
 ## P1-4: 視線の流れ設計
-status: todo
+status: done
 priority: 1
 estimate: L
 
@@ -295,7 +295,7 @@ estimate: L
 ```
 
 ## P1-5: グラフを意思決定支援に昇華
-status: todo
+status: done
 priority: 1
 estimate: L
 
@@ -326,7 +326,7 @@ estimate: L
 ```
 
 ## P1-6: Number Input / Slider改善
-status: todo
+status: done
 priority: P1
 estimate: M
 

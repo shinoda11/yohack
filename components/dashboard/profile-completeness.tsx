@@ -68,9 +68,9 @@ export function ProfileCompleteness({ profile, onOpenCard }: ProfileCompleteness
             <span className="text-muted-foreground">プロファイル完成度</span>
             <span className="font-normal tabular-nums">{percentage}%</span>
           </div>
-          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-muted">
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-brand-gold transition-all duration-500"
+              className="h-full rounded-full bg-brand-gold transition-all duration-500 ease-out"
               style={{ width: `${percentage}%` }}
             />
           </div>

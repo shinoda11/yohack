@@ -623,6 +623,7 @@ export default function DashboardPage() {
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' && summaryScenarioName.trim()) {
                               saveScenario(summaryScenarioName.trim());
+                              toast({ description: '世界線を保存しました' });
                               setSummaryScenarioName('');
                               setSavingFromSummary(false);
                               setSavedFromSummary(true);
@@ -638,6 +639,7 @@ export default function DashboardPage() {
                           disabled={!summaryScenarioName.trim()}
                           onClick={() => {
                             saveScenario(summaryScenarioName.trim());
+                            toast({ description: '世界線を保存しました' });
                             setSummaryScenarioName('');
                             setSavingFromSummary(false);
                             setSavedFromSummary(true);
