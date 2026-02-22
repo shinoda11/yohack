@@ -401,6 +401,22 @@ LP設計書 docs/yohack-lp-design.md も参照すること。
 - 「適合チェックに進む」→「12問で確認する」
 - 「よくある質問」→「気になること」
 
+#### S2追記: ケースカードをC01〜C18から6件に拡充
+
+docs/case-catalog-results.md を読み、属性が分散した6件を選定してカードに追加する。
+選定基準: 年収帯・年齢・家族構成・職種が重複しないこと。
+
+カード構成（6件 → 3列×2行グリッド、モバイルは1列）:
+- 年収帯: 900万〜3,200万をカバー
+- 年齢: 28〜42歳をカバー
+- solo/couple 両方含む
+
+各カードに表示する要素:
+1. 属性ラベル（年収・年齢・家族構成）
+2. 状況の一言（職種・検討内容）
+3. 世界線比較の結論（1〜2行）
+4. スコア差分 or 安心ライン判定（text-2xl font-bold text-brand-gold）
+
 完了後:
 - pnpm build
 - git add -A && git commit -m "ui: P2-2 LP hero visual + section rhythm redesign" && git push
