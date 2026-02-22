@@ -40,7 +40,7 @@ telegram_send() {
   escaped_msg=$(printf '%s' "$msg" | awk -v bs='\\' 'NR>1{printf "%s", bs "n"}{printf "%s",$0}')
   local tmp_json
   tmp_json=$(mktemp)
-  printf '{"chat_id":"%s","text":"%s","parse_mode":"Markdown"}' "$chat_id" "$escaped_msg" > "$tmp_json"
+  printf '{"chat_id":"%s","text":"%s"}' "$chat_id" "$escaped_msg" > "$tmp_json"
   curl -s -X POST "https://api.telegram.org/bot${token}/sendMessage" \
     -H "Content-Type: application/json" \
     -d @"$tmp_json" > /dev/null
@@ -105,7 +105,7 @@ mark_done() {
 # ── メインループ ────────────────────────────────────────────────
 main() {
   log "🚀 バックログランナー起動"
-  telegram_send "🚀 *YOHACK バックログランナー起動*"
+  telegram_send "🚀 YOHACK バックログランナー起動"
 
   local tmp_body
   tmp_body=$(mktemp)
@@ -115,7 +115,7 @@ main() {
     # 次のタスクIDを取得
     TASK_ID=$(get_next_task_id)
     if [ -z "$TASK_ID" ]; then
-      msg="🎉 *バックログ全タスク完了！*"
+      msg="🎉 バックログ全タスク完了！"
       log "$msg"
       telegram_send "$msg"
       break
@@ -127,7 +127,7 @@ main() {
 
     # タスクをClaudeに渡して実行
     log "▶️  $TASK_ID 実行開始"
-    telegram_send "⏳ *[$TASK_ID] 実行中...*"
+    telegram_send "⏳ [$TASK_ID] 実行中..."
 
     # Claude Code にタスクを投げる（ヘッドレスモード）
     # 本文はファイルから読み込み、バッククォート等の誤解釈を防ぐ
@@ -160,13 +160,11 @@ $(cat "$tmp_body")
       git add docs/product-backlog.md
       git commit -m "chore: mark $TASK_ID done in backlog" >> "$LOG" 2>&1 || true
       git push >> "$LOG" 2>&1 || true
-      telegram_send "✅ *[$TASK_ID] 完了* → 次のタスクへ自動進行"
+      telegram_send "✅ [$TASK_ID] 完了 → 次のタスクへ自動進行"
       log "✅ $TASK_ID 完了 → 次へ"
     else
       # 失敗: Telegram通知＋スキップして次へ
-      telegram_send "⚠️ *[$TASK_ID] エラー発生* → スキップして次のタスクへ
-
-ログ: docs/snapshot/run-log.txt"
+      telegram_send "⚠️ [$TASK_ID] エラー発生 → スキップして次のタスクへ"
       log "⚠️ $TASK_ID 失敗 → スキップして次へ"
     fi
   done
