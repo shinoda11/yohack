@@ -407,8 +407,8 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Conclusion Summary - visible on result tab (mobile) or always (desktop) */}
-          <div className={cn("mb-6", mobileTab === 'input' && 'hidden md:block')}>
+          {/* Conclusion Summary - HERO: visible on result tab (mobile) or always (desktop) */}
+          <div className={cn("mb-8", mobileTab === 'input' && 'hidden md:block')}>
             <ConclusionSummaryCard
               score={simResult?.score ?? null}
               metrics={simResult?.metrics ?? null}
@@ -454,9 +454,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="mt-4 md:mt-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <div className="mt-4 md:mt-0 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
             {/* Left column: Input cards — visually subdued, hidden on mobile when result tab active */}
-            <div className={cn("space-y-4 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
+            <div className={cn("space-y-6 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
               {/* Profile Summary - Read-only */}
               <ProfileSummaryCard profile={profile} onUpdate={updateProfile} />
 

@@ -333,7 +333,7 @@ export function ConclusionSummaryCard({
           <Loader2 className="h-3 w-3 animate-spin text-brand-bronze/40" />
         </div>
       )}
-      <CardContent className="p-6">
+      <CardContent className="p-8">
         {/* Goal Lens前提（1行） */}
         <p className="text-xs text-brand-bronze/60 mb-4">
           前提: {workStyle} / {legacyGoal} / {targetRetireAge}歳目標
