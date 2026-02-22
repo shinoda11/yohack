@@ -78,9 +78,11 @@ interface ProfileStore {
   customBranches: Branch[];
   hiddenDefaultBranchIds: string[];
 
-  // 内部: debounce管理
+  // 内部: debounce管理 + キャッシュ
   _pendingUpdate: boolean;
   _storageInitialized: boolean;
+  profileVersion: number;
+  lastSimVersion: number;
   
   // Actions
   updateProfile: (updates: Partial<Profile>) => void;
@@ -127,11 +129,11 @@ export const useProfileStore = create<ProfileStore>()(
         
         // 150ms後に実行（タイピング中の連続入力を吸収）
         debounceTimer = setTimeout(async () => {
-          const { profile } = get();
-          
+          const { profile, profileVersion } = get();
+
           try {
             const result = await runSimulation(profile);
-            set({ simResult: result, isLoading: false, error: null, _pendingUpdate: false });
+            set({ simResult: result, isLoading: false, error: null, _pendingUpdate: false, lastSimVersion: profileVersion });
           } catch (error) {
             set({ 
               error: error instanceof Error ? error.message : 'Simulation failed',
@@ -157,40 +159,50 @@ export const useProfileStore = create<ProfileStore>()(
         hiddenDefaultBranchIds: [],
         _pendingUpdate: false,
         _storageInitialized: false,
+        profileVersion: 0,
+        lastSimVersion: -1,
         
         // Update profile and trigger simulation immediately
         updateProfile: (updates) => {
           set((state) => ({
-            profile: { ...state.profile, ...updates }
+            profile: { ...state.profile, ...updates },
+            profileVersion: state.profileVersion + 1,
           }));
           triggerSimulation();
         },
         
         // Reset to default profile
         resetProfile: () => {
-          set({
+          set((state) => ({
             profile: createDefaultProfile(),
-            activeScenarioId: null
-          });
+            activeScenarioId: null,
+            profileVersion: state.profileVersion + 1,
+          }));
           triggerSimulation();
         },
         
         // Run simulation manually (for initial load)
         runSimulationAsync: async () => {
-          const { profile, _pendingUpdate } = get();
-          
+          const { profile, _pendingUpdate, simResult, profileVersion, lastSimVersion } = get();
+
+          // キャッシュヒット: profileが変わっていなければ再計算しない
+          if (simResult && lastSimVersion === profileVersion && !_pendingUpdate) {
+            set({ isLoading: false });
+            return;
+          }
+
           // 既にpending updateがある場合はスキップ（debounceに任せる）
           if (_pendingUpdate) return;
-          
+
           set({ isLoading: true, error: null });
-          
+
           try {
             const result = await runSimulation(profile);
-            set({ simResult: result, isLoading: false });
+            set({ simResult: result, isLoading: false, lastSimVersion: get().profileVersion });
           } catch (error) {
-            set({ 
+            set({
               error: error instanceof Error ? error.message : 'Simulation failed',
-              isLoading: false 
+              isLoading: false
             });
           }
         },
@@ -292,13 +304,14 @@ export const useProfileStore = create<ProfileStore>()(
         loadScenario: (id) => {
           const { scenarios } = get();
           const scenario = scenarios.find(s => s.id === id);
-          
+
           if (scenario) {
-            set({
+            set((state) => ({
               profile: { ...scenario.profile },
               simResult: scenario.result,
-              activeScenarioId: id
-            });
+              activeScenarioId: id,
+              profileVersion: state.profileVersion + 1,
+            }));
             // Trigger simulation to ensure fresh results
             triggerSimulation();
           }
