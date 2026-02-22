@@ -265,7 +265,7 @@ export async function POST(req: Request) {
 - 一度閉じたら再表示しない（localStorage）
 
 ### [P2-5] Stripe Checkout接続（Phase 2）
-**status:** [ ]
+**status:** [x]
 
 - Ready判定 → Stripe Checkout → ¥29,800 Pass購入 → アクセス権付与
 - `passSubscriptions` テーブル（Supabase）
