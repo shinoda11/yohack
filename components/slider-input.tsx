@@ -74,9 +74,10 @@ export function SliderInput({
     []
   );
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
     focusRef.current = true;
+    requestAnimationFrame(() => e.target.select());
   }, []);
 
   const handleBlur = useCallback(() => {

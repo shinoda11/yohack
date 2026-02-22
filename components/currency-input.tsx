@@ -61,11 +61,13 @@ export function CurrencyInput({
     setLocalValue(v);
   }, []);
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     setIsFocused(true);
     focusRef.current = true;
     // Show raw number without commas on focus
     setLocalValue(value === 0 ? '' : String(value));
+    // Select all text for easy overwrite
+    requestAnimationFrame(() => e.target.select());
   }, [value]);
 
   const handleBlur = useCallback(() => {
@@ -105,7 +107,7 @@ export function CurrencyInput({
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className="h-9 w-24 text-right text-sm font-[family-name:var(--font-dm-sans)] tabular-nums sm:w-28"
+          className="h-10 w-24 text-right text-sm font-[family-name:var(--font-dm-sans)] tabular-nums sm:w-28"
         />
         <span className="w-8 text-sm text-muted-foreground">{unit}</span>
       </div>
