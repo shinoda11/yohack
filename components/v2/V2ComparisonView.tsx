@@ -17,6 +17,8 @@ import {
   Info,
   Plus,
   Loader2,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
@@ -285,7 +287,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                         return `${age}歳`;
                       })()}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("block text-xs mt-0.5", delta < 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta < 0 ? "text-safe" : "text-danger")}>
+                          {delta < 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}歳
                         </span>
                       )}
@@ -350,8 +353,9 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       selectedComparisonIds.includes(scenario.id) && "bg-accent/10"
                     )}>
                       {`${(assets / 10000).toFixed(1)}億`}
-                      {deltaText && (
-                        <span className={cn("block text-xs mt-0.5", deltaClass)}>
+                      {deltaText && delta != null && delta !== 0 && (
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", deltaClass)}>
+                          {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {deltaText}
                         </span>
                       )}
@@ -395,7 +399,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     )}>
                       {`${monthlyCF.toFixed(0)}万/月`}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("block text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                          {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}万/月
                         </span>
                       )}
@@ -441,7 +446,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     )}>
                       {ddIdx > 0 ? `${scenario.profile.currentAge + ddIdx}歳` : 'なし'}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("block text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                          {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}歳
                         </span>
                       )}

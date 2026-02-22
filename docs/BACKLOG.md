@@ -398,7 +398,7 @@ estimate: M
 完了後: git add -A && git commit -m "ui: P1-8 single primary CTA per screen" && git push
 
 ## P1-9: 色以外の視覚的指標を追加（アクセシビリティ）
-status: todo
+status: done
 priority: P1
 estimate: S
 

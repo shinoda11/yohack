@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { Home, Plus, Trash2, Sparkles } from 'lucide-react';
+import { Home, Plus, Trash2, Sparkles, Check } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { CollapsibleCard } from '@/components/ui/collapsible-card';
 import { SliderInput } from '@/components/slider-input';
@@ -512,7 +512,9 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                 dot={false}
               />
               {/* 各プランライン */}
-              {plans.map((plan, i) => (
+              {plans.map((plan, i) => {
+                const PLAN_DASH_PATTERNS = ['none', '12 4', '4 4'];
+                return (
                 <Line
                   key={plan.id}
                   type="monotone"
@@ -520,18 +522,23 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                   name={`${plan.name}（${formatCurrency(plan.price)}）`}
                   stroke={PLAN_COLORS[i]}
                   strokeWidth={2}
+                  strokeDasharray={PLAN_DASH_PATTERNS[i] || 'none'}
                   dot={false}
                 />
-              ))}
+                );
+              })}
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* 結論テキスト */}
         <p className={cn(
-          "text-sm font-normal text-center",
+          "text-sm font-normal text-center inline-flex items-center justify-center gap-1 w-full",
           bestPlanId === 'rent' ? 'text-safe' : 'text-[#4A6FA5]'
-        )}>{conclusionText}</p>
+        )}>
+          <Check className="h-4 w-4 shrink-0" />
+          {conclusionText}
+        </p>
 
         {/* 比較テーブル */}
         <div className="rounded-lg border overflow-x-auto">

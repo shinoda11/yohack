@@ -3,7 +3,7 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, AlertTriangle, XCircle, Loader2, ArrowRight, GitBranch } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, Loader2, ArrowRight, GitBranch, TrendingUp, TrendingDown } from 'lucide-react';
 import type { ExitScoreDetail, KeyMetrics, Profile } from '@/lib/types';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
@@ -249,6 +249,7 @@ function ChangeBadge({ value, unit, invertColor = false }: {
         fadingOut && 'opacity-0'
       )}
     >
+      {isImprovement ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
       {sign}{displayValue}{unit}
     </span>
   );

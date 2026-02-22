@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 
-import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, Lightbulb, AlertTriangle } from 'lucide-react';
+import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, Lightbulb, AlertTriangle, Check } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -293,10 +293,10 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
           score.overall >= 50 && score.overall < 80 && "text-brand-bronze",
           score.overall < 50 && "text-danger",
         )}>
-          {score.level === 'GREEN' && '目標達成の可能性が非常に高いです'}
-          {score.level === 'YELLOW' && '目標達成の見込みは良好です'}
-          {score.level === 'ORANGE' && '改善の余地があります'}
-          {score.level === 'RED' && '計画の見直しをおすすめします'}
+          {score.level === 'GREEN' && <><Check className="inline h-4 w-4 mr-1" />目標達成の可能性が非常に高いです</>}
+          {score.level === 'YELLOW' && <><Check className="inline h-4 w-4 mr-1" />目標達成の見込みは良好です</>}
+          {score.level === 'ORANGE' && <><AlertTriangle className="inline h-4 w-4 mr-1" />改善の余地があります</>}
+          {score.level === 'RED' && <><AlertTriangle className="inline h-4 w-4 mr-1" />計画の見直しをおすすめします</>}
         </p>
 
         {/* Sub-scores grid */}
