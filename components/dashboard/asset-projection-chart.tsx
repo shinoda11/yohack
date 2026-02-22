@@ -186,13 +186,17 @@ export function AssetProjectionChart({
   const retirementData = chartData.find(d => d.age === targetRetireAge);
   const finalData = chartData[chartData.length - 1];
 
-  // Cap Y axis to p75 max * 1.2 so median detail is readable
-  const p75Max = Math.max(...chartData.map(d => d.p75));
-  const yMaxCap = Math.ceil((p75Max * 1.2) / 1000) * 1000;
+  // Cap Y axis to median-based scaling so p75/p90 compound growth doesn't crush median detail
+  const medianMax = Math.max(...chartData.map(d => d.median));
+  const yMaxBase = Math.ceil((medianMax * 1.3) / 1000) * 1000;
+  const yMax = showOptimistic
+    ? Math.ceil((Math.max(...chartData.map(d => d.p75)) * 1.1) / 1000) * 1000
+    : yMaxBase;
 
   const minValue = Math.min(...chartData.map(d => d.lower));
-  const yMin = minValue < 0 ? Math.floor(minValue / 1000) * 1000 - 500 : Math.max(-500, Math.floor(minValue / 500) * 500);
-  const yMax = yMaxCap;
+  const yMin = minValue < 0
+    ? Math.floor(minValue / 1000) * 1000 - 500
+    : 0;
 
   return (
     <SectionCard
