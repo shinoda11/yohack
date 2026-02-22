@@ -102,6 +102,59 @@ YOHACKの全UIテキストを「決断の静けさ」のトーンに統一する
 完了条件: 全UIテキストがYOHACKのトーン「決断の静けさ」と一致している
 ```
 
+## P0-6: Empty State設計
+status: todo
+priority: P0
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+プロファイル未入力・シミュレーション未実行時の空状態を「次に何をすべきか」が伝わるものに変更する。
+
+対象画面:
+1. ダッシュボード右カラム（シミュレーション未実行時）
+   - 現状: 結果カードが空欄 or 0表示
+   - 改善: 「プロファイルを入力すると、ここに余白の見通しが表示されます」+ 薄いイラスト的SVG
+2. 世界線比較（世界線0本）
+   - 現状: 「世界線がまだありません」
+   - 改善: より文脈のある案内（分岐ビルダーで作れることを伝える）
+3. /branch（ブランチ未選択時）
+   - 改善: 初回ユーザー向けの案内
+
+スタイルルール:
+- テキスト: text-brand-bronze
+- アイコン: text-brand-gold opacity-30
+- 背景: bg-brand-canvas rounded-xl
+- CTAボタンがある場合: bg-brand-gold text-brand-night
+
+完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P0-6 empty state design" && git push
+
+## P0-7: Skeleton UI実装
+status: todo
+priority: P0
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+計算中の待機状態をSkeleton UIに置き換え、「読み込み中」「計算中」テキストを廃止する。
+
+対象:
+1. ダッシュボード結果カード（ExitReadinessCard, KeyMetricsCard, CashFlowCard等）
+   - simResult が null の間 → Skeleton表示
+2. 世界線比較のスコア表示
+   - 計算中 → Skeleton表示
+3. MoneyMarginCard
+   - isLoading時 → Skeleton表示（既存Skeleton importあり、活用する）
+
+実装方針:
+- shadcn/ui の Skeleton コンポーネントを使用（既に components/ui/skeleton.tsx あり）
+- テキスト「計算中」「更新中」「反映中」→ Skeletonアニメーションに置換
+- Skeletonの形状は実データの形状と一致させる（数値→短い矩形、グラフ→大きな矩形）
+
+完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P0-7 skeleton UI" && git push
+
 ## P0-8: スペーシング体系化（8ptグリッド）
 status: todo
 priority: P0
@@ -271,6 +324,52 @@ estimate: L
 完了条件: グラフを見た瞬間に「安全か危険か」が色と線で直感的にわかる
 チェック: デザイン哲学の実装チェックリスト全項目を満たすこと
 ```
+
+## P1-6: Number Input / Slider改善
+status: todo
+priority: P1
+estimate: M
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+年収・物件価格等の数値入力の体験を改善する。
+
+対象コンポーネント:
+1. components/currency-input.tsx（カンマ付き数値入力）
+2. components/slider-input.tsx（スライダー入力）
+3. ダッシュボード入力カード内の各Input
+
+改善内容:
+1. CurrencyInput: フォーカス時に全選択（既存selectAllと統一）
+2. SliderInput: 現在値をスライダー上にツールチップ表示
+3. 大きな数値（1,000万以上）の入力補助: 100万単位のステップボタン（+100 / -100）
+4. 入力値の妥当性フィードバック: 範囲外の値に対してborder-dangerでハイライト
+5. モバイルでのタッチ操作改善: スライダーのタッチターゲット拡大（min-h-[44px]）
+
+完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P1-6 number input slider improvement" && git push
+
+## P1-7: Toast / Progress Bar実装
+status: todo
+priority: P1
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+Toast通知とProfileCompletenessのProgress Barを改善する。
+
+対象:
+1. Toast通知（hooks/use-toast.ts + components/ui/toast.tsx）
+   - シミュレーション完了時: 「更新しました」のtoast表示
+   - シナリオ保存時: 「世界線を保存しました」のtoast表示
+   - デザイン: bg-brand-canvas border-brand-sand text-brand-stone
+2. ProfileCompleteness Progress Bar改善
+   - 現状: 細い1pxバー
+   - 改善: 高さ4px、角丸、アニメーション付き遷移
+   - 100%到達時: brand-goldで全体をフラッシュ → 5秒後にフェードアウト（既存ロジック維持）
+
+完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P1-7 toast and progress bar" && git push
 
 ## P1-8: CTAの優先順位整理（プライマリボタン1つルール）
 status: todo
