@@ -43,9 +43,9 @@ function getHighlightStyles(highlight?: 'success' | 'warning' | 'danger' | 'neut
       };
     case 'danger':
       return {
-        icon: 'text-[#8A7A62]',
-        value: 'text-[#8A7A62]',
-        bg: '',
+        icon: 'text-red-700 dark:text-red-400',
+        value: 'text-red-700 dark:text-red-300',
+        bg: 'bg-red-50 dark:bg-red-950/20',
       };
     default:
       return {
@@ -87,7 +87,7 @@ function MetricItem({
           {showAlert && (
             <AlertTriangle className={cn(
               "h-4 w-4 flex-shrink-0",
-              "text-[#8A7A62]",
+              isDanger ? "text-danger dark:text-red-400" : "text-amber-500 dark:text-amber-400",
             )} />
           )}
         </div>

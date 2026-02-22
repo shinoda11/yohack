@@ -56,10 +56,10 @@ function getStatusConfig(status: Status) {
       };
     case 'RED':
       return {
-        bgColor: 'bg-brand-stone/10',
-        borderColor: 'border-brand-stone/30',
-        iconColor: 'text-[#8A7A62]',
-        textColor: 'text-[#8A7A62]',
+        bgColor: 'bg-danger/10',
+        borderColor: 'border-danger/40',
+        iconColor: 'text-danger',
+        textColor: 'text-danger',
         icon: XCircle,
       };
     case 'CALCULATING':
@@ -244,8 +244,8 @@ function ChangeBadge({ value, unit, invertColor = false }: {
       className={cn(
         'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-normal transition-opacity duration-500',
         isImprovement
-          ? 'text-[#5A5550]'
-          : 'text-[#8A7A62]',
+          ? 'bg-safe/10 text-safe'
+          : 'bg-danger/10 text-danger',
         fadingOut && 'opacity-0'
       )}
     >
@@ -318,7 +318,7 @@ export function ConclusionSummaryCard({
       config.bgColor,
       config.borderColor,
       scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
-      scoreDirection === 'down' && '',
+      scoreDirection === 'down' && 'border-danger !duration-150',
     )}>
       {/* 計算中オーバーレイ（初回ロード時） */}
       {isLoading && !score && (
@@ -361,7 +361,7 @@ export function ConclusionSummaryCard({
                 "text-2xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums px-4 py-1 rounded-lg shrink-0 self-start sm:self-auto transition-all duration-[600ms] ease-out",
                 score.overall >= 70 ? "bg-brand-gold/20 text-brand-bronze dark:bg-brand-gold/10" :
                 score.overall >= 40 ? "bg-brand-stone/15 text-brand-stone dark:bg-brand-stone/15" :
-                "text-[#8A7A62]",
+                "bg-danger/10 text-danger",
                 isLoading && "opacity-50",
                 scoreDirection === 'up' && "scale-110",
                 scoreDirection === 'down' && "scale-95",
