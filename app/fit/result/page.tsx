@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Check, Mail, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
@@ -91,7 +92,7 @@ function ReadyResult() {
           適合しました
         </h2>
         <p className="text-brand-stone">
-          YOHACKを使い始められる状態です。まずはシミュレーションをお試しください。
+          YOHACKでシミュレーションを開始できます
         </p>
       </div>
 
@@ -120,16 +121,19 @@ function ReadyResult() {
           </ul>
         </div>
 
-        {/* Phase 3: Stripe Checkout will be inserted here */}
+        {/* TODO Phase2: ここにStripe Checkout ボタンが入る */}
+        {/* <Button onClick={handleStripeCheckout}>Passを購入する（¥29,800）</Button> */}
 
         <div className="pt-4">
           <Button
             size="lg"
             className="w-full text-white bg-brand-gold"
-            onClick={() => window.location.href = '/app'}
+            asChild
           >
-            シミュレーションを試す
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <Link href="/app?from=fitgate">
+              シミュレーションを開始する
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Link>
           </Button>
         </div>
       </div>
@@ -172,7 +176,7 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
         <div>
           <h3 className="font-bold mb-3 text-brand-stone">Prep Mode とは</h3>
           <p className="text-sm leading-relaxed text-brand-bronze">
-            YOHACK を使いこなすための準備ガイドです。年収・資産・支出の整理方法、数字の扱い方、よくある質問への回答などを、メールレターでお届けします。無料です。
+            YOHACK を使いこなすための準備ガイドです。年収・資産・支出の整理方法、数字の扱い方、よくある質問への回答などを、メールレターでお届けします。
           </p>
         </div>
 
