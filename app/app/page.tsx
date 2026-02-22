@@ -21,6 +21,7 @@ import { RetirementCard } from '@/components/dashboard/retirement-card';
 import { ExpenseCard } from '@/components/dashboard/expense-card';
 import { InvestmentCard } from '@/components/dashboard/investment-card';
 import { HousingPlanCard } from '@/components/dashboard/housing-plan-card';
+import { VariableBar } from '@/components/dashboard/variable-bar';
 
 // Dashboard result cards
 import { ConclusionSummaryCard } from '@/components/dashboard/conclusion-summary-card';
@@ -577,6 +578,9 @@ export default function DashboardPage() {
                       targetRetireAge={profile.targetRetireAge}
                       isLoading={isLoading}
                     />
+
+                    {/* Variable Bar */}
+                    <VariableBar profile={profile} onUpdate={updateProfile} />
 
                     {/* Chart */}
                     <AssetProjectionChart

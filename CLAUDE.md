@@ -107,12 +107,16 @@ YOHACKは ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop水準
 - **カラーはトークンのみ**: emerald-600, amber-600, red-700 等の直値禁止。`--safe`, `--danger`, `--brand-gold`, `--brand-bronze` を使う
 - **警告表現は最小限**: 赤背景+赤ボーダー+AlertTriangleの三重表現を禁止。数値が低い場合は `brand-bronze` で静かに伝える
 - **SectionCard の description は非表示**: カードヘッダーはアイコン+タイトルのみ
+- **Variable Bar**: チャート直上にドラッグ可能な数字（年収・生活費・目標年齢）を配置。スライダーのトラックは描画しない。数字そのものがコントローラー
+- **固定 vs 変数の概念**: 年齢・資産残高等の「事実」は `<details>` 内。年収・生活費・目標年齢等の「問い」はチャート直上の VariableBar で即座に操作可能
 
 ### ダッシュボード構造（確定済み）
 - ダッシュボードは1カラムレイアウト。入力カードは `<details>` で折りたたみ（デフォルト閉）
 - ConclusionSummaryCard にスコア数字は表示しない（ExitReadinessCard に一本化）
 - NextBestActionsCard は削除済み（ブランドボイス違反のため）。復活させない
 - mobileTab による入力/結果切り替えは廃止済み。モバイルもデスクトップも同じ1カラム構造
+- VariableBar と入力カード（`<details>` 内）は同じ Zustand store を参照。どちらで変更しても同期される
+- VariableBar の変数追加は慎重に。3つ（年収・生活費・目標年齢）を超えると Fintech SaaS 感が出る
 
 ## 絶対にやらないこと
 - Phase1 で Supabase / Stripe / SendGrid を導入しない（`docs/constraints.md`）
