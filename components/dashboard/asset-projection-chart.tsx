@@ -506,7 +506,7 @@ export function AssetProjectionChart({
           <p className="text-xs text-muted-foreground mb-1">
             {targetRetireAge}歳時点（中央値）
           </p>
-          <p className="text-lg font-bold text-brand-stone">
+          <p className="text-lg font-bold tabular-nums text-brand-stone">
             {retirementData ? formatValue(retirementData.median) : '-'}
           </p>
         </div>
@@ -515,7 +515,7 @@ export function AssetProjectionChart({
             {finalData?.age}歳時点（中央値）
           </p>
           <p className={cn(
-            "text-lg font-bold",
+            "text-lg font-bold tabular-nums",
             finalData && finalData.median > 0 ? "text-brand-stone" : "text-brand-bronze"
           )}>
             {finalData ? formatValue(finalData.median) : '-'}
@@ -526,7 +526,7 @@ export function AssetProjectionChart({
             悲観シナリオ ({finalData?.age}歳)
           </p>
           <p className={cn(
-            "text-lg font-bold",
+            "text-lg font-bold tabular-nums",
             finalData && finalData.lower > 0 ? "text-brand-stone" : "text-brand-bronze"
           )}>
             {finalData ? formatValue(finalData.lower) : '-'}

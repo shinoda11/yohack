@@ -97,10 +97,21 @@ YOHACK — 住宅購入の意思決定を「世界線比較」で支援するシ
 - **混在禁止**: スコア表示に `success` を使わない
 - チャート: `CHART_COLORS`（`lib/utils.ts`）
 
+### タイポグラフィ
+- 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与
+- フォント階層: ヒーロー数値 `text-2xl sm:text-3xl font-bold` / カード内指標 `text-lg font-bold` / 本文 `text-sm` / 注釈 `text-xs`
+- SVG 内テキスト: `font-variant-numeric` は効かないため、ブラウザ default で許容
+
 ### スペーシング
 - カード間: `space-y-4` or `gap-4`
 - カード内フォーム要素間: `space-y-6`
 - カード内情報表示要素間: `space-y-4`
+
+### マイクロインタラクション
+- カードホバー: `transition-colors duration-150 hover:border-brand-gold/30`（Card コンポーネントに組込み済み）
+- `<details>` 開閉: CSS `details-show` アニメーション（globals.css）
+- タブ切替: `.animate-fade-in`（150ms ease-out）
+- スコアリング: ring + animatedScore は既存 `useAnimatedValue` で 600ms ease-out
 
 ## デザイン原則
 

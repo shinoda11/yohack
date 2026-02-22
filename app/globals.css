@@ -307,4 +307,22 @@
   .animate-collapsible-up {
     animation: collapsible-up 200ms ease-out;
   }
+
+  /* Details slide-down animation */
+  details[open] > *:not(summary) {
+    animation: details-show 200ms ease-out;
+  }
+  @keyframes details-show {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Tab panel fade-in */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-fade-in {
+    animation: fade-in 150ms ease-out;
+  }
 }

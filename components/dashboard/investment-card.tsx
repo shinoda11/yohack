@@ -72,7 +72,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
                 <div className={`text-sm font-bold ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>
                   {preset.label}
                 </div>
-                <div className={`text-lg font-bold ${isActive ? 'text-foreground' : ''}`}>
+                <div className={`text-lg font-bold tabular-nums ${isActive ? 'text-foreground' : ''}`}>
                   {preset.value}%
                 </div>
                 <div className="text-[10px] text-muted-foreground leading-tight mt-0.5 hidden sm:block">

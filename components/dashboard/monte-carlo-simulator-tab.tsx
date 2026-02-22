@@ -305,7 +305,7 @@ export function MonteCarloSimulatorTab({
                 className="flex-1"
               />
               <div className="w-20 text-right">
-                <span className="text-2xl font-bold">{localVolatility}</span>
+                <span className="text-2xl font-bold tabular-nums">{localVolatility}</span>
                 <span className="text-sm text-muted-foreground">%</span>
               </div>
             </div>
@@ -437,7 +437,7 @@ export function MonteCarloSimulatorTab({
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（楽観）</p>
-                <p className="mt-1 text-2xl font-bold text-brand-stone sm:text-3xl">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-stone sm:text-3xl">
                   {spreadAtRetirement.optimistic.toFixed(2)}億円
                 </p>
                 <Badge variant="secondary" className="mt-2">
@@ -451,7 +451,7 @@ export function MonteCarloSimulatorTab({
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（中央値）</p>
-                <p className="mt-1 text-2xl font-bold text-brand-stone sm:text-3xl">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-stone sm:text-3xl">
                   {spreadAtRetirement.median.toFixed(2)}億円
                 </p>
                 <Badge className="mt-2 bg-brand-stone">
@@ -465,7 +465,7 @@ export function MonteCarloSimulatorTab({
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（悲観）</p>
-                <p className="mt-1 text-2xl font-bold text-brand-bronze sm:text-3xl">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-bronze sm:text-3xl">
                   {spreadAtRetirement.pessimistic.toFixed(2)}億円
                 </p>
                 <Badge variant="secondary" className="mt-2">
