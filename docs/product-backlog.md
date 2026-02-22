@@ -429,6 +429,55 @@ YOHACKが出す意味がない。
 
 ---
 
+## モバイル品質（AUDIT-RESULT由来）
+
+> 元ファイル: AUDIT-RESULT.md（2026-02-18作成）→ docs/archive/ に移動済み
+> 以下は未対応のもののみ抽出。バグ3件・UX問題3件・ポリッシュ2件は解決済みのため除外。
+
+### [MQ-1] /fit/result Prep判定時の `/fit/prep` 導線がない
+**status:** [ ]
+
+**問題:** Prep判定時「再診断を受ける」が `/fit` に遷移するだけで、`/fit/prep` への導線がない。
+
+**対象ファイル:** `app/fit/result/page.tsx`
+
+**完了条件:** Prep判定時に `/fit/prep` への明示的な導線が存在する。
+
+---
+
+### [MQ-2] ヘッダーの sticky 挙動が不統一
+**status:** [ ]
+
+**問題:** Dashboard・Profile は sticky ヘッダーあり。Settings・Worldline・Branch は sticky ヘッダーなし。
+
+**対象ファイル:** `app/app/settings/page.tsx`, `app/app/worldline/page.tsx`, `app/app/branch/page.tsx`
+
+**完了条件:** 全プロダクトページで sticky ヘッダーの有無が統一されている。
+
+---
+
+### [MQ-3] /app/profile にサブタイトルがない
+**status:** [ ]
+
+**問題:** プロファイルページはパンくず（← ダッシュボードに戻る）のみで、他画面にあるサブタイトルがない。
+
+**対象ファイル:** `app/app/profile/page.tsx`
+
+**完了条件:** サブタイトルを追加するか、パンくずスタイルを他画面に統一する。
+
+---
+
+### [MQ-4] 折りたたみボタンの aria-label 不足
+**status:** [ ]
+
+**問題:** income-card.tsx, housing-plan-card.tsx の展開/折りたたみボタンに aria-label がない（テキストはあるため軽微）。
+
+**対象ファイル:** `components/dashboard/income-card.tsx`, `components/dashboard/housing-plan-card.tsx`
+
+**完了条件:** `aria-label="セクションを展開"` 等を追加。
+
+---
+
 ## 未解決の問い
 
 | # | 問い | 判断者 |

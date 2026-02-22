@@ -200,6 +200,16 @@ ExitReadinessCard → KeyMetricsCard → AssetProjectionChart → NextBestAction
 - engine.ts は calc-core を import して re-export（後方互換）
 - パリティテスト（`calc-parity.test.ts`、61件）で整合性を自動検証
 
+### ダッシュボード ↔ 分岐ビルダーのデータフロー
+- ダッシュボードは `profile.lifeEvents` を**表示のみ**（直接編集UIなし）
+- 分岐ビルダーは `buildProfileForCandidate()` で profile を**コピー+マージ**して一時プロファイルを作成
+  - 既存 `profile.lifeEvents` + ブランチ由来イベントをマージ → `runSimulation()`
+  - 元の profile は変更しない
+- `addScenarioBatch()` で SavedScenario として保存（古い branch- シナリオは自動削除）
+- **`loadScenario()` は破壊的操作**: シナリオをロードすると現在の profile が完全に上書きされる
+- **シナリオは生成時のスナップショット**: 生成後に profile を変更しても保存済みシナリオには反映されない
+- **エンジンが無視するイベント型**: `child_birth`, `education`, `asset_purchase`, `retirement_partial`（分岐ビルダーは `expense_increase` 等に変換して回避）
+
 ### localStorage 永続化
 - プロファイルとシナリオは localStorage に保存
 - シミュレーションは profile 変更時に自動で debounce（150ms）実行
@@ -250,6 +260,16 @@ ExitReadinessCard → KeyMetricsCard → AssetProjectionChart → NextBestAction
 2. **設計** → `docs/ds-audit/DS-X-design.md` に変更差分を定義
 3. **実行** → 設計書の差分のみを適用
 4. **検査** → `docs/ds-audit/DS-X-after.md` に結果記録、before/after比較で承認
+
+### lib/v2/ のデッドコード（削除候補）
+- **未使用コンポーネント**: `components/v2/WorldLineLens.tsx`, `NextStepCard.tsx`, `EventLayer.tsx`, `ConclusionCard.tsx`, `ReasonCard.tsx`
+- **未使用フック**: `hooks/useWorldLines.ts`
+- **未使用ライブラリ**: `lib/v2/strategy.ts`（`hooks/useStrategy.ts` が代替実装。完全にデッドコード）
+- **未使用ライブラリ**: `lib/v2/events.ts`（唯一の利用者 EventLayer.tsx がデッドコード）
+- `lib/v2/worldline.ts` の大部分（`cloneWorldLine`, `addEventToWorldLine`, `removeEventFromWorldLine`, `evaluateKpiHealth`, `compareWorldLines`）が未使用
+- `lib/v2/adapter.ts` の `adaptV1ProfileToV2WorldLine`, `updateWorldLineWithResults` が未使用
+- `lib/v2/store.ts` の `showV2UI`, `goalLens` フィールドが未使用
+- **注意**: `lib/v2/adapter.ts` の `calculateMoneyMargin` は V2ResultSection の余白比較テーブルで使用中。削除不可
 
 ### エンジン仕様の要点
 - スコア重み: survival 55% / lifestyle 20% / risk 15% / liquidity 10%
