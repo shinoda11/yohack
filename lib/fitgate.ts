@@ -1,5 +1,5 @@
 // FitGate judgment logic + profile conversion + localStorage persistence
-// Ported from docs/fitgate-reference/judgment-logic.ts and FitGate.tsx
+// Ported from legacy LP repository (FitGate.tsx + judgment-logic.ts)
 
 import type { Profile, HousingPlan } from './types';
 
