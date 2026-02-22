@@ -70,7 +70,7 @@ estimate: M
 ```
 
 ## P0-5: UIテキストの品質向上
-status: running
+status: done
 priority: 0
 estimate: M
 
@@ -101,6 +101,68 @@ YOHACKの全UIテキストを「決断の静けさ」のトーンに統一する
 
 完了条件: 全UIテキストがYOHACKのトーン「決断の静けさ」と一致している
 ```
+
+## P0-8: スペーシング体系化（8ptグリッド）
+status: todo
+priority: P0
+estimate: M
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+「関係が近いほど近く、遠いほど遠く」の原則を全コンポーネントに適用する。
+参考: https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14 Tip 1
+
+1. tailwind.config.ts に spacing スケールを明示定義:
+   spacing-1 = 4pt, spacing-2 = 8pt, spacing-3 = 16pt, spacing-4 = 24pt,
+   spacing-5 = 32pt, spacing-6 = 48pt, spacing-8 = 64pt
+
+2. カード内部: label↔値 は spacing-1(4pt), セクション間は spacing-3(16pt)
+3. カード間マージン: spacing-4(24pt) 統一
+4. 違反箇所（感覚値のp-3やmt-2の混在）を体系値に置換
+
+完了後: git add -A && git commit -m "ui: P0-8 spacing system 8pt grid" && git push
+
+## P0-9: フォントウェイトをRegular/Boldの2種に統一
+status: todo
+priority: P0
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+font-weight を Regular(400) と Bold(700) の2種のみに整理する。
+参考: https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14 Tip 11
+
+1. 現在使われている font-medium(500) / font-semibold(600) を棚卸し
+2. 見出し・スコア・重要数値 → font-bold(700)
+3. ラベル・本文・補足 → font-normal(400)
+4. font-medium / font-semibold は原則廃止（例外はCLAUDE.mdに明記）
+
+完了後: git add -A && git commit -m "ui: P0-9 font weight to regular/bold only" && git push
+
+## P0-10: Border-radius統一
+status: todo
+priority: P0
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+全コンポーネントのborder-radiusを統一し「同じ手が作った」感を出す。
+参考: https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14 Tip 12
+
+統一ルール:
+- カード・モーダル: rounded-xl (12px)
+- ボタン・バッジ・タグ: rounded-lg (8px)
+- 入力フィールド: rounded-lg (8px)
+- グラフのツールチップ: rounded-lg (8px)
+- アイコンコンテナ: rounded-md (6px)
+- 全角の丸（アバター等）: rounded-full
+
+現在の rounded-sm / rounded / rounded-md / rounded-2xl の混在を上記ルールに統一。
+
+完了後: git add -A && git commit -m "ui: P0-10 border-radius unified" && git push
 
 ---
 
@@ -209,6 +271,55 @@ estimate: L
 完了条件: グラフを見た瞬間に「安全か危険か」が色と線で直感的にわかる
 チェック: デザイン哲学の実装チェックリスト全項目を満たすこと
 ```
+
+## P1-8: CTAの優先順位整理（プライマリボタン1つルール）
+status: todo
+priority: P1
+estimate: M
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+各画面のプライマリアクションを1つに絞り、視線の行き先を明確にする。
+参考: https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14 Tip 3
+
+対象画面と想定プライマリアクション:
+- ダッシュボード → 「世界線を作る」
+- 世界線比較 → 「この世界線を保存」
+- /branch → 「分岐を追加」
+- FitGate → 「次の質問へ」/ 「診断結果を見る」
+- LP → 「適合チェックに進む」
+
+実装:
+1. 各画面で同格のボタンが複数ある箇所を特定
+2. プライマリ1つ → bg-brand-gold text-white
+3. セカンダリ → border border-brand-gold text-brand-gold bg-transparent
+4. ターシャリ → text-brand-bronze underlineなし
+
+完了後: git add -A && git commit -m "ui: P1-8 single primary CTA per screen" && git push
+
+## P1-9: 色以外の視覚的指標を追加（アクセシビリティ）
+status: todo
+priority: P1
+estimate: S
+
+### instructions
+デザイン哲学 docs/YOHACK_DESIGN_PHILOSOPHY.md を必ず読んでから実装すること。
+
+色覚特性のあるユーザーにも安心ライン以上/以下が伝わるようにする。
+参考: https://www.adhamdannaway.com/blog/ui-design/ui-design-tips-14 Tip 7
+
+対象:
+1. 安心ライン以上（safe）の表示
+   現状: 緑色のみ → 改善: ✓アイコン + 「安心ライン以上」ラベル追加
+2. 安心ライン以下（danger）の表示
+   現状: 赤色のみ → 改善: ⚠アイコン + 「安心ラインを下回っています」ラベル追加
+3. グラフの世界線A/B区別
+   現状: 色のみ → 改善: 実線/破線で区別（stroke-dasharray）
+4. タブの選択状態
+   現状: 色変化のみ → 改善: 選択タブに下線追加（border-b-2 border-brand-gold）
+
+完了後: git add -A && git commit -m "ui: P1-9 add non-color visual indicators" && git push
 
 ---
 
