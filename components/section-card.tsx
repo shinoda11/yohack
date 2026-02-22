@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -22,7 +21,6 @@ interface SectionCardProps {
 export function SectionCard({
   icon,
   title,
-  description,
   children,
   className,
   action,
@@ -37,9 +35,6 @@ export function SectionCard({
             </div>
             <div>
               <CardTitle className="text-base font-bold">{title}</CardTitle>
-              {description && (
-                <CardDescription className="mt-0.5 text-xs text-muted-foreground">{description}</CardDescription>
-              )}
             </div>
           </div>
           {action && <div>{action}</div>}

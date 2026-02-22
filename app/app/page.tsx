@@ -9,9 +9,9 @@ import { worldlineTemplates } from '@/lib/worldline-templates';
 import { getBranchDerivedLifeEvents } from '@/lib/branch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { X, Save, Check, Share2, Loader2, GitBranch } from 'lucide-react';
+import { X, Save, Check, Share2, Loader2, GitBranch, UserPen, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { cn, CHART_COLORS } from '@/lib/utils';
+import { CHART_COLORS } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 // Dashboard input cards
@@ -64,9 +64,7 @@ export default function DashboardPage() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [showFirstVisitBanner, setShowFirstVisitBanner] = useState(false);
 
-  // Mobile tab state (入力 vs 結果)
   const isProfileDefault = profile.grossIncome === 1200 && profile.currentAge === 35;
-  const [mobileTab, setMobileTab] = useState<'input' | 'result'>(isProfileDefault ? 'input' : 'result');
 
   // Summary tab save scenario state
   const [savingFromSummary, setSavingFromSummary] = useState(false);
@@ -80,7 +78,6 @@ export default function DashboardPage() {
 
   // Share / capture state
   const captureRef = useRef<HTMLDivElement>(null);
-  const captureRefMobile = useRef<HTMLDivElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
   const { toast } = useToast();
 
@@ -205,7 +202,6 @@ export default function DashboardPage() {
   const handleOpenCard = useCallback((cardId: string) => {
     const key = cardId as CardKey;
     if (!(key in cardRefs)) return;
-    setMobileTab('input');
     manualToggles.current.add(key);
     setOpenCards(prev => ({ ...prev, [key]: true }));
     setTimeout(() => {
@@ -262,10 +258,7 @@ export default function DashboardPage() {
 
   // Handle share / capture
   const handleShareCapture = async () => {
-    // Pick the visible capture target (mobile vs desktop)
-    const mobileEl = captureRefMobile.current;
-    const desktopEl = captureRef.current;
-    const target = (mobileEl && mobileEl.offsetParent !== null) ? mobileEl : desktopEl;
+    const target = captureRef.current;
     if (!target || isCapturing) return;
     setIsCapturing(true);
 
@@ -401,8 +394,8 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {/* Conclusion Summary - HERO: visible on result tab (mobile) or always (desktop) */}
-          <div className={cn("mb-8", mobileTab === 'input' && 'hidden md:block')}>
+          {/* Conclusion Summary - HERO */}
+          <div className="mb-8">
             <ConclusionSummaryCard
               score={simResult?.score ?? null}
               metrics={simResult?.metrics ?? null}
@@ -410,8 +403,6 @@ export default function DashboardPage() {
               previousMetrics={prevMetricsSnapshot}
               isLoading={isLoading && !simResult}
               targetRetireAge={profile.targetRetireAge}
-              workStyle={profile.grossIncome > 1000 ? '高収入' : '会社員'}
-              legacyGoal="使い切り"
               profile={profile}
               onStartWorldlineComparison={handleStartWorldlineComparison}
               scenarioCount={scenarios.length}
@@ -420,149 +411,73 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Mobile: 入力/結果 Tab Bar */}
-          <div className="md:hidden sticky top-14 z-20 -mx-4 bg-brand-canvas border-b border-brand-linen">
-            <div className="flex">
-              <button
-                onClick={() => setMobileTab('input')}
-                className={cn(
-                  'flex-1 min-h-[44px] py-3 text-sm font-normal text-center transition-colors',
-                  mobileTab === 'input'
-                    ? 'text-brand-night border-b-2 border-brand-gold'
-                    : 'text-brand-bronze'
-                )}
-              >
-                入力
-              </button>
-              <button
-                onClick={() => setMobileTab('result')}
-                className={cn(
-                  'flex-1 min-h-[44px] py-3 text-sm font-normal text-center transition-colors',
-                  mobileTab === 'result'
-                    ? 'text-brand-night border-b-2 border-brand-gold'
-                    : 'text-brand-bronze'
-                )}
-              >
-                結果
-              </button>
-            </div>
-          </div>
+          <div className="space-y-6">
+            {/* Input cards — collapsible */}
+            <details className="group">
+              <summary className="flex cursor-pointer items-center gap-2 text-sm text-brand-bronze hover:text-brand-night transition-colors list-none [&::-webkit-details-marker]:hidden">
+                <UserPen className="h-4 w-4" />
+                前提を編集する
+                <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="mt-4 space-y-6">
+                {/* Profile Summary - Read-only */}
+                <ProfileSummaryCard profile={profile} onUpdate={updateProfile} />
 
-          <div className="mt-4 md:mt-0 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-            {/* Left column: Input cards — visually subdued, hidden on mobile when result tab active */}
-            <div className={cn("space-y-6 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
-              {/* Profile Summary - Read-only */}
-              <ProfileSummaryCard profile={profile} onUpdate={updateProfile} />
-
-              <div ref={cardRefs.income}>
-                <IncomeCard
-                  profile={profile}
-                  onUpdate={updateProfile}
-                  getFieldError={getFieldError}
-                  open={openCards.income}
-                  onOpenChange={(o) => handleCardToggle('income', o)}
-                  completed={cardComplete.income}
-                />
-              </div>
-              <div ref={cardRefs.retirement}>
-                <RetirementCard
-                  profile={profile}
-                  onUpdate={updateProfile}
-                  open={openCards.retirement}
-                  onOpenChange={(o) => handleCardToggle('retirement', o)}
-                  completed={cardComplete.retirement}
-                />
-              </div>
-              <div ref={cardRefs.expense}>
-                <ExpenseCard
-                  profile={profile}
-                  onUpdate={updateProfile}
-                  getFieldError={getFieldError}
-                  open={openCards.expense}
-                  onOpenChange={(o) => handleCardToggle('expense', o)}
-                  hideHousing
-                  completed={cardComplete.expense}
-                />
-              </div>
-              <div ref={cardRefs.investment}>
-                <InvestmentCard
-                  profile={profile}
-                  onUpdate={updateProfile}
-                  getFieldError={getFieldError}
-                  open={openCards.investment}
-                  onOpenChange={(o) => handleCardToggle('investment', o)}
-                  completed={cardComplete.investment}
-                />
-              </div>
-
-              {/* 住宅プラン - 賃貸 vs 複数購入プラン比較 */}
-              <div ref={cardRefs.housing}>
-                <HousingPlanCard
-                  profile={profile}
-                  onUpdate={updateProfile}
-                  open={openCards.housing}
-                  onOpenChange={(o) => handleCardToggle('housing', o)}
-                />
-              </div>
-            </div>
-
-            {/* Right column: Result cards */}
-            <div className={cn("min-w-0 overflow-x-hidden", mobileTab === 'input' && 'hidden md:block')}>
-              {/* Mobile: flat result list (no sub-tabs) */}
-              <div className="md:hidden space-y-6">
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-xs gap-1.5"
-                    onClick={handleShareCapture}
-                    disabled={isCapturing || !simResult}
-                  >
-                    {isCapturing ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Share2 className="h-3 w-3" />
-                    )}
-                    共有
-                  </Button>
-                </div>
-                <div ref={captureRefMobile} className="space-y-6">
-                  {/* Hero: Score — most important single card */}
-                  <ExitReadinessCard
-                    score={simResult?.score ?? null}
-                    isLoading={isLoading && !simResult}
-                  />
-                  <KeyMetricsCard
-                    metrics={simResult?.metrics ?? null}
-                    currentAge={profile.currentAge}
-                    targetRetireAge={profile.targetRetireAge}
-                    isLoading={isLoading}
-                  />
-                  <AssetProjectionChart
-                    data={simResult?.paths ?? null}
-                    targetRetireAge={profile.targetRetireAge}
-                    lifeEvents={chartLifeEvents}
-                    isLoading={isLoading}
+                <div ref={cardRefs.income}>
+                  <IncomeCard
+                    profile={profile}
+                    onUpdate={updateProfile}
+                    getFieldError={getFieldError}
+                    open={openCards.income}
+                    onOpenChange={(o) => handleCardToggle('income', o)}
+                    completed={cardComplete.income}
                   />
                 </div>
-                <CashFlowCard
-                  cashFlow={simResult?.cashFlow ?? null}
-                  paths={simResult?.paths ?? null}
-                  metrics={simResult?.metrics ?? null}
-                  targetRetireAge={profile.targetRetireAge}
-                  isLoading={isLoading}
-                />
-                <MonteCarloSimulatorTab
-                  profile={profile}
-                  paths={simResult?.paths ?? null}
-                  isLoading={isLoading}
-                  onVolatilityChange={(volatility) => updateProfile({ volatility })}
-                />
-                <ScenarioComparisonCard currentResult={simResult} />
-              </div>
+                <div ref={cardRefs.retirement}>
+                  <RetirementCard
+                    profile={profile}
+                    onUpdate={updateProfile}
+                    open={openCards.retirement}
+                    onOpenChange={(o) => handleCardToggle('retirement', o)}
+                    completed={cardComplete.retirement}
+                  />
+                </div>
+                <div ref={cardRefs.expense}>
+                  <ExpenseCard
+                    profile={profile}
+                    onUpdate={updateProfile}
+                    getFieldError={getFieldError}
+                    open={openCards.expense}
+                    onOpenChange={(o) => handleCardToggle('expense', o)}
+                    hideHousing
+                    completed={cardComplete.expense}
+                  />
+                </div>
+                <div ref={cardRefs.investment}>
+                  <InvestmentCard
+                    profile={profile}
+                    onUpdate={updateProfile}
+                    getFieldError={getFieldError}
+                    open={openCards.investment}
+                    onOpenChange={(o) => handleCardToggle('investment', o)}
+                    completed={cardComplete.investment}
+                  />
+                </div>
 
-              {/* Desktop: result tabs */}
-              <div className="hidden md:block space-y-6">
+                {/* 住宅プラン - 賃貸 vs 複数購入プラン比較 */}
+                <div ref={cardRefs.housing}>
+                  <HousingPlanCard
+                    profile={profile}
+                    onUpdate={updateProfile}
+                    open={openCards.housing}
+                    onOpenChange={(o) => handleCardToggle('housing', o)}
+                  />
+                </div>
+              </div>
+            </details>
+
+            {/* Result cards */}
+            <div className="space-y-6">
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
@@ -713,7 +628,6 @@ export default function DashboardPage() {
                   </div>
                 </TabsContent>
               </Tabs>
-              </div>
             </div>
           </div>
         </div>
