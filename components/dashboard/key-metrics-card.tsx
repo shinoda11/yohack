@@ -70,7 +70,7 @@ function MetricItem({
 
   return (
     <div className={cn(
-      "flex items-center gap-3 py-3 px-2 rounded-lg transition-all duration-[600ms] ease-out",
+      "flex items-center gap-4 py-4 px-2 rounded-lg transition-all duration-[600ms] ease-out",
       styles.bg,
       isDanger && "border-2 border-danger/40 dark:border-danger/30",
       isWarning && "border border-amber-400/40 dark:border-amber-500/30",

@@ -144,11 +144,11 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                 まずは基本情報から。
               </p>
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-3">
                 {introSteps.map((s, i) => (
                   <div
                     key={s.label}
-                    className="flex flex-row sm:flex-col items-center gap-3 sm:gap-2 rounded-lg border p-3 sm:p-4 sm:text-center"
+                    className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 rounded-lg border p-4 sm:p-4 sm:text-center"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-gold/15 text-brand-gold">
                       {s.icon}
@@ -341,7 +341,7 @@ export function WelcomeDialog({ open, onComplete, onSkip }: WelcomeDialogProps) 
                     現金30% / 投資70% で自動配分されます（後から変更可）
                   </p>
                 </div>
-                <div className="rounded-md bg-muted/50 p-3 text-sm space-y-1">
+                <div className="rounded-md bg-muted/50 p-4 text-sm space-y-1">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">現金</span>
                     <span>{Math.round(formData.totalAssets * 0.3).toLocaleString()} 万円</span>

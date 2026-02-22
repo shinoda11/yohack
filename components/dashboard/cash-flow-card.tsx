@@ -106,7 +106,7 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
         {isLoading ? (
           <Skeleton className="h-48 w-full" />
         ) : (
-          <div className="flex h-48 flex-col items-center justify-center gap-3">
+          <div className="flex h-48 flex-col items-center justify-center gap-4">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-muted-foreground/30">
               <line x1="20" y1="4" x2="8" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               <line x1="20" y1="4" x2="32" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -291,22 +291,22 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
             </div>
 
             {/* Withdrawal summary */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-muted/50 p-3">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">退職時の推定資産</p>
                 <p className="text-base font-bold tabular-nums">{formatCurrency(Math.round(medianAssetAtRetire))}</p>
               </div>
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">年間取り崩し額</p>
                 <p className="text-base font-bold tabular-nums">{formatCurrency(Math.round(annualWithdrawal))}</p>
               </div>
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">資産枯渇年齢</p>
                 <p className="text-base font-bold tabular-nums">
                   {depletionAge ? `${depletionAge}歳` : '枯渇なし'}
                 </p>
               </div>
-              <div className="rounded-lg bg-muted/50 p-3">
+              <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">枯渇確率（100歳まで）</p>
                 <p className={cn(
                   "text-base font-bold tabular-nums",

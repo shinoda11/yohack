@@ -340,12 +340,12 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
         </div>
 
         {/* 購入プラン入力 */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Label className="text-sm font-medium">購入プラン</Label>
           {plans.map((plan, index) => (
             <div
               key={plan.id}
-              className="rounded-lg bg-muted/30 p-4 space-y-3"
+              className="rounded-lg bg-muted/30 p-4 space-y-4"
             >
               {/* プランヘッダー */}
               <div className="flex items-center gap-2">
@@ -390,7 +390,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                 step={100}
                 unit="万円"
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <SliderInput
                   label="金利"
                   value={plan.rate}
@@ -465,7 +465,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                 content={({ active, payload, label }) => {
                   if (!active || !payload?.length) return null;
                   return (
-                    <div className="rounded-lg border bg-background p-3 shadow-lg text-xs">
+                    <div className="rounded-lg border bg-background p-4 shadow-lg text-xs">
                       <p className="font-medium mb-1.5">{label}歳時点</p>
                       <div className="space-y-1">
                         {payload.map((entry: any) => (

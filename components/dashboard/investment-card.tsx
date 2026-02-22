@@ -47,7 +47,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
   const content = (
     <div className="space-y-6">
       {/* Expected return presets */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="text-sm font-medium">
           <TermTooltip term="期待リターン" description={glossary['期待リターン']} />
         </div>
@@ -91,7 +91,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
       </div>
 
       {/* Estimated effective tax rate (read-only) */}
-      <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+      <div className="rounded-lg bg-muted/50 p-4 space-y-1">
         <div className="flex items-center justify-between text-sm">
           <TermTooltip term="推定実効税率" description="年収から自動計算された所得税・住民税・社会保険料の合算割合" />
           <span className="font-semibold">{displayRate.toFixed(1)}%</span>
@@ -156,7 +156,7 @@ export function InvestmentCard({ profile, onUpdate, getFieldError, open, onOpenC
           </div>
 
           {/* Real return display */}
-          <div className="rounded-lg bg-muted/50 p-3">
+          <div className="rounded-lg bg-muted/50 p-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">実質リターン</span>
               <span className="font-semibold">{realReturn.toFixed(1)}%</span>

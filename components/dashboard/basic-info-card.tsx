@@ -24,7 +24,7 @@ export function BasicInfoCard({ profile, onUpdate, getFieldError, open, onOpenCh
   const content = (
     <div className="space-y-6">
       {/* Household mode */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Label className="text-sm font-medium">世帯構成</Label>
         <RadioGroup
           value={profile.mode}

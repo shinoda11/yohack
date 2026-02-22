@@ -103,7 +103,7 @@ YOHACKの全UIテキストを「決断の静けさ」のトーンに統一する
 ```
 
 ## P0-6: Empty State設計
-status: todo
+status: done
 priority: P0
 estimate: S
 
@@ -131,7 +131,7 @@ estimate: S
 完了後: pnpm build && pnpm test && git add -A && git commit -m "ui: P0-6 empty state design" && git push
 
 ## P0-7: Skeleton UI実装
-status: todo
+status: done
 priority: P0
 estimate: S
 

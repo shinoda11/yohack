@@ -333,14 +333,14 @@ export function ConclusionSummaryCard({
           <Loader2 className="h-3 w-3 animate-spin text-brand-bronze/40" />
         </div>
       )}
-      <CardContent className="p-5">
+      <CardContent className="p-6">
         {/* Goal Lens前提（1行） */}
-        <p className="text-xs text-brand-bronze/60 mb-3">
+        <p className="text-xs text-brand-bronze/60 mb-4">
           前提: {workStyle} / {legacyGoal} / {targetRetireAge}歳目標
         </p>
 
         {/* 2行固定フォーマット */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* 1行目: 現状の評価 + 変化バッジ */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -383,7 +383,7 @@ export function ConclusionSummaryCard({
 
         {/* 詳細は折りたたみ */}
         {(detailText || effectEstimate) && (
-          <details className="mt-3 pt-3 border-t border-border">
+          <details className="mt-4 pt-4 border-t border-border">
             <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
               詳しく見る
             </summary>

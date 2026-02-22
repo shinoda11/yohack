@@ -35,7 +35,7 @@ function SubScore({ label, value, icon, description, warningThreshold = 50 }: Su
     <HoverCard openDelay={200}>
       <HoverCardTrigger asChild>
         <div className={cn(
-          "flex cursor-help flex-col items-center rounded-lg bg-muted/50 p-3 transition-all duration-[600ms] hover:bg-muted",
+          "flex cursor-help flex-col items-center rounded-lg bg-muted/50 p-4 transition-all duration-[600ms] hover:bg-muted",
           belowSafety && "border-2 border-danger/40 bg-red-50/50 dark:bg-red-950/10",
         )}>
           <div className="mb-1 text-muted-foreground">{icon}</div>
@@ -50,7 +50,7 @@ function SubScore({ label, value, icon, description, warningThreshold = 50 }: Su
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-64">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-4">
           <div className="text-primary">{icon}</div>
           <div>
             <h4 className="font-semibold">{label}</h4>
@@ -115,7 +115,7 @@ function ScoreBreakdown({ score }: { score: ExitScoreDetail }) {
   return (
     <div className="w-full space-y-4 border-t pt-4">
       {/* Bar charts */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {SCORE_AXES.map(axis => {
           const value = score[axis.key];
           const weighted = Math.round(value * axis.weight / 100);
@@ -179,7 +179,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
         <div className="flex flex-col items-center py-8">
           <Skeleton className="h-32 w-32 rounded-full" />
           <Skeleton className="mt-4 h-4 w-24" />
-          <div className="mt-6 grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-6 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-20" />
             ))}
@@ -300,7 +300,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
         </p>
 
         {/* Sub-scores grid */}
-        <div className="mt-6 grid w-full grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="mt-6 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
           <SubScore
             label="サバイバル"
             value={score.survival}
@@ -358,7 +358,7 @@ function BenchmarkSection({ userScore }: { userScore: number }) {
   const cases = findSimilarCases(userScore, profile.mode, userGrossIncome);
 
   return (
-    <div className="w-full border-t pt-3 mt-4">
+    <div className="w-full border-t pt-4 mt-4">
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -368,7 +368,7 @@ function BenchmarkSection({ userScore }: { userScore: number }) {
         ベンチマーク（似た条件のケース）
       </button>
       {open && (
-        <div className="mt-3 space-y-1.5">
+        <div className="mt-4 space-y-1.5">
           {cases.map((c) => {
             const diff = c.score - userScore;
             const color = diff > 0 ? '#C8B89A' : diff < 0 ? '#8A7A62' : '#5A5550';

@@ -103,7 +103,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             >
               世界線を作って、比較する
             </h3>
-            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+            <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
               同じ前提で異なる選択肢を並べると、<br className="hidden sm:inline" />
               どの年代にどれだけ余白が残るか見えてきます。
             </p>
@@ -504,11 +504,11 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
           if (!allSame) return null;
 
           return (
-            <div className="mt-4 flex gap-3 rounded-lg border-l-4 border-l-brand-gold bg-brand-gold/10 p-4 dark:bg-brand-gold/5">
+            <div className="mt-4 flex gap-4 rounded-lg border-l-4 border-l-brand-gold bg-brand-gold/10 p-4 dark:bg-brand-gold/5">
               <div className="flex-shrink-0 mt-0.5">
                 <Info className="h-5 w-5 text-brand-gold" />
               </div>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div>
                   <p className="font-medium text-sm">現在の条件とシナリオが同一です</p>
                   <p className="text-xs text-muted-foreground mt-1">
@@ -610,7 +610,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     {/* 世界線追加プレースホルダー（1-2本のとき表示） */}
     {scenarios.length >= 1 && scenarios.length < 3 && (
       <div className="rounded-lg border-2 border-dashed border-brand-gold/40 hover:border-brand-gold p-6 transition-colors">
-        <div className="flex flex-col items-center text-center gap-3">
+        <div className="flex flex-col items-center text-center gap-4">
           <Plus className="h-6 w-6 text-brand-bronze" />
           <p className="text-sm font-medium text-brand-bronze">世界線を追加</p>
           {unusedTemplates.length > 0 && onApplyTemplate && (

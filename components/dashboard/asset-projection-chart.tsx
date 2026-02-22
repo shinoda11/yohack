@@ -81,7 +81,7 @@ function CustomTooltip({
   const p25 = payload.find((p) => p.dataKey === 'p25')?.value ?? 0;
 
   return (
-    <div className="rounded-lg border bg-background p-3 shadow-sm min-w-0 w-[200px] max-w-[90vw]">
+    <div className="rounded-lg border bg-background p-4 shadow-sm min-w-0 w-[200px] max-w-[90vw]">
       <p className="mb-2 font-semibold text-base">{label}歳</p>
       <div className="space-y-2 text-sm">
         {showOptimistic && (
@@ -147,7 +147,7 @@ export function AssetProjectionChart({
         {isLoading ? (
           <Skeleton className="h-[300px] w-full sm:h-[360px]" />
         ) : (
-          <div className="flex h-[300px] flex-col items-center justify-center gap-3 sm:h-[360px]">
+          <div className="flex h-[300px] flex-col items-center justify-center gap-4 sm:h-[360px]">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-muted-foreground/30">
               <line x1="20" y1="4" x2="8" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               <line x1="20" y1="4" x2="32" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -497,8 +497,8 @@ export function AssetProjectionChart({
       })()}
 
       {/* Key Metrics Summary */}
-      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-        <div className="rounded-lg bg-muted/50 p-3 text-center">
+      <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
+        <div className="rounded-lg bg-muted/50 p-4 text-center">
           <p className="text-xs text-muted-foreground mb-1">
             {targetRetireAge}歳時点（中央値）
           </p>
@@ -506,7 +506,7 @@ export function AssetProjectionChart({
             {retirementData ? formatValue(retirementData.median) : '-'}
           </p>
         </div>
-        <div className="rounded-lg bg-muted/50 p-3 text-center">
+        <div className="rounded-lg bg-muted/50 p-4 text-center">
           <p className="text-xs text-muted-foreground mb-1">
             {finalData?.age}歳時点（中央値）
           </p>
@@ -517,7 +517,7 @@ export function AssetProjectionChart({
             {finalData ? formatValue(finalData.median) : '-'}
           </p>
         </div>
-        <div className="rounded-lg bg-muted/50 p-3 text-center">
+        <div className="rounded-lg bg-muted/50 p-4 text-center">
           <p className="text-xs text-muted-foreground mb-1">
             悲観シナリオ ({finalData?.age}歳)
           </p>
@@ -559,7 +559,7 @@ export function AssetProjectionChart({
       </div>
       
       {/* Reading guide */}
-      <div className="mt-4 rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground">
+      <div className="mt-4 rounded-lg bg-muted/30 p-4 text-xs text-muted-foreground">
         <p>
           <strong>見方:</strong> 中央値（実線）は最も可能性の高い推移を示します。
           ゴールドの帯は25〜75%の範囲で、半数のシナリオがこの範囲に入ります。

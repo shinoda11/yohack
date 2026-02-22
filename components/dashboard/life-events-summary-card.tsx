@@ -118,7 +118,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
           </p>
         </Link>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {groups.map(g => (
             <div key={g.certainty}>
               <p className="text-xs font-medium text-brand-stone mb-1">

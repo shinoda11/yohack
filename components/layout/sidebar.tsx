@@ -88,7 +88,7 @@ export function Sidebar() {
       <aside className="hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col bg-sidebar text-sidebar-foreground">
       {/* Logo */}
       <button
-        className="flex h-16 w-full items-center gap-3 border-b border-sidebar-border px-6 cursor-pointer hover:bg-sidebar-accent/50 transition-colors"
+        className="flex h-16 w-full items-center gap-4 border-b border-sidebar-border px-6 cursor-pointer hover:bg-sidebar-accent/50 transition-colors"
         onClick={() => setIsBrandDialogOpen(true)}
         aria-label="ブランドストーリーを表示"
       >
@@ -108,7 +108,7 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                'flex items-center gap-4 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-sidebar-accent text-sidebar-primary'
                   : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'
@@ -131,7 +131,7 @@ export function Sidebar() {
         <Link
           href="/app/settings"
           className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            'flex items-center gap-4 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
             pathname === '/app/settings'
               ? 'bg-sidebar-accent text-sidebar-primary'
               : 'text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground'

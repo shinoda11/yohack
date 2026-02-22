@@ -27,7 +27,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
   return (
     <label
       className={cn(
-        'flex items-center gap-3 min-h-[44px] px-3 py-2 rounded-md border-l-4 cursor-pointer transition-colors',
+        'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md border-l-4 cursor-pointer transition-colors',
         borderColor,
         disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent/50',
         selected && !disabled && 'bg-accent/30'

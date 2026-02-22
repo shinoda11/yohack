@@ -152,7 +152,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Button variant="outline" className="justify-start gap-2" onClick={handleExport}>
                   <Download className="h-4 w-4" />
                   データをエクスポート
@@ -200,13 +200,13 @@ export default function SettingsPage() {
                 モンテカルロシミュレーションのパラメータ
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg bg-muted/50 p-3">
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-lg bg-muted/50 p-4">
                   <div className="text-sm text-muted-foreground">シミュレーション回数</div>
                   <div className="text-lg font-semibold">1,000回</div>
                 </div>
-                <div className="rounded-lg bg-muted/50 p-3">
+                <div className="rounded-lg bg-muted/50 p-4">
                   <div className="text-sm text-muted-foreground">最大年齢</div>
                   <div className="text-lg font-semibold">100歳</div>
                 </div>
@@ -226,7 +226,7 @@ export default function SettingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">バージョン</span>
                   <span className="text-sm font-medium">v{APP_VERSION}</span>

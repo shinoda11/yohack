@@ -243,7 +243,7 @@ export function MonteCarloSimulatorTab({
             </div>
           </>
         ) : (
-          <div className="flex h-[300px] flex-col items-center justify-center gap-3 rounded-lg border sm:h-[400px]">
+          <div className="flex h-[300px] flex-col items-center justify-center gap-4 rounded-lg border sm:h-[400px]">
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="text-muted-foreground/30">
               <line x1="20" y1="4" x2="8" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               <line x1="20" y1="4" x2="32" y2="20" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
@@ -480,7 +480,7 @@ export function MonteCarloSimulatorTab({
       {/* Risk Warning */}
       {spreadAtRetirement && spreadAtRetirement.spread > 1 && (
         <Card className="border-brand-linen bg-brand-canvas/50 dark:border-brand-bronze dark:bg-brand-night/20">
-          <CardContent className="flex items-start gap-3 pt-6">
+          <CardContent className="flex items-start gap-4 pt-6">
             <AlertTriangle className="h-5 w-5 shrink-0 text-brand-bronze" />
             <div>
               <p className="font-medium text-brand-stone dark:text-brand-gold/40">

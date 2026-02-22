@@ -75,7 +75,7 @@ export function OnboardingSteps({ profile }: OnboardingStepsProps) {
           入力完了。結果が表示されています
         </p>
       ) : (
-        <div className="flex items-center justify-center gap-3 sm:gap-8">
+        <div className="flex items-center justify-center gap-4 sm:gap-8">
           {stepLabels.map((label, i) => (
             <div key={label} className="flex items-center gap-2">
               {completed[i] ? (

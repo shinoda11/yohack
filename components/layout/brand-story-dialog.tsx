@@ -112,7 +112,7 @@ export function BrandStoryDialog({ open, onOpenChange }: BrandStoryDialogProps) 
       <DialogContent className="max-w-[480px] max-h-[90vh] p-0 overflow-hidden" showCloseButton={false}>
         <div className="p-6 sm:p-8 space-y-6 overflow-y-auto max-h-[90vh]">
           {/* Visual header */}
-          <div className="flex flex-col items-center gap-3 pt-2">
+          <div className="flex flex-col items-center gap-4 pt-2">
             <div className="hero-enter">
               <AnimatedYSymbol />
             </div>
@@ -130,7 +130,7 @@ export function BrandStoryDialog({ open, onOpenChange }: BrandStoryDialogProps) 
           <DialogDescription className="sr-only">YOHACKの思想とデザインコンセプトについて</DialogDescription>
 
           {/* Philosophy text */}
-          <div className="space-y-5 text-[17px] font-light tracking-wide text-muted-foreground" style={{ fontFamily: 'var(--font-noto-serif-jp), serif', lineHeight: 2 }}>
+          <div className="space-y-6 text-[17px] font-light tracking-wide text-muted-foreground" style={{ fontFamily: 'var(--font-noto-serif-jp), serif', lineHeight: 2 }}>
             <p className="text-xl font-normal mb-6">
               人生は分岐の連続です。
             </p>

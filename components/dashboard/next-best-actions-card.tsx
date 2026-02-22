@@ -242,7 +242,7 @@ export function NextBestActionsCard({
         title="次の一手"
         description="次に検討できること"
       >
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-24 w-full" />
           ))}
@@ -257,7 +257,7 @@ export function NextBestActionsCard({
       title="次の一手"
       description="次に検討できること（効果をプレビュー）"
     >
-      <div className="space-y-3">
+      <div className="space-y-4">
         {potentialActions.map((action) => {
           const impact = calculatedImpacts.get(action.id);
           const isCalculating = calculatingActions.has(action.id);
@@ -272,10 +272,10 @@ export function NextBestActionsCard({
                 isFirst ? 'border-l-brand-gold bg-brand-canvas/50 dark:bg-brand-night/20' : priorityColors[action.priority]
               )}
             >
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 {/* Header */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
                     <div className="mt-0.5 rounded-md bg-background p-2 text-muted-foreground shadow-sm">
                       {action.icon}
                     </div>

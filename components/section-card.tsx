@@ -29,9 +29,9 @@ export function SectionCard({
 }: SectionCardProps) {
   return (
     <Card className={cn('overflow-hidden border-border', className)}>
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="flex h-8 w-8 items-center justify-center text-muted-foreground">
               {icon}
             </div>

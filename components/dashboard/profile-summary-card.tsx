@@ -52,7 +52,7 @@ export function ProfileSummaryCard({ profile, onUpdate }: ProfileSummaryCardProp
     <Card className="overflow-hidden border-border bg-muted/50">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="flex h-8 w-8 items-center justify-center text-muted-foreground">
               <User className="h-5 w-5" />
             </div>

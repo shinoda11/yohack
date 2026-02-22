@@ -48,7 +48,7 @@ export function WorldlinePreview({
             <label
               key={c.id}
               className={cn(
-                'flex items-center gap-3 min-h-[44px] px-3 py-2 rounded-md border cursor-pointer transition-colors',
+                'flex items-center gap-4 min-h-[44px] px-3 py-2 rounded-md border cursor-pointer transition-colors',
                 isSelected ? 'border-brand-gold bg-accent/30' : 'border-border hover:bg-accent/50'
               )}
             >
@@ -95,7 +95,7 @@ export function WorldlinePreview({
 
       {/* Discovery card */}
       {impact && (
-        <div className="flex items-start gap-3 rounded-lg border border-brand-gold/30 bg-brand-gold/5 p-3">
+        <div className="flex items-start gap-4 rounded-lg border border-brand-gold/30 bg-brand-gold/5 p-4">
           <Lightbulb className="h-5 w-5 text-brand-gold shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-foreground">発見</p>
@@ -107,7 +107,7 @@ export function WorldlinePreview({
       )}
 
       {/* Actions */}
-      <div className="flex gap-3 pt-2">
+      <div className="flex gap-4 pt-2">
         <Button variant="outline" size="sm" onClick={onBack} className="gap-1">
           <ArrowLeft className="h-4 w-4" />
           分岐を編集

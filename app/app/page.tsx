@@ -387,7 +387,7 @@ export default function DashboardPage() {
 
           {/* First-visit banner */}
           {showFirstVisitBanner && (
-            <div className="mb-6 flex items-start gap-3 rounded-lg border-l-4 border-l-brand-gold bg-brand-gold/10 p-4 dark:bg-brand-gold/5">
+            <div className="mb-6 flex items-start gap-4 rounded-lg border-l-4 border-l-brand-gold bg-brand-gold/10 p-4 dark:bg-brand-gold/5">
               <div className="flex-1 text-sm text-brand-bronze">
                 <p className="font-medium">現在はサンプルデータで表示しています</p>
                 <p className="mt-1 text-brand-bronze/80">あなたの条件に変更すると、結果が即時に反映されます</p>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
 
           <div className="mt-4 md:mt-0 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
             {/* Left column: Input cards — visually subdued, hidden on mobile when result tab active */}
-            <div className={cn("space-y-3 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
+            <div className={cn("space-y-4 min-w-0 overflow-x-hidden", mobileTab === 'result' && 'hidden md:block')}>
               {/* Profile Summary - Read-only */}
               <ProfileSummaryCard profile={profile} onUpdate={updateProfile} />
 

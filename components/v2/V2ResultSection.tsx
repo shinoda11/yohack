@@ -99,7 +99,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
               </div>
 
               {/* Assessment Info */}
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-2">
                   <Badge className={cn(readiness.color, 'text-white')}>
                     {readiness.label}
@@ -302,10 +302,10 @@ export function V2ResultSection(props: V2ResultSectionProps) {
 
           {/* Required Actions */}
           <div>
-            <h4 className="font-medium mb-3">必要なアクション</h4>
+            <h4 className="font-medium mb-4">必要なアクション</h4>
             <div className="space-y-2">
               {primaryStrategy.requiredActions.map((action: string, index: number) => (
-                <div key={index} className="flex items-center gap-3 rounded-lg bg-muted/50 p-3">
+                <div key={index} className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
                   <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
                   <span>{action}</span>
                 </div>
@@ -315,7 +315,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
 
           {/* Assumptions */}
           <div>
-            <h4 className="font-medium mb-3 flex items-center gap-2">
+            <h4 className="font-medium mb-4 flex items-center gap-2">
               <Info className="h-4 w-4" />
               前提条件
             </h4>

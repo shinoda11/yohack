@@ -108,7 +108,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
           {metrics.map((metric) => (
             <div
               key={metric.label}
-              className="flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-muted/50"
+              className="flex items-start gap-4 rounded-lg p-4 transition-colors hover:bg-muted/50"
             >
               <div className={`rounded-full p-2 ${metric.highlight ? 'bg-safe/10 text-safe' : 'bg-muted text-muted-foreground'}`}>
                 <metric.icon className="h-4 w-4" />
@@ -136,7 +136,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
         </div>
         
         {/* サマリーメッセージ */}
-        <div className={`mt-4 rounded-lg p-3 ${hasValidData ? getHealthBgColor(health) : 'bg-brand-canvas'}`}>
+        <div className={`mt-4 rounded-lg p-4 ${hasValidData ? getHealthBgColor(health) : 'bg-brand-canvas'}`}>
           <p className={`text-sm ${hasValidData ? getHealthColor(health) : 'text-brand-bronze'}`}>
             {!hasValidData && 'シミュレーション実行後に表示されます'}
             {hasValidData && health === 'excellent' && '余裕のある収支バランスです'}
