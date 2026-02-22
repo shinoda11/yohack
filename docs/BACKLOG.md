@@ -539,7 +539,7 @@ estimate: L
 ```
 
 ## P2-4: 数字の視覚的重み付け
-status: todo
+status: done
 priority: 2
 estimate: M
 

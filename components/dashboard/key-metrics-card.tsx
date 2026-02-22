@@ -81,7 +81,7 @@ function MetricItem({
       <div className="flex-1">
         <p className="text-xs text-brand-bronze dark:text-brand-bronze/60">{label}</p>
         <div className="flex items-center gap-1.5">
-          <p className={cn("text-lg font-bold tabular-nums transition-colors duration-[600ms]", styles.value)}>
+          <p className={cn("text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-colors duration-[600ms]", styles.value)}>
             {value}
           </p>
           {showAlert && (

@@ -127,7 +127,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
                     </HoverCardContent>
                   </HoverCard>
                 </div>
-                <p className={`text-xl font-bold ${metric.highlight ? 'text-foreground' : 'text-muted-foreground'}`}>
+                <p className={`text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums ${metric.highlight ? 'text-foreground' : 'text-muted-foreground'}`}>
                   {metric.value}
                 </p>
               </div>

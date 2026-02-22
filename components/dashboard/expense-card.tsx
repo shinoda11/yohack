@@ -61,7 +61,7 @@ export function ExpenseCard({ profile, onUpdate, getFieldError, open, onOpenChan
       <div className="rounded-lg bg-muted/50 p-4">
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted-foreground">年間支出合計</span>
-          <span className="text-lg font-bold">
+          <span className="text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">
             {formatCurrency(totalExpense)}
           </span>
         </div>

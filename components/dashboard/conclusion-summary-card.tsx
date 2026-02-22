@@ -358,7 +358,7 @@ export function ConclusionSummaryCard({
             </div>
             {score && (
               <span className={cn(
-                "text-xl font-bold tabular-nums px-2.5 py-0.5 rounded-lg shrink-0 self-start sm:self-auto transition-all duration-[600ms] ease-out",
+                "text-2xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums px-4 py-1 rounded-lg shrink-0 self-start sm:self-auto transition-all duration-[600ms] ease-out",
                 score.overall >= 70 ? "bg-brand-gold/20 text-brand-bronze dark:bg-brand-gold/10" :
                 score.overall >= 40 ? "bg-brand-stone/15 text-brand-stone dark:bg-brand-stone/15" :
                 "bg-danger/10 text-danger",

@@ -42,7 +42,7 @@ function SubScore({ label, value, icon, description, warningThreshold = 50 }: Su
           <div className="flex items-center gap-1">
             {belowSafety && <AlertTriangle className="h-3.5 w-3.5 text-danger" />}
             <div className={cn(
-              "text-xl font-bold tabular-nums transition-all duration-[600ms]",
+              "text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-all duration-[600ms]",
               belowSafety && "text-danger",
             )}>{value}</div>
           </div>

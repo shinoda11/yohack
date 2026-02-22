@@ -216,7 +216,7 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
           </div>
           <div className="mt-2 flex items-center justify-between border-t pt-2">
             <span className="text-sm font-normal">収入合計</span>
-            <span className="font-bold text-brand-stone tabular-nums">
+            <span className="text-lg font-bold font-[family-name:var(--font-dm-sans)] text-brand-stone tabular-nums">
               +{formatCurrency(totalIncome)}
             </span>
           </div>
@@ -247,7 +247,7 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
               ) : (
                 <ArrowDown className="h-4 w-4 text-brand-bronze" />
               )}
-              <span className="text-xl font-bold text-brand-stone tabular-nums">
+              <span className="text-xl font-bold font-[family-name:var(--font-dm-sans)] text-brand-stone tabular-nums bg-brand-gold/10 px-2 py-0.5 rounded-md">
                 {cashFlow.netCashFlow >= 0 ? '+' : ''}
                 {formatCurrency(cashFlow.netCashFlow)}
               </span>
@@ -294,22 +294,22 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
             <div className="grid grid-cols-2 gap-4">
               <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">退職時の推定資産</p>
-                <p className="text-base font-bold tabular-nums">{formatCurrency(Math.round(medianAssetAtRetire))}</p>
+                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">{formatCurrency(Math.round(medianAssetAtRetire))}</p>
               </div>
               <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">年間取り崩し額</p>
-                <p className="text-base font-bold tabular-nums">{formatCurrency(Math.round(annualWithdrawal))}</p>
+                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">{formatCurrency(Math.round(annualWithdrawal))}</p>
               </div>
               <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">資産枯渇年齢</p>
-                <p className="text-base font-bold tabular-nums">
+                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">
                   {depletionAge ? `${depletionAge}歳` : '枯渇なし'}
                 </p>
               </div>
               <div className="rounded-lg bg-muted/50 p-4">
                 <p className="text-xs text-muted-foreground">枯渇確率（100歳まで）</p>
                 <p className={cn(
-                  "text-base font-bold tabular-nums",
+                  "text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums",
                   depletionProb !== null && depletionProb > 20 && "text-red-700"
                 )}>
                   {depletionProb !== null ? `${depletionProb}%` : '—'}
