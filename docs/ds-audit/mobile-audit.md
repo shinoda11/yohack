@@ -160,17 +160,25 @@ npm scripts:
 
 ## 修正優先度まとめ
 
-### P0（即座に修正）
-1. Recharts イベントラベル 9px → 11px+
-2. チェックボックス 16px → 44px ターゲット
-3. テンプレートボタン 38px → 44px
+### P0（即座に修正） — 完了 `5767a2d`
+1. ~~Recharts イベントラベル 9px → 12px + 省略6文字~~ **Done**
+2. ~~チェックボックス 16px → 親 `<label>` が 44px 確保済みを確認~~ **Done**（Checkbox 自体は 16px だが親ラベルのタップ領域で対応）
+3. ~~テンプレートボタン 38px → min-h-[44px]~~ **Done**
+4. ~~確実性トグルバッジ → min-h-[44px] px-3~~ **Done**
+5. ~~共有ボタン・世界線生成ボタン → min-h-[44px]~~ **Done**
+6. ~~テキストリンク 6箇所 → min-h-[44px]~~ **Done**
+7. ~~ConclusionSummaryCard サブメトリクス grid-cols-1 sm:grid-cols-3~~ **Done**
+8. ~~Switch ラベル全体を 44px タッチターゲットに~~ **Done**
+9. ~~HoverCard 2箇所 max-w-[calc(100vw-2rem)]~~ **Done**
 
-### P1（次スプリント）
-4. SVG テキストのモバイル最適化
-5. テキストリンクのタッチターゲット拡大
-6. ConclusionSummaryCard サブメトリクスのレスポンシブ化
+Playwright 違反数: タッチ 32→18（-14）、フォント 4→0
 
-### P2（継続改善）
-7. V2 比較テーブルのモバイルカード化
-8. text-[10px] の段階的引き上げ
-9. HoverCard の max-width 追加
+### P1（次スプリント） — 未着手
+1. SVG テキストのモバイル最適化（branch-tree-viz / branch-timeline の fontSize 9-11）
+2. Radix Switch 自体のサイズ拡大（現在 32x18px、ラベルで対応済みだが視覚的に小さい）
+3. Profile ページの残存ボタン（38x32px、ScoreWidget 内リセットボタンの可能性）
+
+### P2（継続改善） — 未着手
+4. V2 比較テーブルのモバイルカード化
+5. text-[10px] の段階的引き上げ（6箇所）
+6. Radix Checkbox の視覚サイズ拡大（16px → 20px 等、タップ領域は確保済み）
