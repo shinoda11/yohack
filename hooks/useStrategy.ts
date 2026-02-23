@@ -6,11 +6,10 @@ import type { MoneyMargin } from '@/lib/v2/margin';
 import type { WorldLine } from '@/lib/v2/worldline';
 import type { MoneyMarginV2, TimeMarginV2, RiskMarginV2 } from '@/hooks/useMargin';
 
-// Types used by this hook (not exported from strategy.ts)
-export type ImpactLevel = 'high' | 'medium' | 'low';
-export type TimeHorizon = 'short' | 'medium' | 'long';
+type ImpactLevel = 'high' | 'medium' | 'low';
+type TimeHorizon = 'short' | 'medium' | 'long';
 
-export interface StrategyRecommendation {
+interface StrategyRecommendation {
   id: string;
   name: string;
   description: string;
@@ -24,7 +23,7 @@ export interface StrategyRecommendation {
   assumptions: string[];
 }
 
-export interface ActionPriority {
+interface ActionPriority {
   id: string;
   title: string;
   description: string;
@@ -35,8 +34,7 @@ export interface ActionPriority {
   estimatedBenefit: string;
 }
 
-// Strategy evaluation result
-export interface StrategyEvaluation {
+interface StrategyEvaluation {
   primaryStrategy: StrategyRecommendation;
   alternativeStrategies: StrategyRecommendation[];
   urgentActions: ActionPriority[];
@@ -44,7 +42,7 @@ export interface StrategyEvaluation {
   overallAssessment: OverallAssessment;
 }
 
-export interface StrategicInsight {
+interface StrategicInsight {
   id: string;
   category: 'strength' | 'weakness' | 'opportunity' | 'threat';
   title: string;

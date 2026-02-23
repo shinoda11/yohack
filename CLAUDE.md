@@ -69,13 +69,13 @@ app/
   globals.css           グローバルCSS + アニメーション定義
 
 components/
-  dashboard/  (23)      ダッシュボード入力・結果カード群（metric-card.tsx: 統一メトリクス 3variant、score-widget.tsx: プロファイルページ用小型スコア）
+  dashboard/  (22)      ダッシュボード入力・結果カード群（metric-card.tsx: 統一メトリクス 3variant、score-widget.tsx: プロファイルページ用小型スコア）
   branch/     (8)       分岐ビルダー UI
   v2/         (3)       世界線比較ビュー（MoneyMarginCard, V2ComparisonView, V2ResultSection）
   layout/     (5)       Sidebar, BottomNav, MobileHeader, BrandStoryDialog, YohackSymbol
   ui/         (24)      shadcn/ui コンポーネント
 
-hooks/        (9)       useSimulation, useScoreAnimation, useValidation, useMargin 等
+hooks/        (7)       useSimulation, useScoreAnimation, useValidation, useMargin, useStrategy, useProfileCompleteness, use-toast
 
 lib/
   store.ts              Zustand SoT（プロファイル・シナリオ・シミュレーション結果）

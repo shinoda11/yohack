@@ -174,22 +174,6 @@ export interface Scenario {
   result: SimulationResult | null;
 }
 
-// RSU Grant
-export interface RsuGrant {
-  id: string;
-  name: string;
-  grantDate: Date;
-  totalShares: number;
-  vestingSchedule: VestingEvent[];
-  currentPrice: number; // per share in 円
-}
-
-export interface VestingEvent {
-  date: Date;
-  shares: number;
-  vested: boolean;
-}
-
 // Format helpers
 export function formatCurrency(value: number | null | undefined): string {
   if (value == null || Number.isNaN(value)) return '—';

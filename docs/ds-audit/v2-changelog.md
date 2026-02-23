@@ -243,6 +243,17 @@
   - deleteScenario は store に既存（localStorage 永続化済み）
 - テスト: 252/252 pass
 
+### デッドコード一括削除
+- コミット: （本コミット）
+- 日付: 2026-02-23
+- 削除行数: 約260行
+- 概要:
+  - P0: key-metrics-card.tsx, useHousingScenarios.ts, usePlan.ts ファイル削除
+  - P1: lib/types.ts の RsuGrant + VestingEvent 削除、useStrategy.ts の6型を非export化
+  - P2: branch-tree-viz.tsx の未使用 collectEdges 関数削除
+  - P3: globals.css の未使用 .no-scrollbar 削除
+- テスト: 252/252 pass
+
 ---
 
 ## 全コミット一覧（時系列）

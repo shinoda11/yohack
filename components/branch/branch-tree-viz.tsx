@@ -103,35 +103,6 @@ function layoutTree(
   layoutTree(node.children[1], depth + 1, maxDepth, midY, yEnd, padX, padRight, svgWidth);
 }
 
-function collectEdges(node: TreeNode, event: Branch | undefined, edges: Edge[]): void {
-  if (!node.children) return;
-
-  // Short labels for edge annotations
-  const shortWithout = event ? '維持' : '維持';
-  const shortWith = event?.label ?? '';
-
-  // Upper branch = without event
-  edges.push({
-    from: { x: node.x, y: node.y },
-    to: { x: node.children[0].x, y: node.children[0].y },
-    isUncertain: false,
-    labelText: shortWithout,
-    labelAbove: true,
-  });
-
-  // Lower branch = with event
-  edges.push({
-    from: { x: node.x, y: node.y },
-    to: { x: node.children[1].x, y: node.children[1].y },
-    isUncertain: true,
-    labelText: shortWith,
-    labelAbove: false,
-  });
-
-  // Recurse — we don't know which event corresponds to children,
-  // but it's the next depth's event. We handle this via the events array externally.
-}
-
 function collectAllEdges(node: TreeNode, events: Branch[], depth: number, edges: Edge[]): void {
   if (!node.children) return;
 
