@@ -211,10 +211,10 @@ lib/
 - **Tier 2（根拠）**: SectionCard 経由の結果カード。`bg-card shadow-sm rounded-xl border`（Card コンポーネント標準）
 - **Tier 3（詳細）**: MonteCarloSimulatorTab 内カード。`rounded-lg shadow-none border`
 
-### スペーシング
-- カード間: `space-y-4` or `gap-4`
-- カード内フォーム要素間: `space-y-6`
-- カード内情報表示要素間: `space-y-4`
+### スペーシング（3段階）
+- 大区切り（セクション間）: `space-y-12` / `mb-12`（48px）— HERO → evidence、evidence → detail
+- 中区切り（カード間）: `space-y-6` / `mb-6`（24px）— 同一セクション内のカード同士
+- 小区切り（カード内要素間）: `space-y-4` / `gap-4`（16px）— フォーム要素、情報表示要素
 
 ### マイクロインタラクション
 - カードホバー: `transition-colors duration-150 hover:border-brand-gold/30`（Card コンポーネントに組込み済み）

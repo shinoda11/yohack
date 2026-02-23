@@ -391,7 +391,7 @@ export default function BranchPage() {
       )}
 
       {/* Decision Tree: Full Width */}
-      <div className="mb-6">
+      <div className="mb-8">
         <BranchTreeViz
           currentAge={profile.currentAge}
           selectedBranches={selectedBranches}
@@ -401,7 +401,7 @@ export default function BranchPage() {
       </div>
 
       {/* Timeline */}
-      <div className="mb-6">
+      <div className="mb-8">
         <BranchTimeline
           profile={profile}
           selectedBranches={selectedBranches}

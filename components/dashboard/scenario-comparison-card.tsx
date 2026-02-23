@@ -141,11 +141,11 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-brand-linen dark:border-brand-stone">
-                <th className="text-left py-2 pr-2 font-normal text-brand-bronze text-xs">世界線</th>
-                <th className="text-right py-2 px-2 font-normal text-brand-bronze text-xs">安心ライン</th>
-                <th className="text-right py-2 px-2 font-normal text-brand-bronze text-xs">成功確率</th>
-                <th className="text-right py-2 px-2 font-normal text-brand-bronze text-xs">100歳資産</th>
-                <th className="text-right py-2 pl-2 font-normal text-brand-bronze text-xs">余白開始</th>
+                <th className="text-left py-3 pr-2 font-normal text-brand-bronze text-xs">世界線</th>
+                <th className="text-right py-3 px-2 font-normal text-brand-bronze text-xs">安心ライン</th>
+                <th className="text-right py-3 px-2 font-normal text-brand-bronze text-xs">成功確率</th>
+                <th className="text-right py-3 px-2 font-normal text-brand-bronze text-xs">100歳資産</th>
+                <th className="text-right py-3 pl-2 font-normal text-brand-bronze text-xs">余白開始</th>
               </tr>
             </thead>
             <tbody>
@@ -157,7 +157,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                     item.isCurrent && "bg-brand-canvas/50 dark:bg-brand-night/50"
                   )}
                 >
-                  <td className="py-2 pr-2">
+                  <td className="py-3 pr-2">
                     <div className="flex items-center gap-1">
                       <span className={cn(
                         "text-sm",
@@ -175,16 +175,16 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                       <span className="text-[10px] text-brand-bronze/60">{formatRelativeTime(item.createdAt)}</span>
                     )}
                   </td>
-                  <td className="text-right py-2 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
+                  <td className="text-right py-3 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
                     {formatMetric(item.result?.metrics.fireAge, 'age')}
                   </td>
-                  <td className="text-right py-2 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
+                  <td className="text-right py-3 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
                     {formatMetric(item.result?.metrics.survivalRate, 'percent')}
                   </td>
-                  <td className="text-right py-2 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
+                  <td className="text-right py-3 px-2 tabular-nums text-brand-stone dark:text-brand-linen">
                     {formatMetric(item.result?.metrics.assetAt100, 'asset')}
                   </td>
-                  <td className="text-right py-2 pl-2 tabular-nums text-brand-stone dark:text-brand-linen">
+                  <td className="text-right py-3 pl-2 tabular-nums text-brand-stone dark:text-brand-linen">
                     {formatMetric(item.result?.metrics.fireAge, 'age')}
                   </td>
                 </tr>

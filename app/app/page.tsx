@@ -395,7 +395,7 @@ export default function DashboardPage() {
           )}
 
           {/* Conclusion Summary - HERO */}
-          <div className="mb-8">
+          <div className="mb-12">
             <ConclusionSummaryCard
               score={simResult?.score ?? null}
               metrics={simResult?.metrics ?? null}
