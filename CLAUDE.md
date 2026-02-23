@@ -8,6 +8,36 @@ YOHACK — 人生の余白（お金・時間・体力）で人生の選択を比
 対象: 世帯年収 1,000〜3,000万円の DINKs / プレDINKs、都市部在住、28〜42歳。
 収益: Pass ¥29,800/90日。運営者 = 開発者 = 1人。
 
+## ワークフロー規律
+
+### 1. Plan First
+- 3ステップ以上のタスクは、実装前に計画を出力する
+- 計画: 「何を変えるか」「なぜ」「どう検証するか」
+- 想定外が起きたら STOP して再計画。押し通さない
+
+### 2. Verification Before Done
+- `pnpm build` + `pnpm test`（252テスト pass）は全コミットの最低条件
+- モバイル影響がある変更は `pnpm test:mobile-quality` も実行
+- 「staff engineer が approve するか？」を自問してからコミット
+
+### 3. Self-Improvement
+- 修正指示を受けたら、同じミスを防ぐルールを CLAUDE.md に追記する
+- 判断メモで「指示と異なる判断をした理由」を必ず報告する
+
+### 4. Autonomous Bug Fixing
+- バグ報告やスクリーンショットを受けたら、質問せずに直す
+- ログ、エラー、テスト失敗を自分で追って解決する
+
+### 5. Simplicity First
+- 変更は最小限。影響範囲を最小化する
+- 2箇所でしか使わない関数に新ファイルは作らない
+- hacky に感じたら「全部知った上で、エレガントな方法は？」と自問する
+
+### 6. Documentation = CLAUDE.md
+- CLAUDE.md が唯一のドキュメント。他のファイルにルール・仕様を分散させない
+- 新しい規約・仕様が確立されたら CLAUDE.md に追記する
+- docs/ ディレクトリは存在しない（全て CLAUDE.md に統合済み）
+
 ## 技術スタック
 - Next.js 16 + React 19 + TypeScript 5.9
 - Zustand 5（状態管理）
