@@ -92,6 +92,7 @@ export function ProfileSummaryCard({ profile, onUpdate }: ProfileSummaryCardProp
                     inputMode="numeric"
                     value={rentDraft}
                     onChange={(e) => setRentDraft(e.target.value)}
+                    onFocus={(e) => e.target.select()}
                     onBlur={commitRent}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') commitRent();

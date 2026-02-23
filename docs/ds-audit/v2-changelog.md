@@ -210,6 +210,26 @@
   - confirmed（auto）分岐はトグル対象外
 - テスト: 252/252 pass
 
+### D17: 数値入力の先頭0問題
+- コミット: （本コミット）
+- 日付: 2026-02-23
+- 変更ファイル数: 2
+- 概要:
+  - shadcn Input コンポーネントに type="number" 時の自動全選択を追加
+  - profile-summary-card.tsx の raw input にも onFocus select() を追加
+  - フォーカス時に既存値が全選択 → そのまま入力で上書き可能
+  - 既存の onFocus ハンドラー（SliderInput, welcome-dialog）は保持
+- 対象フィールド:
+  - event-customize-dialog: 年齢・金額・期間（3箇所）
+  - rsu-content: 株価・為替・株数・期間・付与時株価（5箇所）
+  - slider-input: 全SliderInput経由の入力
+  - welcome-dialog: 年齢・リタイア年齢・年収等（6箇所）
+  - profile-summary-card: 家賃（1箇所）
+- 既に対応済み（変更不要）:
+  - CurrencyInput: type="text" + 独自 handleFocus で select() 済み
+  - InlineVariable: click-to-edit で useEffect select() 済み
+- テスト: 252/252 pass
+
 ---
 
 ## 全コミット一覧（時系列）
