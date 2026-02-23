@@ -225,7 +225,7 @@ export function RSUContent() {
           <Button
             onClick={syncRSUToProfile}
             disabled={isLoading || isSynced}
-            className={!isSynced ? 'bg-brand-gold hover:bg-brand-gold/90 text-white' : ''}
+            className=""
           >
             {isLoading ? (
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />

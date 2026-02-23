@@ -113,7 +113,7 @@ export default function PricingPage() {
 
                 <div>
                   <a href="/fit">
-                    <Button className="w-full bg-brand-gold text-white hover:bg-brand-gold/90">
+                    <Button className="w-full">
                       適合チェックに進む
                     </Button>
                   </a>

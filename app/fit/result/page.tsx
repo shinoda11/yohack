@@ -127,7 +127,7 @@ function ReadyResult() {
         <div className="pt-4">
           <Button
             size="lg"
-            className="w-full text-white bg-brand-gold"
+            className="w-full"
             asChild
           >
             <Link href="/app?from=fitgate">

@@ -430,7 +430,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
             <Button
               variant="outline"
               size="sm"
-              className="w-full min-h-[44px] gap-1.5 text-brand-gold border-brand-gold/30 hover:bg-brand-gold/10"
+              className="w-full min-h-[44px] gap-1.5"
               onClick={addPlan}
             >
               <Plus className="h-3.5 w-3.5" />
@@ -603,7 +603,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
           最大3つの購入プランを並べて比較できます。
         </p>
         <Link href="/pricing">
-          <Button className="w-full bg-brand-gold text-white hover:bg-brand-gold/90">
+          <Button className="w-full">
             Pro を始める
           </Button>
         </Link>

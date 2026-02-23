@@ -272,7 +272,7 @@ function FitGateForm() {
 
             <Button
               size="lg"
-              className="w-full text-white bg-brand-gold"
+              className="w-full"
               onClick={onEmailSubmit}
               disabled={isSubmitting}
             >
@@ -406,7 +406,7 @@ function FitGateForm() {
             <Button
               type="submit"
               size="lg"
-              className="w-full text-white bg-brand-gold"
+              className="w-full"
               disabled={isSubmitting}
             >
               次へ

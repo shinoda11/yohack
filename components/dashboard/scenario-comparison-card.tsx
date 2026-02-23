@@ -227,7 +227,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                       size="icon"
                       className="h-11 w-11 text-brand-bronze/60 hover:text-brand-bronze"
                       onClick={() => loadScenario(scenario.id)}
-                      title="読み込む"
+                      title="この世界線で試す"
                     >
                       <RotateCcw className="h-4 w-4" />
                     </Button>

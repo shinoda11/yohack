@@ -222,6 +222,14 @@ lib/
 - 中区切り（カード間）: `space-y-6` / `mb-6`（24px）— 同一セクション内のカード同士
 - 小区切り（カード内要素間）: `space-y-4` / `gap-4`（16px）— フォーム要素、情報表示要素
 
+### ボタン4バリアント
+- **Primary**: shadcn default variant（`bg-primary text-primary-foreground` = Night #1A1916）。1画面に1〜2個
+- **Secondary**: shadcn outline variant（`border hover:bg-accent`）。副次的アクション
+- **Ghost**: shadcn ghost variant。控えめなアクション（削除、アイコンボタン）
+- **Link**: shadcn link variant or `text-brand-bronze hover:underline`。ナビゲーション
+- **Gold背景ボタン禁止**: Gold はスコアリング・装飾のみ。ボタン背景に使わない
+- 全バリアント共通: `rounded-lg`（button.tsx base class）
+
 ### マイクロインタラクション
 - カードホバー: `transition-colors duration-150 hover:border-brand-gold/30`（Card コンポーネントに組込み済み）
 - `<details>` 開閉: CSS `details-show` アニメーション（globals.css）

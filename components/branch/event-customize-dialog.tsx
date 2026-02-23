@@ -181,7 +181,7 @@ export function EventCustomizeDialog({
                 className={cn(
                   'flex-1 px-3 py-2 rounded-lg text-sm font-normal transition-colors min-h-[44px]',
                   certainty === 'planned'
-                    ? 'bg-brand-gold text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-accent/50 text-muted-foreground hover:bg-accent'
                 )}
               >
@@ -234,7 +234,7 @@ export function EventCustomizeDialog({
           )}
           <Button
             onClick={handleSave}
-            className="bg-brand-gold text-white hover:bg-brand-gold/90"
+            className=""
           >
             {isEditing ? '保存' : '追加'}
           </Button>

@@ -133,7 +133,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
 
             {/* CTA */}
             <Link href="/app/branch" className="mt-8">
-              <Button className="bg-brand-gold hover:bg-brand-bronze text-white gap-2">
+              <Button className="gap-2">
                 分岐ビルダーでシナリオを作成する
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -576,7 +576,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                 size="sm"
                 onClick={() => loadScenario(scenario.id)}
               >
-                「{scenario.name}」を読み込む
+                「{scenario.name}」で試す
               </Button>
             ))}
           </div>

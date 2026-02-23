@@ -280,7 +280,7 @@ export function LPContent() {
           <motion.div className="mt-10" variants={fadeUp}>
             <Link
               href="/fit?utm_source=lp&utm_medium=hero_cta"
-              className="inline-block px-8 py-4 rounded-lg text-base font-bold text-white transition-colors hover:opacity-90 bg-brand-gold"
+              className="inline-block px-8 py-4 rounded-lg text-base font-bold text-primary-foreground transition-colors hover:opacity-90 bg-primary"
             >
               自分のケースで試す
             </Link>
@@ -582,7 +582,7 @@ export function LPContent() {
           <div className="mt-10">
             <Link
               href="/fit?utm_source=lp&utm_medium=bottom_cta"
-              className="inline-block px-8 py-4 rounded-lg text-base font-bold text-white transition-colors hover:opacity-90 bg-brand-gold"
+              className="inline-block px-8 py-4 rounded-lg text-base font-bold text-primary-foreground transition-colors hover:opacity-90 bg-primary"
             >
               12問で確認する
             </Link>

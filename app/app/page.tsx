@@ -364,7 +364,7 @@ export default function DashboardPage() {
                   選択肢を世界線として並べると、比較が始まります
                 </p>
               </div>
-              <Button asChild size="sm" className="flex-shrink-0 gap-1 bg-brand-gold text-white hover:bg-brand-gold/90">
+              <Button asChild size="sm" className="flex-shrink-0 gap-1">
                 <Link href="/app/branch">
                   世界線を作る
                 </Link>
