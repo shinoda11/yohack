@@ -141,8 +141,8 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
             {!hasValidData && 'シミュレーション実行後に表示されます'}
             {hasValidData && health === 'excellent' && '余裕のある収支バランスです'}
             {hasValidData && health === 'good' && '安定した収支バランスです'}
-            {hasValidData && health === 'fair' && '収支の改善余地があります'}
-            {hasValidData && health === 'poor' && '収支バランスの見直しが有効です'}
+            {hasValidData && health === 'fair' && '月次収支がやや圧迫されています'}
+            {hasValidData && health === 'poor' && '月次収支がマイナスの状態です'}
           </p>
         </div>
       </CardContent>

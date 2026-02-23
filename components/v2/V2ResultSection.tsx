@@ -2,11 +2,12 @@
 
 import type { SimulationResult, Profile } from '@/lib/types';
 import type { SavedScenario } from '@/lib/store';
-import type { OverallAssessment, StrategyRecommendation, StrategicInsight } from '@/hooks/useStrategy';
+import type { OverallAssessment } from '@/hooks/useStrategy';
 import type { MoneyMargin } from '@/lib/v2/margin';
 
 import { MoneyMarginCard } from '@/components/v2/MoneyMarginCard';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { MetricCard } from '@/components/dashboard/metric-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,8 +15,7 @@ import {
   TrendingUp,
   Shield,
   ArrowRight,
-  Sparkles,
-  Info,
+  SlidersHorizontal,
   GitBranch,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,9 +35,6 @@ interface V2ResultSectionProps {
   // margins
   moneyMargin: MoneyMargin | null;
   moneyHealth: 'excellent' | 'good' | 'fair' | 'poor' | null;
-  // strategy
-  primaryStrategy: StrategyRecommendation;
-  strategicInsights: StrategicInsight[];
 }
 
 export function V2ResultSection(props: V2ResultSectionProps) {
@@ -53,8 +50,6 @@ export function V2ResultSection(props: V2ResultSectionProps) {
     onViewStrategy,
     moneyMargin,
     moneyHealth,
-    primaryStrategy,
-    strategicInsights,
   } = props;
 
   if (renderMode === 'hero') {
@@ -131,7 +126,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
               {/* Quick Actions */}
               <div className="flex-shrink-0">
                 <Button className="gap-2" onClick={onViewStrategy}>
-                  戦略を見る
+                  変数を見る
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -255,121 +250,64 @@ export function V2ResultSection(props: V2ResultSectionProps) {
   }
 
   // renderMode === 'strategy'
+  const householdIncome = profile.grossIncome + (profile.partnerGrossIncome ?? 0);
+  const monthlySpending = profile.livingCostAnnual / 12;
+  const emergencyMonths = monthlySpending > 0
+    ? profile.assetCash / monthlySpending
+    : 0;
+  const housingEvent = profile.lifeEvents?.find(
+    (e) => e.type === 'housing_purchase' && e.purchaseDetails
+  );
+  const propertyPrice = housingEvent?.purchaseDetails?.propertyPrice ?? 0;
+
   return (
-    <>
-      {/* Primary Strategy */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-brand-bronze" />
-                戦略分析: {primaryStrategy.name}
-              </CardTitle>
-              <CardDescription className="mt-1">
-                {primaryStrategy.description}
-              </CardDescription>
-            </div>
-            <Badge variant="outline" className="text-lg px-4 py-1">
-              信頼度 {primaryStrategy.confidence.toFixed(0)}%
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Expected Outcomes */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                +{primaryStrategy.expectedOutcome.scoreImprovement}
-              </div>
-              <div className="text-sm text-muted-foreground">予測スコア改善</div>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                {primaryStrategy.expectedOutcome.timeToFire ?? '--'}年
-              </div>
-              <div className="text-sm text-muted-foreground">安心ラインまで</div>
-            </div>
-            <div className="rounded-lg border p-4 text-center">
-              <div className="text-2xl font-bold text-brand-stone">
-                {primaryStrategy.expectedOutcome.riskReduction > 0 ? '-' : '+'}
-                {Math.abs(primaryStrategy.expectedOutcome.riskReduction)}%
-              </div>
-              <div className="text-sm text-muted-foreground">リスク変化</div>
-            </div>
-          </div>
-
-          {/* Required Actions */}
-          <div>
-            <h4 className="font-normal mb-4">スコアに影響する変数</h4>
-            <div className="space-y-2">
-              {primaryStrategy.requiredActions.map((action: string, index: number) => (
-                <div key={index} className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
-                  <span className="text-brand-bronze text-sm">•</span>
-                  <span>{action}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Assumptions */}
-          <div>
-            <h4 className="font-normal mb-4 flex items-center gap-2">
-              <Info className="h-4 w-4" />
-              前提条件
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {primaryStrategy.assumptions.map((assumption: string, index: number) => (
-                <Badge key={index} variant="secondary">
-                  {assumption}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Strategic Insights */}
-      <Card>
-        <CardHeader>
-          <CardTitle>戦略的インサイト</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            {strategicInsights.map((insight) => (
-              <div
-                key={insight.id}
-                className="rounded-lg border border-brand-linen bg-brand-canvas/50 p-4"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      insight.category === 'strength' && 'bg-brand-gold/10 text-brand-stone border-brand-gold/30',
-                      insight.category === 'weakness' && 'bg-brand-bronze/10 text-brand-bronze border-brand-bronze/30',
-                      insight.category === 'opportunity' && 'bg-[#E8EFF5] text-[#4A6FA5] border-[#4A6FA5]/30',
-                      insight.category === 'threat' && 'border-brand-bronze/60 text-brand-stone',
-                    )}
-                  >
-                    {insight.category === 'strength' && '強み'}
-                    {insight.category === 'weakness' && '弱み'}
-                    {insight.category === 'opportunity' && '機会'}
-                    {insight.category === 'threat' && '脅威'}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    関連度 {insight.relevance}%
-                  </span>
-                </div>
-                <h4 className="font-normal">{insight.title}</h4>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {insight.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          <SlidersHorizontal className="h-5 w-5 text-brand-bronze" />
+          スコアに影響する変数
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <MetricCard
+            variant="default"
+            label="世帯年収"
+            value={`${householdIncome.toLocaleString()}`}
+            suffix="万円"
+          />
+          <MetricCard
+            variant="default"
+            label="年間支出"
+            value={`${profile.livingCostAnnual.toLocaleString()}`}
+            suffix="万円"
+          />
+          <MetricCard
+            variant="default"
+            label="投資リターン"
+            value={`${profile.expectedReturn}`}
+            suffix="%"
+          />
+          <MetricCard
+            variant="default"
+            label="緊急資金"
+            value={`${emergencyMonths.toFixed(1)}`}
+            suffix="ヶ月"
+          />
+          {propertyPrice > 0 && (
+            <MetricCard
+              variant="default"
+              label="物件価格"
+              value={`${propertyPrice.toLocaleString()}`}
+              suffix="万円"
+            />
+          )}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          これらの変数を変更すると、スコアが変動します。ダッシュボードで値を変えてお試しください。
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 

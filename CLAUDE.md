@@ -48,7 +48,7 @@ YOHACK — 人生の余白（お金・時間・体力）で人生の選択を比
 | `/app` | メインダッシュボード |
 | `/app/branch` | 分岐ビルダー |
 | `/app/profile` | プロファイル入力 |
-| `/app/worldline` | 世界線比較（3タブ: 世界線比較 / 余白 / 戦略） |
+| `/app/worldline` | 世界線比較（3タブ: 世界線比較 / 余白 / 変数） |
 | `/app/settings` | 設定 |
 | `/app/v2` | → `redirect('/app/worldline')` |
 
@@ -176,7 +176,7 @@ lib/
 - 世界線テンプレート導線（3本未満のとき表示）
 
 ## 世界線比較（/app/worldline）
-- 3 タブ: 世界線比較（V2ComparisonView）/ 余白（V2ResultSection margins）/ 戦略（V2ResultSection strategy）
+- 3 タブ: 世界線比較（V2ComparisonView）/ 余白（V2ResultSection margins）/ 変数（V2ResultSection strategy — 現在値表示のみ、FPアドバイスなし）
 - 分岐ビルダーへの導線あり
 - lib/v2/store.ts で UI 状態管理
 

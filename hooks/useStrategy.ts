@@ -366,11 +366,11 @@ export function useStrategy({
     const readinessLevel = getReadinessLevel(overallScore);
     
     const keyMessages: Record<OverallAssessment['readinessLevel'], string> = {
-      excellent: 'FIRE達成の準備は万全です。計画を維持しながら、より高い目標も検討できます。',
-      ready: 'FIRE達成に向けて順調です。現在の計画を継続すれば目標達成が見えています。',
-      on_track: '基本的な軌道に乗っています。いくつかの改善で確実性が大きく向上します。',
-      needs_work: '課題がありますが、改善の余地は十分あります。優先度の高いアクションから始めましょう。',
-      not_ready: '現状では厳しい状況ですが、計画を見直すことで道は開けます。',
+      excellent: `スコア ${overallScore}。現在の変数で安心ラインに十分な余白があります。`,
+      ready: `スコア ${overallScore}。安心ラインへの到達が見えている状態です。`,
+      on_track: `スコア ${overallScore}。基本的な軌道に乗っています。`,
+      needs_work: `スコア ${overallScore}。いくつかの変数がスコアを押し下げています。`,
+      not_ready: `スコア ${overallScore}。現在の変数では安心ラインへの到達が難しい状態です。`,
     };
     
     const overallAssessment: OverallAssessment = {

@@ -110,8 +110,6 @@ export default function WorldlinePage() {
     selectedComparisonIds,
     moneyMargin: margins.moneyMargin,
     moneyHealth: margins.moneyHealth,
-    primaryStrategy: strategy.primaryStrategy,
-    strategicInsights: strategy.strategicInsights,
     onViewStrategy: () => setActiveTab('strategy'),
   };
 
@@ -159,7 +157,7 @@ export default function WorldlinePage() {
             <TabsList className="flex w-full gap-1 p-1">
               <TabsTrigger value="worldlines" className="flex-1 text-xs sm:text-sm px-3 py-2">世界線比較</TabsTrigger>
               <TabsTrigger value="margins" className="flex-1 text-xs sm:text-sm px-3 py-2">余白</TabsTrigger>
-              <TabsTrigger value="strategy" className="flex-1 text-xs sm:text-sm px-3 py-2">戦略</TabsTrigger>
+              <TabsTrigger value="strategy" className="flex-1 text-xs sm:text-sm px-3 py-2">変数</TabsTrigger>
             </TabsList>
 
             <TabsContent value="worldlines" className="space-y-6">
