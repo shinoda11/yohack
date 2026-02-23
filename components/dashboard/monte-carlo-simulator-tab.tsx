@@ -275,7 +275,7 @@ export function MonteCarloSimulatorTab({
                   <Info className="h-4 w-4 text-muted-foreground" />
                 </button>
               </HoverCardTrigger>
-              <HoverCardContent className="w-80">
+              <HoverCardContent className="w-80 max-w-[calc(100vw-2rem)]">
                 <p className="text-sm">
                   ボラティリティは資産のリターンの変動幅を示します。
                   高いボラティリティは楽観・悲観シナリオの差を広げ、

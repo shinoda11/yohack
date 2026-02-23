@@ -110,7 +110,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
         <button
           type="button"
           onClick={() => setShowBreakdown(!showBreakdown)}
-          className="mt-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mt-4 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
         >
           <ChevronDown className={cn('h-4 w-4 transition-transform', showBreakdown && 'rotate-180')} />
           {showBreakdown ? '閉じる' : '詳しく見る'}
@@ -137,7 +137,7 @@ function BenchmarkSection({ userScore }: { userScore: number }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px]"
       >
         <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
         ベンチマーク（似た条件のケース）

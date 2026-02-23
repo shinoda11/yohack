@@ -69,7 +69,7 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
                 onToggleCertainty();
               }}
               className={cn(
-                'shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors',
+                'shrink-0 text-[10px] font-medium px-3 min-h-[44px] flex items-center rounded transition-colors',
                 branch.certainty === 'planned'
                   ? 'text-brand-gold hover:bg-brand-gold/10'
                   : 'text-brand-stone hover:bg-brand-stone/10'

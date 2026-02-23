@@ -482,7 +482,7 @@ export default function BranchPage() {
             <Button
               onClick={handleGenerate}
               disabled={nonAutoSelectedCount === 0 || isGenerating}
-              className="w-full gap-2"
+              className="w-full gap-2 min-h-[44px]"
             >
               {isGenerating ? (
                 <>
@@ -573,7 +573,7 @@ export default function BranchPage() {
           </p>
           <Link
             href="/app/worldline"
-            className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+            className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4 min-h-[44px]"
           >
             世界線比較へ
             <ArrowRight className="w-3.5 h-3.5" />

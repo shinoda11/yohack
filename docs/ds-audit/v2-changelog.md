@@ -267,6 +267,23 @@
 - 詳細: `docs/ds-audit/mobile-audit.md`
 - テスト: vitest 252/252 pass、Playwright 36/36 pass
 
+### モバイル P0 修正: タッチターゲット + フォントサイズ
+- コミット: （本コミット）
+- 日付: 2026-02-24
+- 変更ファイル数: 9
+- 概要:
+  - Recharts イベントラベル fontSize 9→12 + 省略6文字
+  - テンプレートボタン min-h-[44px] 追加
+  - 確実性トグルバッジ min-h-[44px] + px-3 追加
+  - 共有ボタン・世界線生成ボタン min-h-[44px] 追加
+  - テキストリンク6箇所に min-h-[44px] 追加
+  - ConclusionSummaryCard サブメトリクス grid-cols-1 sm:grid-cols-3
+  - Switch ラベル全体を44pxタッチターゲットに
+  - HoverCard 2箇所に max-w-[calc(100vw-2rem)] 追加
+- Playwright タッチターゲット違反: Dashboard 13→5、Profile 4→3、Branch 13→8
+- Playwright フォント違反: Dashboard 4→0
+- テスト: vitest 252/252 pass、Playwright 24/24 pass
+
 ---
 
 ## 全コミット一覧（時系列）

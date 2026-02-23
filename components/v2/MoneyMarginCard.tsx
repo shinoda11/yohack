@@ -122,7 +122,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
                         <Info className="h-4 w-4" />
                       </button>
                     </HoverCardTrigger>
-                    <HoverCardContent className="w-72">
+                    <HoverCardContent className="w-72 max-w-[calc(100vw-2rem)]">
                       <p className="text-sm">{metric.description}</p>
                     </HoverCardContent>
                   </HoverCard>

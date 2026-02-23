@@ -249,7 +249,7 @@ export function ConclusionSummaryCard({
 
           {/* subMetrics */}
           {conclusion.subMetrics.length > 0 && (
-            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-brand-gold/20 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 pt-4 border-t border-brand-gold/20 w-full">
               {conclusion.subMetrics.map((m, i) => (
                 <MetricCard key={i} variant="emphasized" label={m.label} value={m.value} />
               ))}
@@ -298,7 +298,7 @@ export function ConclusionSummaryCard({
                           onClick={() => onStartWorldlineComparison(t.id)}
                           disabled={isDisabled}
                           className={cn(
-                            'flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm transition-colors',
+                            'flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 min-h-[44px] text-left text-sm transition-colors',
                             'bg-transparent border-brand-gold/30 text-brand-bronze dark:text-brand-gold dark:border-brand-gold/20',
                             isDisabled
                               ? 'opacity-50 cursor-not-allowed'
@@ -327,7 +327,7 @@ export function ConclusionSummaryCard({
                 </p>
                 <a
                   href="/app/branch"
-                  className="inline-flex items-center gap-1.5 text-sm font-normal text-brand-gold hover:text-brand-bronze transition-colors"
+                  className="inline-flex items-center gap-1.5 text-sm font-normal text-brand-gold hover:text-brand-bronze transition-colors min-h-[44px]"
                 >
                   分岐ビルダーを使う
                   <span aria-hidden="true">→</span>

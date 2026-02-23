@@ -475,7 +475,7 @@ export default function DashboardPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-xs gap-1.5"
+                  className="text-xs gap-1.5 min-h-[44px]"
                   onClick={handleShareCapture}
                   disabled={isCapturing || !simResult}
                 >
@@ -547,7 +547,7 @@ export default function DashboardPage() {
                 </p>
                 <Link
                   href="/app/branch"
-                  className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+                  className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4 min-h-[44px]"
                 >
                   分岐ビルダーへ
                   <ArrowRight className="w-3.5 h-3.5" />

@@ -176,20 +176,18 @@ export function AssetProjectionChart({
     >
       {/* Controls */}
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
+        <Label htmlFor="show-optimistic" className="flex items-center gap-2 min-h-[44px] text-sm text-muted-foreground cursor-pointer">
           <Switch
             id="show-optimistic"
             checked={showOptimistic}
             onCheckedChange={setShowOptimistic}
           />
-          <Label htmlFor="show-optimistic" className="text-sm text-muted-foreground cursor-pointer">
-            {showOptimistic ? (
-              <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> 楽観シナリオを表示</span>
-            ) : (
-              <span className="flex items-center gap-1"><EyeOff className="h-3.5 w-3.5" /> 楽観シナリオを非表示</span>
-            )}
-          </Label>
-        </div>
+          {showOptimistic ? (
+            <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> 楽観シナリオを表示</span>
+          ) : (
+            <span className="flex items-center gap-1"><EyeOff className="h-3.5 w-3.5" /> 楽観シナリオを非表示</span>
+          )}
+        </Label>
       </div>
 
       {/* Chart */}
@@ -367,7 +365,7 @@ export function AssetProjectionChart({
         if (uniqueEvents.length === 0) return null;
 
         const toPercent = (age: number) => ((age - startAge) / range) * 100;
-        const truncLabel = (name: string) => name.length > 8 ? name.slice(0, 7) + '…' : name;
+        const truncLabel = (name: string) => name.length > 6 ? name.slice(0, 6) + '…' : name;
         const pensionAge = 65;
         const showPension = pensionAge >= startAge && pensionAge <= endAge;
 
@@ -416,7 +414,7 @@ export function AssetProjectionChart({
                   />
                   <span
                     className="absolute whitespace-nowrap"
-                    style={{ fontSize: 9, color: CHART_COLORS.bronze, bottom: 0 }}
+                    style={{ fontSize: 12, color: CHART_COLORS.bronze, bottom: 0 }}
                   >
                     年金
                   </span>
@@ -447,9 +445,9 @@ export function AssetProjectionChart({
                     <span
                       className="absolute whitespace-nowrap text-center"
                       style={{
-                        fontSize: 9,
+                        fontSize: 12,
                         color: CHART_COLORS.bronze,
-                        lineHeight: '12px',
+                        lineHeight: '14px',
                         ...labelStyle,
                       }}
                     >

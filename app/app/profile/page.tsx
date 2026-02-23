@@ -152,7 +152,7 @@ export default function ProfilePage() {
       <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:px-6">
           <div>
-            <Link href="/app" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-0.5">
+            <Link href="/app" className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mb-0.5 min-h-[44px]">
               <ArrowLeft className="h-3 w-3" />
               ダッシュボードに戻る
             </Link>

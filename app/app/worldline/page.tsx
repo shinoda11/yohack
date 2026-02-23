@@ -196,7 +196,7 @@ export default function WorldlinePage() {
             </p>
             <Link
               href="/app"
-              className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+              className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4 min-h-[44px]"
             >
               ダッシュボードへ
               <ArrowRight className="w-3.5 h-3.5" />
