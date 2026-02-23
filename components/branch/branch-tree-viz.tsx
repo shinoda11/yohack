@@ -185,15 +185,14 @@ export function BranchTreeViz({
   // Dynamic height: taller with more uncertain branches (360–600)
   const SVG_H = Math.max(360, Math.min(600, 340 + uncertain.length * 60));
   const PAD_X = 40;
-  const PAD_RIGHT = 200; // widened for larger text at mobile scale
+  const PAD_RIGHT = 160;
   const PAD_Y = 40;
 
-  // Font sizes scaled for mobile readability
-  // At 375px device width: scale = 375/720 ≈ 0.52
-  // fontSize 22 × 0.52 = 11.4px (minimum readable)
-  const FONT_LABEL = 22;   // edge labels, event summaries
-  const FONT_NODE = 22;    // node labels (leaf names, "現在")
-  const FONT_HINT = 20;    // hints, secondary text
+  // Font sizes: optimized for desktop (1:1 with viewBox)
+  // Mobile 375px: scale 0.52 → text scales down with entire tree (SVG exception in CLAUDE.md)
+  const FONT_LABEL = 11;   // edge labels, event summaries
+  const FONT_NODE = 14;    // node labels (leaf names, "現在")
+  const FONT_HINT = 13;    // hints, secondary text
 
   // ── 0 uncertain events: simple baseline ──
   if (uncertain.length === 0) {
@@ -280,7 +279,7 @@ export function BranchTreeViz({
           const lx = edge.from.x + (edge.to.x - edge.from.x) * t;
           const ly = edge.from.y + (edge.to.y - edge.from.y) * t;
           const offsetY = edge.labelAbove ? -12 : 24;
-          const label = edge.labelText.length > 6 ? edge.labelText.slice(0, 6) + '…' : edge.labelText;
+          const label = edge.labelText.length > 8 ? edge.labelText.slice(0, 8) + '…' : edge.labelText;
           return (
             <text
               key={`el-${i}`}
@@ -325,7 +324,7 @@ export function BranchTreeViz({
               </text>
               {!isBaseline && (
                 <text x={leaf.x + 14} y={leaf.y + 26} fontSize={FONT_LABEL} fill="var(--brand-bronze)">
-                  {leaf.eventSummary.length > 12 ? leaf.eventSummary.slice(0, 12) + '…' : leaf.eventSummary}
+                  {leaf.eventSummary.length > 16 ? leaf.eventSummary.slice(0, 16) + '…' : leaf.eventSummary}
                 </text>
               )}
 

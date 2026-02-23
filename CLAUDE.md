@@ -267,7 +267,7 @@ e2e/
 | **最小** | **`text-[11px]`** | **text-[10px] 以下は使用禁止** |
 
 - 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与
-- SVG 内テキスト: viewBox スケールを考慮し、375px 端末で実質 11px 以上になるよう設定
+- SVG 内テキスト: viewBox スケールを考慮。branch-tree-viz は fontSize=14（デスクトップ 14px、モバイル 375px で 7.3px）。ツリー全体がスケールされるため例外許容
 
 ### カード3段階（Tier）
 - **Tier 1（結論）**: ConclusionSummaryCard のみ。`bg-[#F0ECE4] shadow-md rounded-2xl border-0 p-6 md:p-8`
@@ -308,7 +308,7 @@ e2e/
 
 ### フォントサイズ（11px 最小）
 - CSS: `text-[10px]` 以下は使用禁止。最小は `text-[11px]` または `text-xs`（12px）
-- SVG (viewBox スケール): branch-tree-viz は fontSize=22（375px で 11.4px）
+- SVG (viewBox スケール): branch-tree-viz は fontSize=14（デスクトップ 14px、モバイル 375px で 7.3px）。ツリー全体がスケールされるため例外許容
 - SVG (1:1 描画): branch-timeline は fontSize=11
 - Recharts ラベル: fontSize={12} 以上
 
