@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn, CHART_COLORS } from '@/lib/utils';
+import { MetricCard } from '@/components/dashboard/metric-card';
 import type { SimulationPath, LifeEvent } from '@/lib/types';
 
 interface AssetProjectionChartProps {
@@ -501,37 +502,21 @@ export function AssetProjectionChart({
 
       {/* Key Metrics Summary */}
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
-        <div className="rounded-lg bg-muted/50 p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">
-            {targetRetireAge}歳時点（中央値）
-          </p>
-          <p className="text-lg font-bold tabular-nums text-brand-stone">
-            {retirementData ? formatValue(retirementData.median) : '-'}
-          </p>
-        </div>
-        <div className="rounded-lg bg-muted/50 p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">
-            {finalData?.age}歳時点（中央値）
-          </p>
-          <p className={cn(
-            "text-lg font-bold tabular-nums",
-            finalData && finalData.median > 0 ? "text-brand-stone" : "text-brand-bronze"
-          )}>
-            {finalData ? formatValue(finalData.median) : '-'}
-          </p>
-        </div>
-        <div className="rounded-lg bg-muted/50 p-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">
-            悲観シナリオ ({finalData?.age}歳)
-          </p>
-          <p className={cn(
-            "text-lg font-bold tabular-nums",
-            finalData && finalData.lower > 0 ? "text-brand-stone" : "text-brand-bronze"
-          )}>
-            {finalData ? formatValue(finalData.lower) : '-'}
-          </p>
+        <MetricCard
+          label={`${targetRetireAge}歳時点（中央値）`}
+          value={retirementData ? formatValue(retirementData.median) : '-'}
+        />
+        <MetricCard
+          label={`${finalData?.age}歳時点（中央値）`}
+          value={finalData ? formatValue(finalData.median) : '-'}
+        />
+        <div>
+          <MetricCard
+            label={`悲観シナリオ (${finalData?.age}歳)`}
+            value={finalData ? formatValue(finalData.lower) : '-'}
+          />
           {finalData && finalData.lower < 0 && (
-            <p className="text-xs text-brand-bronze mt-1">
+            <p className="text-xs text-brand-bronze mt-1 text-center">
               枯渇リスクあり
             </p>
           )}

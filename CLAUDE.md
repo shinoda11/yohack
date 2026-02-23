@@ -69,7 +69,7 @@ app/
   globals.css           グローバルCSS + アニメーション定義
 
 components/
-  dashboard/  (21)      ダッシュボード入力・結果カード群
+  dashboard/  (22)      ダッシュボード入力・結果カード群（metric-card.tsx: 統一メトリクス 3variant）
   branch/     (8)       分岐ビルダー UI
   v2/         (3)       世界線比較ビュー（MoneyMarginCard, V2ComparisonView, V2ResultSection）
   layout/     (5)       Sidebar, BottomNav, MobileHeader, BrandStoryDialog, YohackSymbol
@@ -203,13 +203,19 @@ lib/
 
 ### タイポグラフィ
 - 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与
-- フォント階層: ヒーロースコア `fontSize 48 font-light`（SVG内）/ カード内指標 `text-lg font-bold` / 本文 `text-sm` / 注釈 `text-xs`
+- フォント階層: ヒーロースコア `fontSize 48 font-light`（SVG内）/ MetricCard 値 `text-xl font-medium tabular-nums` / 本文 `text-sm` / 注釈 `text-xs`
 - SVG 内テキスト: `font-variant-numeric` は効かないため、ブラウザ default で許容
 
 ### カード3段階（Tier）
 - **Tier 1（結論）**: ConclusionSummaryCard のみ。`bg-[#F0ECE4] shadow-md rounded-2xl border-0 p-6 md:p-8`
 - **Tier 2（根拠）**: SectionCard 経由の結果カード。`bg-card shadow-sm rounded-xl border`（Card コンポーネント標準）
 - **Tier 3（詳細）**: MonteCarloSimulatorTab 内カード。`rounded-lg shadow-none border`
+
+### MetricCard 統一コンポーネント（metric-card.tsx）
+- **default**: `rounded-lg bg-muted/50 p-4` — 資産推移・モンテカルロ・取り崩しの独立メトリクス
+- **emphasized**: 背景なし — ConclusionSummaryCard (Linen) 内の subMetrics
+- **compact**: `py-2` — ExitReadinessCard のサブスコア等
+- 共通: ラベル `text-xs text-muted-foreground` / 値 `text-xl font-medium tabular-nums`
 
 ### スペーシング（3段階）
 - 大区切り（セクション間）: `space-y-12` / `mb-12`（48px）— HERO → evidence、evidence → detail

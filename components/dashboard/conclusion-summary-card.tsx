@@ -10,6 +10,7 @@ import { worldlineTemplates } from '@/lib/worldline-templates';
 import { EventIcon } from '@/components/branch/event-icon';
 import { cn } from '@/lib/utils';
 import { useScoreAnimation, useAnimatedValue } from '@/hooks/useScoreAnimation';
+import { MetricCard } from '@/components/dashboard/metric-card';
 
 type Status = 'GREEN' | 'YELLOW' | 'RED' | 'CALCULATING';
 
@@ -248,12 +249,9 @@ export function ConclusionSummaryCard({
 
           {/* subMetrics */}
           {conclusion.subMetrics.length > 0 && (
-            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-brand-gold/20 w-full">
+            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-brand-gold/20 w-full">
               {conclusion.subMetrics.map((m, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-lg font-medium tabular-nums">{m.value}</div>
-                  <div className="text-xs text-muted-foreground">{m.label}</div>
-                </div>
+                <MetricCard key={i} variant="emphasized" label={m.label} value={m.value} />
               ))}
             </div>
           )}

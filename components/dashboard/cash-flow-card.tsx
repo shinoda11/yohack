@@ -17,6 +17,7 @@ import { Progress } from '@/components/ui/progress';
 import { formatCurrency, formatPercent } from '@/lib/types';
 import type { CashFlowBreakdown, SimulationPath, KeyMetrics } from '@/lib/types';
 import { cn, CHART_COLORS } from '@/lib/utils';
+import { MetricCard } from '@/components/dashboard/metric-card';
 
 interface CashFlowCardProps {
   cashFlow: CashFlowBreakdown | null;
@@ -292,29 +293,22 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
 
             {/* Withdrawal summary */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-xs text-muted-foreground">退職時の推定資産</p>
-                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">{formatCurrency(Math.round(medianAssetAtRetire))}</p>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-xs text-muted-foreground">年間取り崩し額</p>
-                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">{formatCurrency(Math.round(annualWithdrawal))}</p>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-xs text-muted-foreground">資産枯渇年齢</p>
-                <p className="text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums">
-                  {depletionAge ? `${depletionAge}歳` : '枯渇なし'}
-                </p>
-              </div>
-              <div className="rounded-lg bg-muted/50 p-4">
-                <p className="text-xs text-muted-foreground">枯渇確率（100歳まで）</p>
-                <p className={cn(
-                  "text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums",
-                  depletionProb !== null && depletionProb > 20 && "text-brand-bronze"
-                )}>
-                  {depletionProb !== null ? `${depletionProb}%` : '—'}
-                </p>
-              </div>
+              <MetricCard
+                label="退職時の推定資産"
+                value={formatCurrency(Math.round(medianAssetAtRetire))}
+              />
+              <MetricCard
+                label="年間取り崩し額"
+                value={formatCurrency(Math.round(annualWithdrawal))}
+              />
+              <MetricCard
+                label="資産枯渇年齢"
+                value={depletionAge ? `${depletionAge}歳` : '枯渇なし'}
+              />
+              <MetricCard
+                label="枯渇確率（100歳まで）"
+                value={depletionProb !== null ? `${depletionProb}%` : '—'}
+              />
             </div>
 
             {/* Retirement mini chart */}

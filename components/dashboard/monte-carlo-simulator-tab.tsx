@@ -20,8 +20,8 @@ import { glossary } from '@/lib/glossary';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MetricCard } from '@/components/dashboard/metric-card';
 import {
   HoverCard,
   HoverCardContent,
@@ -433,47 +433,18 @@ export function MonteCarloSimulatorTab({
       {/* Summary Cards */}
       {spreadAtRetirement && (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="rounded-lg shadow-none">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">退職時資産（楽観）</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-stone sm:text-3xl">
-                  {spreadAtRetirement.optimistic.toFixed(2)}億円
-                </p>
-                <Badge variant="secondary" className="mt-2">
-                  90パーセンタイル
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-lg shadow-none border-brand-linen">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">退職時資産（中央値）</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-stone sm:text-3xl">
-                  {spreadAtRetirement.median.toFixed(2)}億円
-                </p>
-                <Badge className="mt-2 bg-brand-stone">
-                  最も可能性の高い結果
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-lg shadow-none">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">退職時資産（悲観）</p>
-                <p className="mt-1 text-2xl font-bold tabular-nums text-brand-bronze sm:text-3xl">
-                  {spreadAtRetirement.pessimistic.toFixed(2)}億円
-                </p>
-                <Badge variant="secondary" className="mt-2">
-                  10パーセンタイル
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+          <MetricCard
+            label="退職時資産（楽観 90%ile）"
+            value={`${spreadAtRetirement.optimistic.toFixed(2)}億円`}
+          />
+          <MetricCard
+            label="退職時資産（中央値）"
+            value={`${spreadAtRetirement.median.toFixed(2)}億円`}
+          />
+          <MetricCard
+            label="退職時資産（悲観 10%ile）"
+            value={`${spreadAtRetirement.pessimistic.toFixed(2)}億円`}
+          />
         </div>
       )}
 

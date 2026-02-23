@@ -5,51 +5,15 @@ import React, { useState } from "react"
 import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from '@/components/ui/hover-card';
 import type { ExitScoreDetail } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { findSimilarCases } from '@/lib/benchmarks';
 import { useProfileStore } from '@/lib/store';
+import { MetricCard } from '@/components/dashboard/metric-card';
 
 interface ExitReadinessCardProps {
   score: ExitScoreDetail | null;
   isLoading?: boolean;
-}
-
-interface SubScoreProps {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  description: string;
-}
-
-function SubScore({ label, value, icon, description }: SubScoreProps) {
-  return (
-    <HoverCard openDelay={200}>
-      <HoverCardTrigger asChild>
-        <div className="flex cursor-help flex-col items-center rounded-lg bg-muted/50 p-4 transition-all duration-[600ms] hover:bg-muted">
-          <div className="mb-1 text-muted-foreground">{icon}</div>
-          <div className="text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums transition-all duration-[600ms]">
-            {value}
-          </div>
-          <div className="text-xs text-muted-foreground">{label}</div>
-        </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-64">
-        <div className="flex items-start gap-4">
-          <div className="text-primary">{icon}</div>
-          <div>
-            <h4 className="font-bold">{label}</h4>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
-        </div>
-      </HoverCardContent>
-    </HoverCard>
-  );
 }
 
 interface ScoreAxis {
@@ -135,31 +99,11 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
     >
       <div className="flex flex-col items-center">
         {/* Sub-scores grid */}
-        <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
-          <SubScore
-            label="サバイバル"
-            value={score.survival}
-            icon={<ShieldCheck className="h-4 w-4" />}
-            description="資産が尽きない確率。シミュレーションで資産がマイナスにならなかったシナリオの割合です。"
-          />
-          <SubScore
-            label="生活水準"
-            value={score.lifestyle}
-            icon={<Heart className="h-4 w-4" />}
-            description="退職後も望む生活水準を維持できる可能性。資産に対する年間支出の比率で評価します。"
-          />
-          <SubScore
-            label="リスク"
-            value={score.risk}
-            icon={<Activity className="h-4 w-4" />}
-            description="ポートフォリオのリスク評価（高いほど安全）。投資資産比率とボラティリティを考慮しています。"
-          />
-          <SubScore
-            label="流動性"
-            value={score.liquidity}
-            icon={<Droplets className="h-4 w-4" />}
-            description="緊急時に使える現金の割合。予期せぬ支出に対応できる余裕度を示します。"
-          />
+        <div className="grid w-full grid-cols-2 gap-4">
+          <MetricCard variant="compact" label="サバイバル" value={String(score.survival)} suffix="/100" />
+          <MetricCard variant="compact" label="生活水準" value={String(score.lifestyle)} suffix="/100" />
+          <MetricCard variant="compact" label="リスク" value={String(score.risk)} suffix="/100" />
+          <MetricCard variant="compact" label="流動性" value={String(score.liquidity)} suffix="/100" />
         </div>
 
         {/* Breakdown toggle */}
