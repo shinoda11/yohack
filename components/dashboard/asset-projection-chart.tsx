@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LineChart, Eye, EyeOff, Target } from 'lucide-react';
+import { LineChart, Eye, EyeOff } from 'lucide-react';
 import {
   Area,
   AreaChart,
@@ -17,7 +17,7 @@ import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { cn, CHART_COLORS } from '@/lib/utils';
+import { CHART_COLORS } from '@/lib/utils';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import type { SimulationPath, LifeEvent } from '@/lib/types';
 
@@ -64,66 +64,36 @@ function CustomTooltip({
   active,
   payload,
   label,
-  showOptimistic,
 }: {
   active?: boolean;
   payload?: Array<{ value: number; dataKey: string }>;
   label?: number;
-  showOptimistic: boolean;
 }) {
   if (!active || !payload || !payload.length) {
     return null;
   }
 
   const median = payload.find((p) => p.dataKey === 'median')?.value ?? 0;
-  const upper = payload.find((p) => p.dataKey === 'upper')?.value ?? 0;
   const lower = payload.find((p) => p.dataKey === 'lower')?.value ?? 0;
-  const p75 = payload.find((p) => p.dataKey === 'p75')?.value ?? 0;
-  const p25 = payload.find((p) => p.dataKey === 'p25')?.value ?? 0;
 
   return (
-    <div className="rounded-lg border border-brand-sand bg-brand-canvas p-4 shadow-sm min-w-0 w-[200px] max-w-[90vw]">
-      <p className="mb-2 font-bold text-base">{label}歳</p>
-      <div className="space-y-2 text-sm">
-        {showOptimistic && (
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-brand-bronze flex items-center gap-1">
-              <div className="h-2 w-2 rounded-full bg-brand-bronze/60" />
-              楽観 (90%)
-            </span>
-            <span className="font-normal">{formatValue(upper)}</span>
-          </div>
-        )}
-        <div className="flex items-center justify-between gap-4 text-xs">
-          <span className="text-brand-bronze">75%</span>
-          <span className="font-normal">{formatValue(p75)}</span>
-        </div>
-        <div className="flex items-center justify-between gap-4 py-1 border-y">
-          <span className="text-brand-stone flex items-center gap-1 font-normal">
-            <div className="h-2 w-2 rounded-full bg-brand-stone" />
+    <div className="rounded-lg border border-brand-sand bg-brand-canvas p-3 shadow-sm min-w-0 w-[180px] max-w-[90vw]">
+      <p className="mb-2 font-bold text-sm tabular-nums">{label}歳</p>
+      <div className="space-y-1.5 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-brand-stone flex items-center gap-1 text-xs">
+            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.gold }} />
             中央値
           </span>
-          <span className="font-bold text-base">{formatValue(median)}</span>
-        </div>
-        <div className="flex items-center justify-between gap-4 text-xs">
-          <span className="text-brand-bronze">25%</span>
-          <span className="font-normal">{formatValue(p25)}</span>
+          <span className="font-normal tabular-nums">{formatValue(median)}</span>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <span className="text-brand-bronze flex items-center gap-1">
-            <div className="h-2 w-2 rounded-full bg-brand-bronze" />
-            悲観 (10%)
+          <span className="text-brand-bronze flex items-center gap-1 text-xs">
+            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: CHART_COLORS.bronze }} />
+            悲観 10%
           </span>
-          <span className={cn(
-            "font-normal",
-            lower < 0 && "text-brand-stone"
-          )}>{formatValue(lower)}</span>
+          <span className="font-normal tabular-nums">{formatValue(lower)}</span>
         </div>
-        {lower < 0 && (
-          <div className="text-brand-bronze text-xs pt-1 border-t">
-            悲観シナリオでは資産枯渇リスク
-          </div>
-        )}
       </div>
     </div>
   );
@@ -236,11 +206,11 @@ export function AssetProjectionChart({
           >
             <defs>
               <linearGradient id="colorMedian" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={CHART_COLORS.median} stopOpacity={0.4} />
-                <stop offset="95%" stopColor={CHART_COLORS.median} stopOpacity={0.05} />
+                <stop offset="5%" stopColor={CHART_COLORS.gold} stopOpacity={0.15} />
+                <stop offset="95%" stopColor={CHART_COLORS.gold} stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#F0ECE4" vertical={false} />
             <XAxis
               dataKey="age"
               tickLine={false}
@@ -267,7 +237,7 @@ export function AssetProjectionChart({
               domain={[yMin, yMax]}
               width={55}
             />
-            <Tooltip content={<CustomTooltip showOptimistic={showOptimistic} />} />
+            <Tooltip content={<CustomTooltip />} />
             
             {/* p25-p75 band */}
             <Area
@@ -282,7 +252,7 @@ export function AssetProjectionChart({
               dataKey="p25p75band"
               stackId="bandInner"
               stroke="none"
-              fill="rgba(200,184,154,0.15)"
+              fill="rgba(200,184,154,0.06)"
             />
 
             {/* Optimistic line (conditional) */}
@@ -290,19 +260,20 @@ export function AssetProjectionChart({
               <Area
                 type="monotone"
                 dataKey="upper"
-                stroke={CHART_COLORS.secondary}
-                strokeWidth={1.5}
+                stroke={CHART_COLORS.gold}
+                strokeWidth={1}
                 strokeDasharray="4 4"
+                strokeOpacity={0.5}
                 fill="none"
               />
             )}
 
-            {/* Median line */}
+            {/* Median line — Gold, solid, most prominent */}
             <Area
               type="monotone"
               dataKey="median"
-              stroke={CHART_COLORS.median}
-              strokeWidth={2.5}
+              stroke={CHART_COLORS.gold}
+              strokeWidth={2}
               fill="url(#colorMedian)"
             />
 
@@ -310,26 +281,28 @@ export function AssetProjectionChart({
             <Area type="monotone" dataKey="p25" stroke="none" fill="none" />
             <Area type="monotone" dataKey="p75" stroke="none" fill="none" />
 
-            {/* Pessimistic line */}
+            {/* Pessimistic line — Bronze, dashed, subtle */}
             <Area
               type="monotone"
               dataKey="lower"
-              stroke={CHART_COLORS.tertiary}
-              strokeWidth={2}
+              stroke={CHART_COLORS.bronze}
+              strokeWidth={1}
               strokeDasharray="4 4"
               fill="none"
             />
             
-            {/* Zero line (important reference) */}
+            {/* Zero line */}
             <ReferenceLine
               y={0}
-              stroke={CHART_COLORS.danger}
-              strokeWidth={2}
+              stroke={CHART_COLORS.bronze}
+              strokeDasharray="4 4"
+              strokeWidth={1.5}
               label={{
-                value: '資産枯渇ライン',
-                position: 'insideBottomRight',
-                fill: CHART_COLORS.danger,
-                fontSize: 10,
+                value: '0',
+                position: 'left',
+                fill: CHART_COLORS.bronze,
+                fontSize: 11,
+                fontWeight: 500,
               }}
             />
             
@@ -524,35 +497,27 @@ export function AssetProjectionChart({
       </div>
       
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap justify-center gap-4 text-sm">
-        <div className="flex items-center gap-2">
-          <div className="h-1 w-5 rounded-md bg-brand-stone" />
+      <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs">
+        <div className="flex items-center gap-1.5">
+          <div className="h-0.5 w-4 rounded-full" style={{ backgroundColor: CHART_COLORS.gold }} />
           <span className="text-muted-foreground">中央値</span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="h-3 w-5 rounded-md" style={{ backgroundColor: 'rgba(200,184,154,0.3)' }} />
-          <span className="text-muted-foreground">25-75%</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="h-0.5 w-5 border-t-2 border-dashed border-brand-bronze" />
-          <span className="text-muted-foreground">悲観 (10%)</span>
+        <div className="flex items-center gap-1.5">
+          <div className="h-0.5 w-4 border-t border-dashed" style={{ borderColor: CHART_COLORS.bronze }} />
+          <span className="text-muted-foreground">悲観 10%</span>
         </div>
         {showOptimistic && (
-          <div className="flex items-center gap-2">
-            <div className="h-0.5 w-5 border-t-2 border-dashed border-brand-bronze/60" />
-            <span className="text-muted-foreground">楽観 (90%)</span>
+          <div className="flex items-center gap-1.5">
+            <div className="h-0.5 w-4 border-t border-dashed" style={{ borderColor: CHART_COLORS.gold, opacity: 0.5 }} />
+            <span className="text-muted-foreground">楽観 90%</span>
           </div>
         )}
       </div>
       
       {/* Reading guide */}
-      <div className="mt-4 rounded-lg bg-muted/30 p-4 text-xs text-muted-foreground">
-        <p>
-          <strong>見方:</strong> 中央値（実線）は最も可能性の高い推移を示します。
-          ゴールドの帯は25〜75%の範囲で、半数のシナリオがこの範囲に入ります。
-          悲観シナリオ（点線）は下位10%の場合の推移で、これが0円を下回ると資産枯渇リスクがあります。
-        </p>
-      </div>
+      <p className="mt-4 text-xs text-muted-foreground text-center">
+        実線 = 中央値、点線 = 悲観10%。点線が0を下回ると枯渇リスク。
+      </p>
     </SectionCard>
   );
 }
