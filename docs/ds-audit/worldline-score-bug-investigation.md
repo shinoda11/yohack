@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # 世界線比較テーブル スコア不安定バグ — 調査と修正
 
 ## 症状

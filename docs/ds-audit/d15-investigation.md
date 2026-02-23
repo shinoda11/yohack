@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # D15 調査結果
 
 ## 描画方法

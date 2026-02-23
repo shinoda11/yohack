@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # D05 調査結果: MetricCard 統一コンポーネント
 
 ## 調査日: 2026-02-23

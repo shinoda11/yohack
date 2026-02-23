@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # DS-1 実行結果（after）
 
 > 実行日: 2026-02-22

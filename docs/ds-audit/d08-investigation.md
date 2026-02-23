@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # D08 Investigation: 戦略タブ → What-if 変換
 
 ## 現状の戦略タブ構成

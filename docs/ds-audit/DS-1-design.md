@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # DS-1 設計書（変更差分の定義）
 
 ## 方針

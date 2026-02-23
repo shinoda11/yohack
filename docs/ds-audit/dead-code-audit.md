@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # デッドコード監査結果
 
 日付: 2026-02-23

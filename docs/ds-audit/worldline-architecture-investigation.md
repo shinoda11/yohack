@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # 世界線生成アーキテクチャ調査
 
 調査日: 2026-02-23

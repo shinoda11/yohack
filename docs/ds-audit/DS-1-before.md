@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # DS-1 調査: ダッシュボードの警告色（before）
 
 > 調査日: 2026-02-22

@@ -1,3 +1,5 @@
+> **Archive**: This file is a historical record. Current rules and specs are in CLAUDE.md.
+
 # D12-pre: 比較テーブル アンカー修正 + 「で試す」削除
 
 ## 変更目的
