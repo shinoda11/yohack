@@ -7,10 +7,8 @@ import { useProfileStore } from '@/lib/store';
 import { useMainSimulation } from '@/hooks/useSimulation';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { getBranchDerivedLifeEvents } from '@/lib/branch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { X, Save, Check, Share2, Loader2, GitBranch, UserPen, ChevronDown } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { X, Share2, Loader2, GitBranch, UserPen, ChevronDown } from 'lucide-react';
 import { CHART_COLORS } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -60,16 +58,11 @@ export default function DashboardPage() {
     hiddenDefaultBranchIds,
   } = useProfileStore();
 
-  const [activeTab, setActiveTab] = useState('summary');
   const [showWelcome, setShowWelcome] = useState(false);
   const [showFirstVisitBanner, setShowFirstVisitBanner] = useState(false);
 
   const isProfileDefault = profile.grossIncome === 1200 && profile.currentAge === 35;
 
-  // Summary tab save scenario state
-  const [savingFromSummary, setSavingFromSummary] = useState(false);
-  const [summaryScenarioName, setSummaryScenarioName] = useState('');
-  const [savedFromSummary, setSavedFromSummary] = useState(false);
   const { saveScenario, scenarios } = useProfileStore();
 
   // Worldline template flow
@@ -476,148 +469,72 @@ export default function DashboardPage() {
               </div>
             </details>
 
-            {/* Result cards */}
-            <div className="space-y-6">
-              <Tabs
-                value={activeTab}
-                onValueChange={setActiveTab}
-                className="w-full"
-              >
-  <TabsList className="grid w-full grid-cols-3">
-  <TabsTrigger value="summary" className="text-xs sm:text-sm">サマリー</TabsTrigger>
-  <TabsTrigger value="simulator" className="text-xs sm:text-sm">確率分布</TabsTrigger>
-  <TabsTrigger value="scenarios" className="text-xs sm:text-sm">世界線</TabsTrigger>
-  </TabsList>
+            {/* 第2層: 根拠 — スコアの根拠を示す */}
+            <div className="space-y-6 mb-12">
+              <div className="flex items-center justify-end">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-xs gap-1.5"
+                  onClick={handleShareCapture}
+                  disabled={isCapturing || !simResult}
+                >
+                  {isCapturing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Share2 className="h-3 w-3" />
+                  )}
+                  共有
+                </Button>
+              </div>
 
-                {/* Summary Tab */}
-                <TabsContent value="summary" className="mt-6 space-y-6">
-                  {/* Save + Share buttons */}
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-xs gap-1.5"
-                      onClick={handleShareCapture}
-                      disabled={isCapturing || !simResult}
-                    >
-                      {isCapturing ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Share2 className="h-3 w-3" />
-                      )}
-                      共有
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-end gap-2">
-                    {savedFromSummary ? (
-                      <>
-                        <span className="text-sm text-muted-foreground">保存しました</span>
-                        <Button size="sm" variant="link" onClick={() => setActiveTab('scenarios')}>
-                          世界線比較へ →
-                        </Button>
-                      </>
-                    ) : savingFromSummary ? (
-                      <>
-                        <Input
-                          placeholder="シナリオ名"
-                          value={summaryScenarioName}
-                          onChange={(e) => setSummaryScenarioName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' && summaryScenarioName.trim()) {
-                              saveScenario(summaryScenarioName.trim());
-                              toast({ description: '世界線を保存しました' });
-                              setSummaryScenarioName('');
-                              setSavingFromSummary(false);
-                              setSavedFromSummary(true);
-                              setTimeout(() => setSavedFromSummary(false), 3000);
-                            }
-                          }}
-                          className="h-8 text-sm max-w-[200px]"
-                          autoFocus
-                        />
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={!summaryScenarioName.trim()}
-                          onClick={() => {
-                            saveScenario(summaryScenarioName.trim());
-                            toast({ description: '世界線を保存しました' });
-                            setSummaryScenarioName('');
-                            setSavingFromSummary(false);
-                            setSavedFromSummary(true);
-                            setTimeout(() => setSavedFromSummary(false), 3000);
-                          }}
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" onClick={() => { setSavingFromSummary(false); setSummaryScenarioName(''); }}>
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <Button size="sm" variant="outline" className="text-xs bg-transparent" onClick={() => setSavingFromSummary(true)}>
-                        <Save className="h-3 w-3 mr-1" />
-                        この結果を保存
-                      </Button>
-                    )}
-                  </div>
+              {/* Capture target for share */}
+              <div ref={captureRef} className="space-y-6 animate-card-in" style={{ animationDelay: '50ms' }}>
+                <VariableBar profile={profile} onUpdate={updateProfile} />
+                <AssetProjectionChart
+                  data={simResult?.paths ?? null}
+                  targetRetireAge={profile.targetRetireAge}
+                  lifeEvents={chartLifeEvents}
+                  isLoading={isLoading}
+                />
+              </div>
 
-                  {/* Capture target for share */}
-                  <div ref={captureRef} className="space-y-6 animate-card-in" style={{ animationDelay: '50ms' }}>
-                    {/* Variable Bar */}
-                    <VariableBar profile={profile} onUpdate={updateProfile} />
+              <div className="animate-card-in" style={{ animationDelay: '100ms' }}>
+                <ExitReadinessCard
+                  score={simResult?.score ?? null}
+                  isLoading={isLoading && !simResult}
+                />
+              </div>
 
-                    {/* Chart */}
-                    <AssetProjectionChart
-                      data={simResult?.paths ?? null}
-                      targetRetireAge={profile.targetRetireAge}
-                      lifeEvents={chartLifeEvents}
-                      isLoading={isLoading}
-                    />
-                  </div>
-
-                  {/* Cash flow + withdrawal simulation */}
-                  <div className="animate-card-in" style={{ animationDelay: '100ms' }}>
-                    <CashFlowCard
-                      cashFlow={simResult?.cashFlow ?? null}
-                      paths={simResult?.paths ?? null}
-                      metrics={simResult?.metrics ?? null}
-                      targetRetireAge={profile.targetRetireAge}
-                      isLoading={isLoading}
-                    />
-                  </div>
-                </TabsContent>
-
-                {/* Simulator Tab - Detailed Monte Carlo */}
-                <TabsContent value="simulator" className="mt-6">
-                  <div className="animate-card-in">
-                    <MonteCarloSimulatorTab
-                      profile={profile}
-                      paths={simResult?.paths ?? null}
-                      isLoading={isLoading}
-                      onVolatilityChange={(volatility) => updateProfile({ volatility })}
-                    />
-                  </div>
-                </TabsContent>
-
-                {/* Scenarios Tab */}
-                <TabsContent value="scenarios" className="mt-6 space-y-6">
-                  <div className="animate-card-in">
-                    <ScenarioComparisonCard
-                      currentResult={simResult}
-                    />
-                  </div>
-
-                  {/* Score detail: sub-scores + breakdown + benchmark */}
-                  <div className="animate-card-in" style={{ animationDelay: '50ms' }}>
-                    <ExitReadinessCard
-                      score={simResult?.score ?? null}
-                      isLoading={isLoading && !simResult}
-                    />
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <div className="animate-card-in" style={{ animationDelay: '150ms' }}>
+                <CashFlowCard
+                  cashFlow={simResult?.cashFlow ?? null}
+                  paths={simResult?.paths ?? null}
+                  metrics={simResult?.metrics ?? null}
+                  targetRetireAge={profile.targetRetireAge}
+                  isLoading={isLoading}
+                />
+              </div>
             </div>
+
+            {/* 第3層: 詳細 — 必要な人だけが掘り下げる */}
+            <details className="group">
+              <summary className="flex cursor-pointer items-center gap-2 text-sm text-brand-bronze hover:text-brand-night transition-colors list-none [&::-webkit-details-marker]:hidden py-3">
+                <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                詳細データ
+              </summary>
+              <div className="space-y-6 pt-4">
+                <ScenarioComparisonCard
+                  currentResult={simResult}
+                />
+                <MonteCarloSimulatorTab
+                  profile={profile}
+                  paths={simResult?.paths ?? null}
+                  isLoading={isLoading}
+                  onVolatilityChange={(volatility) => updateProfile({ volatility })}
+                />
+              </div>
+            </details>
           </div>
         </div>
       {/* Welcome Dialog for first-time visitors */}

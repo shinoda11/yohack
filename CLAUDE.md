@@ -160,13 +160,12 @@ lib/
 
 ## ダッシュボード（/app）
 
-### レイアウト: 1カラム（モバイル・デスクトップ共通）
-1. **ConclusionSummaryCard**（ヒーロー）: スコアリング + 数字 headline + 世界線テンプレート導線
-2. **`<details>` 折りたたみ**（デフォルト閉）: ProfileSummary → Income → Retirement → Expense → Investment → HousingPlan
-3. **結果タブ**（3タブ）:
-   - サマリー: VariableBar → AssetProjectionChart → CashFlowCard
-   - 確率分布: MonteCarloSimulatorTab
-   - 世界線: ScenarioComparisonCard + ExitReadinessCard（スコア詳細: sub-scores + breakdown + benchmark）
+### レイアウト: 1カラム縦スクロール（Progressive Disclosure）
+1. **第1層（結論）**: ConclusionSummaryCard — スコア + subMetrics + headline（mb-12）
+2. **`<details>` 入力**（デフォルト閉）: ProfileSummary → Income → Retirement → Expense → Investment → HousingPlan
+3. **第2層（根拠）**: VariableBar → AssetProjectionChart → ExitReadinessCard → CashFlowCard（mb-12）
+4. **第3層（詳細）**: `<details>` 折りたたみ — ScenarioComparisonCard + MonteCarloSimulatorTab
+- タブは廃止済み（D12）。情報を隠さず、スペーシングと折りたたみで視覚的階層を表現
 
 ### ConclusionSummaryCard（Tier 1 ヒーロー）
 - スコアリング: 160px/120px (desktop/mobile)、fontSize 48 font-light Gold、strokeWidth 5
@@ -269,10 +268,11 @@ YOHACK は ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop 水�
 - **チャート Y軸は中央値基準**: p75/p90 の複利膨張に引っ張られない
 
 ### 確定済みレイアウト
-- ダッシュボードは1カラム。入力カードは `<details>` で折りたたみ（デフォルト閉）
+- ダッシュボードは1カラム縦スクロール。タブは廃止済み（D12）
+- 3層構造: 結論（mb-12）→ 根拠（mb-12）→ 詳細（`<details>` 折りたたみ）
 - ConclusionSummaryCard がヒーロー（スコアリング + 数字結論 + 世界線テンプレート）
 - NextBestActionsCard は削除済み（ブランドボイス違反のため）。復活させない
-- mobileTab による入力/結果切り替えは廃止済み。モバイルもデスクトップも同じ1カラム
+- 結果タブ（サマリー/確率分布/シナリオ）は廃止済み。復活させない
 - 資産推移チャートの高さは `h-[400px] sm:h-[520px]`
 - 分岐ビルダー（/branch）はツリー全幅 → イベント一覧の1カラム構成
 
