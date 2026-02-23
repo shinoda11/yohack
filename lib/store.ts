@@ -410,9 +410,15 @@ export const useProfileStore = create<ProfileStore>()(
           if (!state.hiddenDefaultBranchIds) {
             state.hiddenDefaultBranchIds = [];
           }
-          // Migrate: visibleScenarioIds が未定義の既存ユーザーは全シナリオを表示（最大3）
-          if (!state.visibleScenarioIds) {
-            state.visibleScenarioIds = (state.scenarios || []).map(s => s.id).slice(0, 3);
+          // Migrate: visibleScenarioIds が未定義 or 空配列の既存ユーザーは先頭3件を表示
+          if (!state.visibleScenarioIds || (state.visibleScenarioIds.length === 0 && (state.scenarios || []).length > 0)) {
+            const sorted = [...(state.scenarios || [])].sort((a, b) => {
+              const aB = a.id.startsWith('branch-');
+              const bB = b.id.startsWith('branch-');
+              if (aB !== bB) return aB ? -1 : 1;
+              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
+            state.visibleScenarioIds = sorted.slice(0, 3).map(s => s.id);
           }
           // 復元後にシミュレーションを再実行
           state._storageInitialized = true;
