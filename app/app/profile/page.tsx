@@ -6,6 +6,7 @@ import { useMainSimulation } from '@/hooks/useSimulation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ArrowLeft } from 'lucide-react';
+import { ScoreWidget } from '@/components/dashboard/score-widget';
 
 // Input cards
 import { BasicInfoCard } from '@/components/dashboard/basic-info-card';
@@ -34,7 +35,6 @@ type CardKey = 'basicInfo' | 'income' | 'retirement' | 'expense' | 'asset' | 'in
 export default function ProfilePage() {
   const {
     profile,
-    isLoading,
     updateProfile,
     resetProfile,
   } = useProfileStore();
@@ -159,19 +159,8 @@ export default function ProfilePage() {
             <h1 className="text-xl font-bold tracking-tight text-foreground">プロファイル</h1>
             <p className="text-sm text-brand-bronze">シミュレーションの前提条件</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm">
-              {isLoading ? (
-                <span className="flex items-center gap-2 text-muted-foreground">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-brand-stone" />
-                </span>
-              ) : (
-                <span className="flex items-center gap-2 text-muted-foreground">
-                  <span className="h-2 w-2 rounded-full bg-brand-gold" />
-                  最新
-                </span>
-              )}
-            </div>
+          <div className="flex items-center gap-3">
+            <ScoreWidget />
             <Button
               variant="outline"
               size="sm"

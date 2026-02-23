@@ -69,7 +69,7 @@ app/
   globals.css           グローバルCSS + アニメーション定義
 
 components/
-  dashboard/  (22)      ダッシュボード入力・結果カード群（metric-card.tsx: 統一メトリクス 3variant）
+  dashboard/  (23)      ダッシュボード入力・結果カード群（metric-card.tsx: 統一メトリクス 3variant、score-widget.tsx: プロファイルページ用小型スコア）
   branch/     (8)       分岐ビルダー UI
   v2/         (3)       世界線比較ビュー（MoneyMarginCard, V2ComparisonView, V2ResultSection）
   layout/     (5)       Sidebar, BottomNav, MobileHeader, BrandStoryDialog, YohackSymbol
