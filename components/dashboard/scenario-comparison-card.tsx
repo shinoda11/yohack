@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Trash2, Check, X, RotateCcw, GitCompare } from 'lucide-react';
+import { Save, Trash2, Check, X, GitCompare } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,12 +49,11 @@ function formatMetric(value: number | null | undefined, type: 'age' | 'percent' 
 }
 
 export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCardProps) {
-  const { 
-    scenarios, 
+  const {
+    scenarios,
     comparisonIds,
-    saveScenario, 
-    deleteScenario, 
-    loadScenario,
+    saveScenario,
+    deleteScenario,
     toggleComparison,
     clearComparison,
     initializeFromStorage,
@@ -87,7 +86,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
     result: SimulationResult | null;
     createdAt?: string;
   }> = [
-    { id: 'current', name: '現在', isCurrent: true, result: currentResult },
+    { id: 'current', name: 'あなたの状態', isCurrent: true, result: currentResult },
     ...comparisonScenarios.map(s => ({
       id: s.id,
       name: s.name,
@@ -166,9 +165,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                         {item.name}
                       </span>
                       {item.isCurrent && (
-                        <span className="text-[10px] px-1 py-0.5 rounded-lg bg-brand-linen text-brand-bronze dark:bg-brand-stone dark:text-brand-bronze/60">
-                          今
-                        </span>
+                        <span className="text-[10px] text-brand-gold">★</span>
                       )}
                     </div>
                     {item.createdAt && (
@@ -222,15 +219,6 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                     </span>
                   </div>
                   <div className="flex items-center gap-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-11 w-11 text-brand-bronze/60 hover:text-brand-bronze"
-                      onClick={() => loadScenario(scenario.id)}
-                      title="この世界線で試す"
-                    >
-                      <RotateCcw className="h-4 w-4" />
-                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"

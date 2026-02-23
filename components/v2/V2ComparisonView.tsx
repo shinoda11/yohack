@@ -219,7 +219,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
           世界線比較
         </CardTitle>
         <CardDescription>
-          現在の状態と保存済みシナリオを並列比較
+          あなたの状態と保存済みシナリオを並列比較
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -231,9 +231,9 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
               <tr className="border-b">
                 <th className="text-left py-3 px-2 font-normal text-muted-foreground w-40">指標</th>
                 <th className="text-center py-3 px-2 font-normal min-w-32">
-                  <div className="flex flex-col items-center gap-1">
-                    <Badge variant="default" className="bg-primary">現在</Badge>
-                    <span className="text-xs text-muted-foreground">ベースライン</span>
+                  <div className="flex items-center gap-1 justify-center">
+                    <span className="text-xs text-brand-gold">★</span>
+                    <span className="text-sm">あなたの状態</span>
                   </div>
                 </th>
                 {scenarios.slice(0, 3).map((scenario) => (
@@ -516,7 +516,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="font-normal text-sm">現在の条件とシナリオが同一です</p>
+                  <p className="font-normal text-sm">あなたの状態とシナリオが同一です</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     条件を変更するか、別パターンのシナリオを追加すると差分が表示されます
                   </p>
@@ -570,14 +570,15 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
               </Button>
             )}
             {scenarios.slice(0, 3).map((scenario) => (
-              <Button
+              <Link
                 key={scenario.id}
-                variant="ghost"
-                size="sm"
+                href="/app"
                 onClick={() => loadScenario(scenario.id)}
+                className="text-sm text-brand-bronze hover:underline underline-offset-4 inline-flex items-center gap-1"
               >
-                「{scenario.name}」で試す
-              </Button>
+                「{scenario.name}」の条件で編集
+                <ArrowRight className="h-3 w-3" />
+              </Link>
             ))}
           </div>
           <Link
