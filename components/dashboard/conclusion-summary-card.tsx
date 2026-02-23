@@ -49,8 +49,8 @@ function getStatusConfig(status: Status) {
       };
     case 'RED':
       return {
-        bgColor: 'bg-danger/10',
-        borderColor: 'border-danger/40',
+        bgColor: 'bg-brand-bronze/10',
+        borderColor: 'border-brand-bronze/30',
       };
     case 'CALCULATING':
     default:
@@ -132,7 +132,7 @@ function ChangeBadge({ value, unit, invertColor = false }: {
         'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-normal transition-opacity duration-500',
         isImprovement
           ? 'bg-safe/10 text-safe'
-          : 'bg-danger/10 text-danger',
+          : 'bg-brand-bronze/10 text-brand-bronze',
         fadingOut && 'opacity-0'
       )}
     >
@@ -196,7 +196,7 @@ export function ConclusionSummaryCard({
       config.bgColor,
       config.borderColor,
       scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
-      scoreDirection === 'down' && 'border-danger !duration-150',
+      scoreDirection === 'down' && 'border-brand-bronze !duration-150',
     )}>
       {/* 計算中オーバーレイ（初回ロード時） */}
       {isLoading && !score && (

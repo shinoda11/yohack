@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 
-import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown, AlertTriangle, Check } from 'lucide-react';
+import { Target, ShieldCheck, Heart, Activity, Droplets, ChevronDown } from 'lucide-react';
 import { SectionCard } from '@/components/section-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -68,7 +68,7 @@ const SCORE_AXES: ScoreAxis[] = [
 ];
 
 function getBarColor(value: number): string {
-  if (value >= 80) return 'bg-safe';
+  if (value >= 80) return 'bg-brand-gold';
   if (value >= 50) return 'bg-brand-gold';
   return 'bg-brand-bronze';
 }
@@ -135,13 +135,6 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
     );
   }
 
-  const levelText = {
-    GREEN: '十分',
-    YELLOW: '良好',
-    ORANGE: '要改善',
-    RED: '要見直し',
-  };
-
   return (
     <SectionCard
       icon={<Target className="h-5 w-5" />}
@@ -149,8 +142,8 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
       description="人生の余白を総合評価"
       className={cn(
         'transition-all duration-[600ms]',
-        scoreDirection === 'up' && 'shadow-[0_4px_12px_rgba(74,124,89,0.15)]',
-        scoreDirection === 'down' && 'border-danger border-2 !duration-150',
+        scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
+        scoreDirection === 'down' && 'border-brand-bronze border-2 !duration-150',
       )}
     >
       <div className="flex flex-col items-center">
@@ -161,7 +154,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
           const circumference = 2 * Math.PI * radius;
           const progress = Math.min(Math.max(animatedScore, 0), 100);
           const offset = circumference - (progress / 100) * circumference;
-          const strokeColor = animatedScore >= 80 ? 'var(--safe)' : animatedScore >= 50 ? 'var(--brand-gold)' : 'var(--brand-bronze)';
+          const strokeColor = 'hsl(var(--brand-gold))';
 
           return (
             <div className="relative">
@@ -196,12 +189,7 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
                   y="66"
                   textAnchor="middle"
                   dominantBaseline="central"
-                  className={cn(
-                    "text-5xl font-bold tabular-nums transition-[fill] duration-[600ms]",
-                    animatedScore >= 80 && "fill-safe",
-                    animatedScore >= 50 && animatedScore < 80 && "fill-brand-gold",
-                    animatedScore < 50 && "fill-brand-bronze",
-                  )}
+                  className="fill-foreground"
                   fontSize="48"
                   fontWeight="bold"
                 >
@@ -218,32 +206,9 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
                   /100
                 </text>
               </svg>
-              <div
-                className={cn(
-                  "absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold border transition-colors duration-[600ms]",
-                  score.overall >= 80 && "bg-safe text-white border-safe",
-                  score.overall >= 50 && score.overall < 80 && "bg-brand-gold text-brand-night border-brand-gold",
-                  score.overall < 50 && "bg-brand-bronze text-white border-brand-bronze",
-                )}
-              >
-                {levelText[score.level]}
-              </div>
             </div>
           );
         })()}
-
-        {/* Level description */}
-        <p className={cn(
-          "mt-6 text-sm font-normal transition-colors duration-[600ms]",
-          score.overall >= 80 && "text-safe",
-          score.overall >= 50 && score.overall < 80 && "text-brand-gold",
-          score.overall < 50 && "text-brand-bronze",
-        )}>
-          {score.level === 'GREEN' && <><Check className="inline h-4 w-4 mr-1" />目標達成の可能性が非常に高いです</>}
-          {score.level === 'YELLOW' && <><Check className="inline h-4 w-4 mr-1" />目標達成の見込みは良好です</>}
-          {score.level === 'ORANGE' && <><AlertTriangle className="inline h-4 w-4 mr-1" />改善の余地があります</>}
-          {score.level === 'RED' && <><AlertTriangle className="inline h-4 w-4 mr-1" />計画の見直しをおすすめします</>}
-        </p>
 
         {/* Sub-scores grid */}
         <div className="mt-6 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">

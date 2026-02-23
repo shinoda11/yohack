@@ -287,7 +287,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                         return `${age}歳`;
                       })()}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta < 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta < 0 ? "text-safe" : "text-brand-bronze")}>
                           {delta < 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}歳
                         </span>
@@ -318,7 +318,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     ? `${delta > 0 ? '+' : ''}${Math.round(delta).toLocaleString()}万`
                     : null;
                   const deltaClass = delta != null && delta !== 0
-                    ? (delta > 0 ? 'text-safe' : 'text-danger') : undefined;
+                    ? (delta > 0 ? 'text-safe' : 'text-brand-bronze') : undefined;
 
                   const data = scenario.result?.paths.yearlyData;
                   if (!data) {
@@ -399,7 +399,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     )}>
                       {`${monthlyCF.toFixed(0)}万/月`}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-brand-bronze")}>
                           {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}万/月
                         </span>
@@ -446,7 +446,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     )}>
                       {ddIdx > 0 ? `${scenario.profile.currentAge + ddIdx}歳` : 'なし'}
                       {delta != null && delta !== 0 && (
-                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-danger")}>
+                        <span className={cn("inline-flex items-center gap-0.5 text-xs mt-0.5", delta > 0 ? "text-safe" : "text-brand-bronze")}>
                           {delta > 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                           {delta > 0 ? '+' : ''}{delta}歳
                         </span>

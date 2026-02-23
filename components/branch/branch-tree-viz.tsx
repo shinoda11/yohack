@@ -224,8 +224,8 @@ export function BranchTreeViz({
         <p className="text-xs font-normal text-muted-foreground mb-2">デシジョンツリー</p>
         <svg viewBox={`0 0 ${SVG_W} 120`} className="w-full h-auto" role="img" aria-label="デシジョンツリー">
           <circle cx={PAD_X} cy={50} r={6} fill="var(--brand-night)" />
-          <line x1={PAD_X} y1={50} x2={SVG_W - PAD_RIGHT} y2={50} stroke="var(--safe)" strokeWidth={2} strokeLinecap="round" />
-          <circle cx={SVG_W - PAD_RIGHT} cy={50} r={5} fill="var(--safe)" />
+          <line x1={PAD_X} y1={50} x2={SVG_W - PAD_RIGHT} y2={50} stroke="var(--brand-gold)" strokeWidth={2} strokeLinecap="round" />
+          <circle cx={SVG_W - PAD_RIGHT} cy={50} r={5} fill="var(--brand-gold)" />
           <text x={PAD_X} y={72} fontSize={10} fill="var(--brand-stone)" textAnchor="middle">現在</text>
           <text x={SVG_W - PAD_RIGHT + 8} y={53} fontSize={10} fill="var(--brand-stone)">ベースライン</text>
           <text x={SVG_W / 2} y={100} fontSize={10} fill="var(--brand-bronze)" textAnchor="middle">
@@ -287,7 +287,7 @@ export function BranchTreeViz({
             <path
               key={`e-${i}`}
               d={`M ${edge.from.x} ${edge.from.y} C ${edge.from.x + dx} ${edge.from.y}, ${edge.to.x - dx} ${edge.to.y}, ${edge.to.x} ${edge.to.y}`}
-              stroke={edge.isUncertain ? 'var(--brand-gold)' : 'var(--safe)'}
+              stroke={edge.isUncertain ? 'var(--brand-gold)' : 'var(--brand-stone)'}
               strokeWidth={edge.isUncertain ? 1.5 : 2}
               strokeDasharray={edge.isUncertain ? '6 4' : 'none'}
               fill="none"
@@ -308,7 +308,7 @@ export function BranchTreeViz({
               x={lx}
               y={ly + offsetY}
               fontSize={8}
-              fill={edge.isUncertain ? 'var(--brand-bronze)' : 'var(--safe)'}
+              fill={edge.isUncertain ? 'var(--brand-bronze)' : 'var(--brand-stone)'}
             >
               {edge.labelText}
             </text>
@@ -334,7 +334,7 @@ export function BranchTreeViz({
         {/* Leaf nodes (worldlines) */}
         {realLeaves.map((leaf, i) => (
           <g key={`l-${i}`}>
-            <circle cx={leaf.x} cy={leaf.y} r={5} fill="var(--safe)" />
+            <circle cx={leaf.x} cy={leaf.y} r={5} fill="var(--brand-gold)" />
             <text x={leaf.x + 9} y={leaf.y + 4} fontSize={10} fill="var(--brand-stone)">
               世界線{leaf.worldlineIndex}
             </text>

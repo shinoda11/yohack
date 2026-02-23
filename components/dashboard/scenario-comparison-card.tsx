@@ -234,7 +234,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-11 w-11 text-brand-bronze/60 hover:text-red-700"
+                      className="h-11 w-11 text-brand-bronze/60 hover:text-brand-stone"
                       onClick={() => deleteScenario(scenario.id)}
                       title="削除"
                     >

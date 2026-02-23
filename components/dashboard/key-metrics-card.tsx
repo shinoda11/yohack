@@ -23,28 +23,22 @@ interface MetricItemProps {
   label: React.ReactNode;
   value: string | number;
   subValue?: string;
-  highlight?: 'success' | 'warning' | 'danger' | 'neutral';
+  highlight?: 'positive' | 'neutral' | 'muted';
 }
 
-function getHighlightStyles(highlight?: 'success' | 'warning' | 'danger' | 'neutral') {
+function getHighlightStyles(highlight?: 'positive' | 'neutral' | 'muted') {
   switch (highlight) {
-    case 'success':
+    case 'positive':
       return {
-        icon: 'text-safe',
-        value: 'text-safe',
-        bg: 'bg-safe/5',
+        icon: 'text-brand-gold',
+        value: 'text-brand-stone',
+        bg: 'bg-brand-gold/5',
       };
-    case 'warning':
+    case 'muted':
       return {
         icon: 'text-brand-bronze',
         value: 'text-brand-bronze',
         bg: 'bg-brand-gold/5',
-      };
-    case 'danger':
-      return {
-        icon: 'text-danger',
-        value: 'text-danger',
-        bg: 'bg-danger/5',
       };
     default:
       return {
@@ -117,31 +111,31 @@ export function KeyMetricsCard({
   // Determine goal feasibility - use fireAge (not goalAge which doesn't exist)
   const goalAgeText = metrics.fireAge
     ? `${metrics.fireAge}歳`
-    : '達成困難';
+    : '未到達';
   const yearsToGoalText = metrics.yearsToFire
     ? `あと${metrics.yearsToFire}年`
     : undefined;
-  const goalHighlight =
+  const goalHighlight: 'positive' | 'neutral' | 'muted' =
     metrics.fireAge && metrics.fireAge <= targetRetireAge
-      ? 'success'
+      ? 'positive'
       : metrics.fireAge
-        ? 'warning'
-        : 'danger';
+        ? 'muted'
+        : 'muted';
 
-  // Determine survival rate color
-  const survivalHighlight =
+  // Determine survival rate style
+  const survivalHighlight: 'positive' | 'neutral' | 'muted' =
     metrics.survivalRate >= 90
-      ? 'success'
+      ? 'positive'
       : metrics.survivalRate >= 70
-        ? 'warning'
-        : 'danger';
+        ? 'neutral'
+        : 'muted';
 
   // Format asset at 100
   const assetAt100Text =
     metrics.assetAt100 >= 0
       ? formatCurrency(metrics.assetAt100)
       : `${formatCurrency(Math.abs(metrics.assetAt100))}の不足`;
-  const assetHighlight = metrics.assetAt100 >= 0 ? 'success' : 'danger';
+  const assetHighlight: 'positive' | 'neutral' | 'muted' = metrics.assetAt100 >= 0 ? 'positive' : 'muted';
 
   // Years until target retirement
   const yearsUntilTarget = targetRetireAge - currentAge;

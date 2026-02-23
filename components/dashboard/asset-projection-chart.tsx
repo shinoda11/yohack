@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { LineChart, Eye, EyeOff, AlertTriangle, Target } from 'lucide-react';
+import { LineChart, Eye, EyeOff, Target } from 'lucide-react';
 import {
   Area,
   AreaChart,
@@ -119,8 +119,7 @@ function CustomTooltip({
           )}>{formatValue(lower)}</span>
         </div>
         {lower < 0 && (
-          <div className="flex items-center gap-1 text-destructive text-xs pt-1 border-t">
-            <AlertTriangle className="h-3 w-3" />
+          <div className="text-brand-bronze text-xs pt-1 border-t">
             悲観シナリオでは資産枯渇リスク
           </div>
         )}
@@ -532,8 +531,7 @@ export function AssetProjectionChart({
             {finalData ? formatValue(finalData.lower) : '-'}
           </p>
           {finalData && finalData.lower < 0 && (
-            <p className="text-xs text-brand-bronze flex items-center justify-center gap-1 mt-1">
-              <AlertTriangle className="h-3 w-3" />
+            <p className="text-xs text-brand-bronze mt-1">
               枯渇リスクあり
             </p>
           )}

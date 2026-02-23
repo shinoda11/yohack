@@ -83,7 +83,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
                       cy="64"
                       r="56"
                       fill="none"
-                      stroke={(simResult?.score.overall ?? 0) >= 80 ? '#4A7C59' : (simResult?.score.overall ?? 0) >= 50 ? '#C8B89A' : '#CC3333'}
+                      stroke="var(--brand-gold)"
                       strokeWidth="8"
                       strokeLinecap="round"
                       strokeDasharray={`${(simResult?.score.overall ?? 0) * 3.52} 352`}
@@ -346,8 +346,8 @@ export function V2ResultSection(props: V2ResultSectionProps) {
                   <Badge
                     variant="outline"
                     className={cn(
-                      insight.category === 'strength' && 'bg-[#E8F5E8] text-safe border-safe/30',
-                      insight.category === 'weakness' && 'bg-[#FDE8E8] text-danger border-danger/30',
+                      insight.category === 'strength' && 'bg-brand-gold/10 text-brand-stone border-brand-gold/30',
+                      insight.category === 'weakness' && 'bg-brand-bronze/10 text-brand-bronze border-brand-bronze/30',
                       insight.category === 'opportunity' && 'bg-[#E8EFF5] text-[#4A6FA5] border-[#4A6FA5]/30',
                       insight.category === 'threat' && 'border-brand-bronze/60 text-brand-stone',
                     )}

@@ -310,7 +310,7 @@ export function CashFlowCard({ cashFlow, paths, metrics, targetRetireAge, isLoad
                 <p className="text-xs text-muted-foreground">枯渇確率（100歳まで）</p>
                 <p className={cn(
                   "text-lg font-bold font-[family-name:var(--font-dm-sans)] tabular-nums",
-                  depletionProb !== null && depletionProb > 20 && "text-danger"
+                  depletionProb !== null && depletionProb > 20 && "text-brand-bronze"
                 )}>
                   {depletionProb !== null ? `${depletionProb}%` : '—'}
                 </p>
