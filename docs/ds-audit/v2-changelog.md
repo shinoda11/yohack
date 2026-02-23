@@ -184,6 +184,20 @@
   - 各ページ下部に「次のステップ」セクション
 - テスト: 252/252 pass
 
+### D15: デシジョンツリーノードリデザイン
+- コミット: （本コミット）
+- 日付: 2026-02-23
+- 変更ファイル数: 2
+- 概要:
+  - ノードサイズ拡大: root r=8、junction r=7、leaf r=6-7
+  - ベースライン leaf = Gold fill、他 leaf = white fill + Stone stroke
+  - Edge色: 確定=Night solid、不確定=Stone dashed（旧: Stone/Gold）
+  - Junction pulse animation 削除（静けさ原則）
+  - Empty state: 線太く + テキスト改善
+  - PAD_RIGHT 120→160、ノード間スペーシング拡大
+- 詳細: `docs/ds-audit/d15-investigation.md`
+- テスト: 252/252 pass
+
 ---
 
 ## 全コミット一覧（時系列）

@@ -211,11 +211,11 @@ export function BranchTreeViz({
   );
 
   const SVG_W = 720;
-  // Dynamic height: taller with more uncertain branches (360–480)
-  const SVG_H = Math.max(360, Math.min(480, 300 + uncertain.length * 45));
-  const PAD_X = 30;
-  const PAD_RIGHT = 120;
-  const PAD_Y = 30;
+  // Dynamic height: taller with more uncertain branches (360–600)
+  const SVG_H = Math.max(360, Math.min(600, 340 + uncertain.length * 60));
+  const PAD_X = 40;
+  const PAD_RIGHT = 160;
+  const PAD_Y = 40;
 
   // ── 0 uncertain events: simple baseline ──
   if (uncertain.length === 0) {
@@ -223,13 +223,13 @@ export function BranchTreeViz({
       <div className="rounded-xl border border-border bg-card p-4">
         <p className="text-xs font-normal text-muted-foreground mb-2">デシジョンツリー</p>
         <svg viewBox={`0 0 ${SVG_W} 120`} className="w-full h-auto" role="img" aria-label="デシジョンツリー">
-          <circle cx={PAD_X} cy={50} r={6} fill="var(--brand-night)" />
-          <line x1={PAD_X} y1={50} x2={SVG_W - PAD_RIGHT} y2={50} stroke="var(--brand-gold)" strokeWidth={2} strokeLinecap="round" />
-          <circle cx={SVG_W - PAD_RIGHT} cy={50} r={5} fill="var(--brand-gold)" />
-          <text x={PAD_X} y={72} fontSize={10} fill="var(--brand-stone)" textAnchor="middle">現在</text>
-          <text x={SVG_W - PAD_RIGHT + 8} y={53} fontSize={10} fill="var(--brand-stone)">ベースライン</text>
-          <text x={SVG_W / 2} y={100} fontSize={10} fill="var(--brand-bronze)" textAnchor="middle">
-            不確定イベントを選択すると分岐が表示されます
+          <circle cx={PAD_X} cy={50} r={8} fill="var(--brand-night)" />
+          <line x1={PAD_X + 8} y1={50} x2={SVG_W - PAD_RIGHT - 7} y2={50} stroke="var(--brand-night)" strokeWidth={2.5} strokeLinecap="round" />
+          <circle cx={SVG_W - PAD_RIGHT} cy={50} r={7} fill="var(--brand-gold)" />
+          <text x={PAD_X} y={72} fontSize={11} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">現在</text>
+          <text x={SVG_W - PAD_RIGHT} y={72} fontSize={11} fill="var(--brand-stone)" textAnchor="middle">ベースライン</text>
+          <text x={SVG_W / 2} y={105} fontSize={10} fill="var(--brand-bronze)" textAnchor="middle">
+            不確定な分岐を加えると、より多くの世界線が生まれます
           </text>
         </svg>
       </div>
@@ -287,7 +287,7 @@ export function BranchTreeViz({
             <path
               key={`e-${i}`}
               d={`M ${edge.from.x} ${edge.from.y} C ${edge.from.x + dx} ${edge.from.y}, ${edge.to.x - dx} ${edge.to.y}, ${edge.to.x} ${edge.to.y}`}
-              stroke={edge.isUncertain ? 'var(--brand-gold)' : 'var(--brand-stone)'}
+              stroke={edge.isUncertain ? 'var(--brand-stone)' : 'var(--brand-night)'}
               strokeWidth={edge.isUncertain ? 1.5 : 2}
               strokeDasharray={edge.isUncertain ? '6 4' : 'none'}
               fill="none"
@@ -301,13 +301,13 @@ export function BranchTreeViz({
           const t = 0.3;
           const lx = edge.from.x + (edge.to.x - edge.from.x) * t;
           const ly = edge.from.y + (edge.to.y - edge.from.y) * t;
-          const offsetY = edge.labelAbove ? -7 : 14;
+          const offsetY = edge.labelAbove ? -8 : 16;
           return (
             <text
               key={`el-${i}`}
               x={lx}
               y={ly + offsetY}
-              fontSize={8}
+              fontSize={9}
               fill={edge.isUncertain ? 'var(--brand-bronze)' : 'var(--brand-stone)'}
             >
               {edge.labelText}
@@ -315,62 +315,71 @@ export function BranchTreeViz({
           );
         })}
 
-        {/* Junction nodes: Gold + pulse */}
+        {/* Junction nodes: Gold, no animation */}
         {junctions.map((node, i) => (
           <g key={`j-${i}`}>
-            <circle cx={node.x} cy={node.y} r={6} fill="var(--brand-gold)">
-              <animate attributeName="r" values="6;8;6" dur="2s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite" />
-            </circle>
+            <circle cx={node.x} cy={node.y} r={7} fill="var(--brand-gold)" />
           </g>
         ))}
 
         {/* Root node */}
-        <circle cx={root.x} cy={root.y} r={6} fill="var(--brand-night)" />
-        <text x={root.x} y={root.y + 18} fontSize={10} fill="var(--brand-stone)" textAnchor="middle">
+        <circle cx={root.x} cy={root.y} r={8} fill="var(--brand-night)" />
+        <text x={root.x} y={root.y + 22} fontSize={11} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">
           現在
         </text>
 
         {/* Leaf nodes (worldlines) */}
-        {realLeaves.map((leaf, i) => (
-          <g key={`l-${i}`}>
-            <circle cx={leaf.x} cy={leaf.y} r={5} fill="var(--brand-gold)" />
-            <text x={leaf.x + 9} y={leaf.y + 4} fontSize={10} fill="var(--brand-stone)">
-              世界線{leaf.worldlineIndex}
-            </text>
-            <text x={leaf.x + 9} y={leaf.y + 16} fontSize={8} fill="var(--brand-bronze)">
-              {leaf.eventSummary}
-            </text>
+        {realLeaves.map((leaf, i) => {
+          const isBaseline = leaf.eventSummary === 'ベースライン';
+          return (
+            <g key={`l-${i}`}>
+              <circle
+                cx={leaf.x}
+                cy={leaf.y}
+                r={isBaseline ? 7 : 6}
+                fill={isBaseline ? 'var(--brand-gold)' : 'var(--card)'}
+                stroke={isBaseline ? 'none' : 'var(--brand-stone)'}
+                strokeWidth={isBaseline ? 0 : 1.5}
+              />
+              <text x={leaf.x + 11} y={leaf.y + 4} fontSize={11} fill="var(--brand-stone)" fontWeight={isBaseline ? '500' : 'normal'}>
+                {isBaseline ? 'ベースライン' : `世界線${leaf.worldlineIndex}`}
+              </text>
+              {!isBaseline && (
+                <text x={leaf.x + 11} y={leaf.y + 18} fontSize={9} fill="var(--brand-bronze)">
+                  {leaf.eventSummary}
+                </text>
+              )}
 
-            {/* Score badge */}
-            {showScores && scoreMap.has(i) && (() => {
-              const s = scoreMap.get(i)!;
-              return (
-                <>
-                  <rect
-                    x={leaf.x - 32}
-                    y={leaf.y - 9}
-                    width={30}
-                    height={18}
-                    rx={4}
-                    fill={s.color}
-                    opacity={0.9}
-                  />
-                  <text
-                    x={leaf.x - 17}
-                    y={leaf.y + 5}
-                    fontSize={11}
-                    fill="white"
-                    textAnchor="middle"
-                    fontWeight="bold"
-                  >
-                    {s.score}
-                  </text>
-                </>
-              );
-            })()}
-          </g>
-        ))}
+              {/* Score badge */}
+              {showScores && scoreMap.has(i) && (() => {
+                const s = scoreMap.get(i)!;
+                return (
+                  <>
+                    <rect
+                      x={leaf.x - 34}
+                      y={leaf.y - 10}
+                      width={30}
+                      height={20}
+                      rx={4}
+                      fill={s.color}
+                      opacity={0.9}
+                    />
+                    <text
+                      x={leaf.x - 19}
+                      y={leaf.y + 5}
+                      fontSize={11}
+                      fill="white"
+                      textAnchor="middle"
+                      fontWeight="bold"
+                    >
+                      {s.score}
+                    </text>
+                  </>
+                );
+              })()}
+            </g>
+          );
+        })}
 
         {/* Clipped indicator */}
         {totalClipped > 0 && (() => {
