@@ -164,9 +164,9 @@ lib/
 1. **ConclusionSummaryCard**（ヒーロー）: スコアリング + 数字 headline + 世界線テンプレート導線
 2. **`<details>` 折りたたみ**（デフォルト閉）: ProfileSummary → Income → Retirement → Expense → Investment → HousingPlan
 3. **結果タブ**（3タブ）:
-   - サマリー: KeyMetrics → VariableBar → AssetProjectionChart → CashFlowCard
+   - サマリー: VariableBar → AssetProjectionChart → CashFlowCard
    - 確率分布: MonteCarloSimulatorTab
-   - 世界線: ScenarioComparisonCard + ExitReadinessCard + KeyMetricsCard
+   - 世界線: ScenarioComparisonCard + ExitReadinessCard（スコア詳細: sub-scores + breakdown + benchmark）
 
 ### ConclusionSummaryCard
 - 120px スコアリング（brand-gold 統一色、`useAnimatedValue` 600ms）

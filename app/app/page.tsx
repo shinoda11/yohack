@@ -27,7 +27,6 @@ import { VariableBar } from '@/components/dashboard/variable-bar';
 import { ConclusionSummaryCard } from '@/components/dashboard/conclusion-summary-card';
 import { ExitReadinessCard } from '@/components/dashboard/exit-readiness-card';
 import { AssetProjectionChart } from '@/components/dashboard/asset-projection-chart';
-import { KeyMetricsCard } from '@/components/dashboard/key-metrics-card';
 import { CashFlowCard } from '@/components/dashboard/cash-flow-card';
 import { ScenarioComparisonCard } from '@/components/dashboard/scenario-comparison-card';
 import { MonteCarloSimulatorTab } from '@/components/dashboard/monte-carlo-simulator-tab';
@@ -565,14 +564,6 @@ export default function DashboardPage() {
 
                   {/* Capture target for share */}
                   <div ref={captureRef} className="space-y-6">
-                    {/* Key metrics */}
-                    <KeyMetricsCard
-                      metrics={simResult?.metrics ?? null}
-                      currentAge={profile.currentAge}
-                      targetRetireAge={profile.targetRetireAge}
-                      isLoading={isLoading}
-                    />
-
                     {/* Variable Bar */}
                     <VariableBar profile={profile} onUpdate={updateProfile} />
 
@@ -611,19 +602,11 @@ export default function DashboardPage() {
                     currentResult={simResult}
                   />
 
-                  {/* Still show the current score for reference */}
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    <ExitReadinessCard
-                      score={simResult?.score ?? null}
-                      isLoading={isLoading && !simResult}
-                    />
-                    <KeyMetricsCard
-                      metrics={simResult?.metrics ?? null}
-                      currentAge={profile.currentAge}
-                      targetRetireAge={profile.targetRetireAge}
-                      isLoading={isLoading}
-                    />
-                  </div>
+                  {/* Score detail: sub-scores + breakdown + benchmark */}
+                  <ExitReadinessCard
+                    score={simResult?.score ?? null}
+                    isLoading={isLoading && !simResult}
+                  />
                 </TabsContent>
               </Tabs>
             </div>

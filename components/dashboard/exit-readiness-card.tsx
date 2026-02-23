@@ -14,7 +14,6 @@ import type { ExitScoreDetail } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { findSimilarCases } from '@/lib/benchmarks';
 import { useProfileStore } from '@/lib/store';
-import { useScoreAnimation, useAnimatedValue } from '@/hooks/useScoreAnimation';
 
 interface ExitReadinessCardProps {
   score: ExitScoreDetail | null;
@@ -111,21 +110,15 @@ function ScoreBreakdown({ score }: { score: ExitScoreDetail }) {
 
 export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) {
   const [showBreakdown, setShowBreakdown] = useState(false);
-  // Track score direction: up resets after 600ms, down (flash) after 300ms
-  const scoreDirection = useScoreAnimation(score?.overall ?? null);
-  const animatedScore = useAnimatedValue(score?.overall ?? 0, 600);
 
   if (isLoading || !score) {
     return (
       <SectionCard
         icon={<Target className="h-5 w-5" />}
-        title="余白スコア"
-        description="人生の余白を総合評価"
+        title="スコア詳細"
       >
         <div className="flex flex-col items-center py-8">
-          <Skeleton className="h-32 w-32 rounded-full" />
-          <Skeleton className="mt-4 h-4 w-24" />
-          <div className="mt-6 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
             {[1, 2, 3, 4].map((i) => (
               <Skeleton key={i} className="h-20" />
             ))}
@@ -138,80 +131,11 @@ export function ExitReadinessCard({ score, isLoading }: ExitReadinessCardProps) 
   return (
     <SectionCard
       icon={<Target className="h-5 w-5" />}
-      title="余白スコア"
-      description="人生の余白を総合評価"
-      className={cn(
-        'transition-all duration-[600ms]',
-        scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
-        scoreDirection === 'down' && 'border-brand-bronze border-2 !duration-150',
-      )}
+      title="スコア詳細"
     >
       <div className="flex flex-col items-center">
-        {/* Main score - SVG Progress Ring */}
-        {(() => {
-          const radius = 58;
-          const strokeWidth = 8;
-          const circumference = 2 * Math.PI * radius;
-          const progress = Math.min(Math.max(animatedScore, 0), 100);
-          const offset = circumference - (progress / 100) * circumference;
-          const strokeColor = 'hsl(var(--brand-gold))';
-
-          return (
-            <div className="relative">
-              <svg width="144" height="144" viewBox="0 0 144 144">
-                {/* Background ring */}
-                <circle
-                  cx="72"
-                  cy="72"
-                  r={radius}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={strokeWidth}
-                  className="text-muted/60"
-                />
-                {/* Progress ring */}
-                <circle
-                  cx="72"
-                  cy="72"
-                  r={radius}
-                  fill="none"
-                  stroke={strokeColor}
-                  strokeWidth={strokeWidth}
-                  strokeLinecap="round"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                  className="transition-all duration-[600ms] ease-out"
-                  style={{ transform: 'rotate(-90deg)', transformOrigin: '72px 72px' }}
-                />
-                {/* Center text */}
-                <text
-                  x="72"
-                  y="66"
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  className="fill-foreground"
-                  fontSize="48"
-                  fontWeight="bold"
-                >
-                  {animatedScore}
-                </text>
-                <text
-                  x="72"
-                  y="96"
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  className="fill-muted-foreground"
-                  fontSize="14"
-                >
-                  /100
-                </text>
-              </svg>
-            </div>
-          );
-        })()}
-
         {/* Sub-scores grid */}
-        <div className="mt-6 grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
           <SubScore
             label="サバイバル"
             value={score.survival}
