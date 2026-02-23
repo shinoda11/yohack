@@ -165,7 +165,7 @@ export default function ProfilePage() {
               variant="outline"
               size="sm"
               onClick={resetProfile}
-              className="gap-2 bg-transparent"
+              className="gap-2 bg-transparent min-h-[44px] min-w-[44px]"
             >
               <RotateCcw className="h-4 w-4" />
               <span className="hidden sm:inline">リセット</span>

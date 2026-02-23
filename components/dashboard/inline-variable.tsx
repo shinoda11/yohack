@@ -89,7 +89,7 @@ export function InlineVariable({
 
   return (
     <div className="flex flex-col items-center gap-0.5 select-none">
-      <span className="text-[10px] text-muted-foreground tracking-wide">{label}</span>
+      <span className="text-[11px] text-muted-foreground tracking-wide">{label}</span>
       <div className="flex items-baseline gap-1">
         {editing ? (
           <input

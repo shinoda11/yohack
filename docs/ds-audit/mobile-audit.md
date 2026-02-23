@@ -173,12 +173,16 @@ npm scripts:
 
 Playwright 違反数: タッチ 32→18（-14）、フォント 4→0
 
-### P1（次スプリント） — 未着手
-1. SVG テキストのモバイル最適化（branch-tree-viz / branch-timeline の fontSize 9-11）
-2. Radix Switch 自体のサイズ拡大（現在 32x18px、ラベルで対応済みだが視覚的に小さい）
-3. Profile ページの残存ボタン（38x32px、ScoreWidget 内リセットボタンの可能性）
+### P1（次スプリント） — 完了
+1. ~~SVG テキストのモバイル最適化~~ **Done** — branch-tree-viz fontSize 9-11→20-22（viewBox スケール考慮）、branch-timeline fontSize 9-10→11
+2. ~~Radix Switch 自体のサイズ拡大~~ **許容** — 親ラベルが 44px 確保済み、Playwright 許容リストに追加
+3. ~~Profile ページの残存ボタン（38x32px）~~ **Done** — リセットボタンに min-h-[44px] min-w-[44px] 追加
+4. ~~text-[10px] の段階的引き上げ（MEDIUM 箇所）~~ **Done** — inline-variable, V2ComparisonView, scenario-selector → text-[11px]
+5. ~~Playwright 許容リスト追加~~ **Done** — Radix Checkbox/Switch（親ラベル44px確保済み）、不可視要素、Toast を除外
+
+Playwright 違反数: タッチ 18→0（許容リスト適用後）、フォント 0→0
 
 ### P2（継続改善） — 未着手
-4. V2 比較テーブルのモバイルカード化
-5. text-[10px] の段階的引き上げ（6箇所）
-6. Radix Checkbox の視覚サイズ拡大（16px → 20px 等、タップ領域は確保済み）
+1. V2 比較テーブルのモバイルカード化
+2. Radix Checkbox の視覚サイズ拡大（16px → 20px 等、タップ領域は確保済み）
+3. text-[10px] の残り LOW 箇所引き上げ（sidebar バッジ、branch-node 教育費注釈、event-picker バッジ等）

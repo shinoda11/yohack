@@ -71,7 +71,7 @@ export function ScenarioSelector({
             <span className={isVisible ? 'text-foreground' : 'text-muted-foreground'}>
               {scenario.name}
             </span>
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground">
               {getSourceLabel(scenario.id)}
             </span>
           </label>

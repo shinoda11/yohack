@@ -322,3 +322,29 @@
   - ScenarioComparisonCard: `comparisonIds` → `visibleScenarioIds` に移行
   - モバイル制限: `matchMedia('(min-width: 640px)')` で 2列（モバイル）/ 3列（デスクトップ）
 - テスト: vitest 252/252 pass
+
+---
+
+## モバイル P1 修正: SVG テキスト + 残存タッチターゲット
+
+### 概要
+- 日付: 2026-02-24
+- 変更ファイル数: 7
+- 概要:
+  - branch-tree-viz.tsx: SVG fontSize 9-11 → 20-22（viewBox 720 × 0.52 スケール考慮、11px 最小保証）
+  - branch-tree-viz.tsx: PAD_RIGHT 160→200 + ラベル省略（6文字+…/12文字+…）
+  - branch-timeline.tsx: SVG fontSize 9-10 → 11（1:1 描画、スケール無し）
+  - profile/page.tsx: リセットボタン min-h-[44px] min-w-[44px]
+  - inline-variable.tsx: text-[10px] → text-[11px]（MEDIUM）
+  - V2ComparisonView.tsx: text-[10px] → text-[11px]（MEDIUM）
+  - scenario-selector.tsx: text-[10px] → text-[11px]
+  - e2e/mobile-quality.spec.ts: 許容リスト追加（Radix Checkbox/Switch 親ラベル44px確保済み、不可視要素、Toast）
+- タッチターゲット違反: 18→0（許容リスト適用後）
+- フォント違反: 0→0（維持）
+- テスト: vitest 252/252 pass、Playwright 12/12 pass（iPhone SE）
+
+### 判断メモ
+- branch-tree-viz の fontSize を 22 に引き上げた結果、ラベルが重なる可能性があるため省略表示を追加
+- PAD_RIGHT を 160→200 に拡大して leaf ラベルの表示領域を確保
+- branch-timeline は overflow-x-auto でスクロールするため viewBox スケーリングなし。fontSize 9→11 で十分
+- 許容リスト: Radix Checkbox (16x16) は親 label が 44px 以上であれば実質的にタップ可能。同様に Switch (32x18) も label で対応済み

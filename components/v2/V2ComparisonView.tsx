@@ -300,7 +300,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         {getSourceLabel(scenario.id)} · {new Date(scenario.createdAt).toLocaleDateString('ja-JP')}
                       </span>
                     </div>

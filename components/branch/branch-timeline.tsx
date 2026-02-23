@@ -252,7 +252,7 @@ export function BranchTimeline({ profile, selectedBranches }: BranchTimelineProp
                   y={AXIS_Y - NODE_R - 4}
                   textAnchor="middle"
                   fill={isSpecial ? COLORS.confirmed : COLORS.accent}
-                  fontSize={9}
+                  fontSize={11}
                   fontWeight={isSpecial ? 600 : 400}
                 >
                   {isCurrent ? `現在 ${node.age}歳` : isPension ? `${node.age}歳` : `${node.age}歳`}
@@ -264,7 +264,7 @@ export function BranchTimeline({ profile, selectedBranches }: BranchTimelineProp
                   y={LABEL_TOP}
                   textAnchor="middle"
                   fill={COLORS.text}
-                  fontSize={10}
+                  fontSize={11}
                   fontWeight={500}
                 >
                   {node.name}
@@ -277,7 +277,7 @@ export function BranchTimeline({ profile, selectedBranches }: BranchTimelineProp
                     y={DETAIL_TOP}
                     textAnchor="middle"
                     fill={COLORS.accent}
-                    fontSize={9}
+                    fontSize={11}
                   >
                     {node.amount}
                     {node.endAge ? ` (${node.endAge - node.age}年)` : ''}

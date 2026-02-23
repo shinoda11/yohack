@@ -50,8 +50,32 @@ test.describe('Mobile quality checks', () => {
       const issues: { tag: string; text: string; width: number; height: number; selector: string }[] = [];
       const interactiveSelectors = 'a, button, input, select, textarea, [role="button"], [tabindex]';
       const elements = document.querySelectorAll(interactiveSelectors);
+
+      // Allowlist: elements that are structurally fine despite small visual size
+      const isAllowlisted = (el: Element): boolean => {
+        const rect = el.getBoundingClientRect();
+        // Invisible elements (0-size, display:none, hidden, opacity:0)
+        if (rect.width === 0 || rect.height === 0) return true;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return true;
+        // Radix Checkbox — parent label provides 44px+ tap area
+        if (el.getAttribute('role') === 'checkbox') {
+          const label = el.closest('label');
+          if (label && label.getBoundingClientRect().height >= 44) return true;
+        }
+        // Radix Switch — parent label provides 44px+ tap area
+        if (el.getAttribute('role') === 'switch') {
+          const label = el.closest('label');
+          if (label && label.getBoundingClientRect().height >= 44) return true;
+        }
+        // Toast container (system UI, not user-interactive content)
+        if (el.tagName === 'OL' && el.className?.includes('fixed top-0')) return true;
+        return false;
+      };
+
       elements.forEach((el) => {
         if (!el.checkVisibility?.()) return;
+        if (isAllowlisted(el)) return;
         const rect = el.getBoundingClientRect();
         if (rect.width < MIN_TARGET || rect.height < MIN_TARGET) {
           const text = (el as HTMLElement).innerText?.trim().slice(0, 30) || '';

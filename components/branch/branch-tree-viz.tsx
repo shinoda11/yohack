@@ -185,21 +185,28 @@ export function BranchTreeViz({
   // Dynamic height: taller with more uncertain branches (360–600)
   const SVG_H = Math.max(360, Math.min(600, 340 + uncertain.length * 60));
   const PAD_X = 40;
-  const PAD_RIGHT = 160;
+  const PAD_RIGHT = 200; // widened for larger text at mobile scale
   const PAD_Y = 40;
+
+  // Font sizes scaled for mobile readability
+  // At 375px device width: scale = 375/720 ≈ 0.52
+  // fontSize 22 × 0.52 = 11.4px (minimum readable)
+  const FONT_LABEL = 22;   // edge labels, event summaries
+  const FONT_NODE = 22;    // node labels (leaf names, "現在")
+  const FONT_HINT = 20;    // hints, secondary text
 
   // ── 0 uncertain events: simple baseline ──
   if (uncertain.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-4">
         <p className="text-xs font-normal text-muted-foreground mb-2">デシジョンツリー</p>
-        <svg viewBox={`0 0 ${SVG_W} 120`} className="w-full h-auto" role="img" aria-label="デシジョンツリー">
+        <svg viewBox={`0 0 ${SVG_W} 140`} className="w-full h-auto" role="img" aria-label="デシジョンツリー">
           <circle cx={PAD_X} cy={50} r={8} fill="var(--brand-night)" />
           <line x1={PAD_X + 8} y1={50} x2={SVG_W - PAD_RIGHT - 7} y2={50} stroke="var(--brand-night)" strokeWidth={2.5} strokeLinecap="round" />
           <circle cx={SVG_W - PAD_RIGHT} cy={50} r={7} fill="var(--brand-gold)" />
-          <text x={PAD_X} y={72} fontSize={11} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">現在</text>
-          <text x={SVG_W - PAD_RIGHT} y={72} fontSize={11} fill="var(--brand-stone)" textAnchor="middle">ベースライン</text>
-          <text x={SVG_W / 2} y={105} fontSize={10} fill="var(--brand-bronze)" textAnchor="middle">
+          <text x={PAD_X} y={78} fontSize={FONT_NODE} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">現在</text>
+          <text x={SVG_W - PAD_RIGHT} y={78} fontSize={FONT_NODE} fill="var(--brand-stone)" textAnchor="middle">ベースライン</text>
+          <text x={SVG_W / 2} y={120} fontSize={FONT_HINT} fill="var(--brand-bronze)" textAnchor="middle">
             不確定な分岐を加えると、より多くの世界線が生まれます
           </text>
         </svg>
@@ -272,16 +279,17 @@ export function BranchTreeViz({
           const t = 0.3;
           const lx = edge.from.x + (edge.to.x - edge.from.x) * t;
           const ly = edge.from.y + (edge.to.y - edge.from.y) * t;
-          const offsetY = edge.labelAbove ? -8 : 16;
+          const offsetY = edge.labelAbove ? -12 : 24;
+          const label = edge.labelText.length > 6 ? edge.labelText.slice(0, 6) + '…' : edge.labelText;
           return (
             <text
               key={`el-${i}`}
               x={lx}
               y={ly + offsetY}
-              fontSize={9}
+              fontSize={FONT_LABEL}
               fill={edge.isUncertain ? 'var(--brand-bronze)' : 'var(--brand-stone)'}
             >
-              {edge.labelText}
+              {label}
             </text>
           );
         })}
@@ -295,7 +303,7 @@ export function BranchTreeViz({
 
         {/* Root node */}
         <circle cx={root.x} cy={root.y} r={8} fill="var(--brand-night)" />
-        <text x={root.x} y={root.y + 22} fontSize={11} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">
+        <text x={root.x} y={root.y + 28} fontSize={FONT_NODE} fill="var(--brand-stone)" textAnchor="middle" fontWeight="600">
           現在
         </text>
 
@@ -312,12 +320,12 @@ export function BranchTreeViz({
                 stroke={isBaseline ? 'none' : 'var(--brand-stone)'}
                 strokeWidth={isBaseline ? 0 : 1.5}
               />
-              <text x={leaf.x + 11} y={leaf.y + 4} fontSize={11} fill="var(--brand-stone)" fontWeight={isBaseline ? '500' : 'normal'}>
+              <text x={leaf.x + 14} y={leaf.y + 6} fontSize={FONT_NODE} fill="var(--brand-stone)" fontWeight={isBaseline ? '500' : 'normal'}>
                 {isBaseline ? 'ベースライン' : `世界線${leaf.worldlineIndex}`}
               </text>
               {!isBaseline && (
-                <text x={leaf.x + 11} y={leaf.y + 18} fontSize={9} fill="var(--brand-bronze)">
-                  {leaf.eventSummary}
+                <text x={leaf.x + 14} y={leaf.y + 26} fontSize={FONT_LABEL} fill="var(--brand-bronze)">
+                  {leaf.eventSummary.length > 12 ? leaf.eventSummary.slice(0, 12) + '…' : leaf.eventSummary}
                 </text>
               )}
 
@@ -337,8 +345,8 @@ export function BranchTreeViz({
                     />
                     <text
                       x={leaf.x - 19}
-                      y={leaf.y + 5}
-                      fontSize={11}
+                      y={leaf.y + 6}
+                      fontSize={FONT_NODE}
                       fill="white"
                       textAnchor="middle"
                       fontWeight="bold"
@@ -359,8 +367,8 @@ export function BranchTreeViz({
           return (
             <text
               x={lastLeaf.x + 8}
-              y={lastLeaf.y + 32}
-              fontSize={9}
+              y={lastLeaf.y + 40}
+              fontSize={FONT_HINT}
               fill="var(--brand-bronze)"
             >
               ...他 {totalClipped} 本
