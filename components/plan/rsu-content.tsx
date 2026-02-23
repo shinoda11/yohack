@@ -211,7 +211,7 @@ export function RSUContent() {
               反映完了
             </Badge>
           ) : !isSynced ? (
-            <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:bg-amber-950/30">
+            <Badge variant="outline" className="text-brand-bronze border-brand-gold/30 bg-brand-gold/10 dark:text-brand-gold dark:border-brand-gold/30 dark:bg-brand-gold/10">
               <AlertCircle className="h-3 w-3 mr-1" />
               未反映
             </Badge>
@@ -225,7 +225,7 @@ export function RSUContent() {
           <Button
             onClick={syncRSUToProfile}
             disabled={isLoading || isSynced}
-            className={!isSynced ? 'bg-amber-600 hover:bg-amber-700' : ''}
+            className={!isSynced ? 'bg-brand-gold hover:bg-brand-gold/90 text-white' : ''}
           >
             {isLoading ? (
               <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -294,12 +294,12 @@ export function RSUContent() {
             </CardContent>
           </Card>
 
-          <Card className={!isSynced ? 'border-amber-300 dark:border-amber-700' : ''}>
+          <Card className={!isSynced ? 'border-brand-gold/30 dark:border-brand-gold/30' : ''}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-normal flex items-center justify-between">
                 <span>{currentYear}年のRSU収入</span>
                 {!isSynced && (
-                  <Badge variant="outline" className="text-xs text-amber-700 border-amber-300 bg-amber-50 dark:text-amber-300 dark:border-amber-700 dark:bg-amber-950/30">
+                  <Badge variant="outline" className="text-xs text-brand-bronze border-brand-gold/30 bg-brand-gold/10 dark:text-brand-gold dark:border-brand-gold/30 dark:bg-brand-gold/10">
                     未反映
                   </Badge>
                 )}

@@ -220,7 +220,7 @@ export function getScoreColor(level: ScoreLevel): string {
     case 'GREEN': return 'text-brand-bronze';
     case 'YELLOW': return 'text-brand-stone';
     case 'ORANGE': return 'text-brand-stone';
-    case 'RED': return 'text-red-700';
+    case 'RED': return 'text-brand-stone';
   }
 }
 
@@ -229,6 +229,6 @@ export function getScoreBgColor(level: ScoreLevel): string {
     case 'GREEN': return 'bg-brand-gold';
     case 'YELLOW': return 'bg-brand-stone';
     case 'ORANGE': return 'bg-brand-stone';
-    case 'RED': return 'bg-red-600';
+    case 'RED': return 'bg-brand-stone';
   }
 }

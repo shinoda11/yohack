@@ -267,7 +267,7 @@ function FitGateForm() {
                   }
                 }}
               />
-              {emailError && <p className="text-sm text-red-600">{emailError}</p>}
+              {emailError && <p className="text-sm text-brand-bronze">{emailError}</p>}
             </div>
 
             <Button
@@ -331,7 +331,7 @@ function FitGateForm() {
                 ))}
               </RadioGroup>
               {errors[q.key] && (
-                <p className="text-sm text-red-600">{(errors[q.key] as { message?: string })?.message}</p>
+                <p className="text-sm text-brand-bronze">{(errors[q.key] as { message?: string })?.message}</p>
               )}
             </div>
           ))}
@@ -355,7 +355,7 @@ function FitGateForm() {
               </Label>
             </div>
             {errors.q11PrivacyConsent && (
-              <p className="text-sm text-red-600">{errors.q11PrivacyConsent.message}</p>
+              <p className="text-sm text-brand-bronze">{errors.q11PrivacyConsent.message}</p>
             )}
           </div>
 
@@ -380,7 +380,7 @@ function FitGateForm() {
               ))}
             </RadioGroup>
             {errors.q12BudgetSense && (
-              <p className="text-sm text-red-600">{errors.q12BudgetSense.message}</p>
+              <p className="text-sm text-brand-bronze">{errors.q12BudgetSense.message}</p>
             )}
           </div>
 

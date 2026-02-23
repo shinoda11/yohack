@@ -46,7 +46,7 @@ export interface WorldlineCandidate {
 // ============================================================
 
 const CANDIDATE_COLORS = {
-  baseline: '#4A7C59',
+  baseline: '#C8B89A',
   variant: '#4A6FA5',
   worst: '#8A7A62',
   extra: '#7B5EA7',

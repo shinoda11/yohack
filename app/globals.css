@@ -44,7 +44,7 @@
   /* Chart Colors - High contrast for readability */
   --chart-1: #2563EB;
   --chart-2: #C8B89A;
-  --chart-3: #DC2626;
+  --chart-3: #8A7A62;
   --chart-4: #16A34A;
   --chart-5: #9333EA;
 
@@ -77,10 +77,10 @@
   --brand-night: #1A1916;
   --brand-linen: #F0ECE4;
 
-  /* Score status tokens */
-  --safe: #4A7C59;
+  /* Score status tokens — red/green removed; using brand palette */
+  --safe: #C8B89A;
   --safe-foreground: #FFFFFF;
-  --danger: #CC3333;
+  --danger: #8A7A62;
   --danger-foreground: #FFFFFF;
 
   /* Chart (Recharts/Canvas) */
@@ -123,7 +123,7 @@
   /* Chart - same as light (high contrast on dark bg) */
   --chart-1: #2563EB;
   --chart-2: #C8B89A;
-  --chart-3: #DC2626;
+  --chart-3: #8A7A62;
   --chart-4: #16A34A;
   --chart-5: #9333EA;
   --sidebar: #030303;

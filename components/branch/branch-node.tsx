@@ -84,10 +84,10 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
             e.stopPropagation();
             onDelete();
           }}
-          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-destructive/10 transition-colors"
+          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-brand-bronze/10 transition-colors"
           aria-label="削除"
         >
-          <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+          <X className="h-4 w-4 text-muted-foreground hover:text-brand-stone" />
         </button>
       )}
     </label>

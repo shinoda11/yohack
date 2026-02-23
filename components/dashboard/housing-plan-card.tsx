@@ -363,7 +363,7 @@ export function HousingPlanCard({ profile, onUpdate, open, onOpenChange, complet
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-11 w-11 p-0 ml-auto text-muted-foreground hover:text-destructive"
+                    className="h-11 w-11 p-0 ml-auto text-muted-foreground hover:text-brand-stone"
                     onClick={() => removePlan(plan.id)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />

@@ -194,10 +194,11 @@ lib/
 - Stone: #5A5550（テキスト）
 - Bronze: #8A7A62（アクセント）
 - Canvas: #FAF9F7（背景）
-- スコア状態: `text-safe`/`bg-safe`（良好）、`text-danger`/`bg-danger`（危険）
-- UI 状態: `success`/`destructive`（shadcn/ui 標準）
+- スコア状態: `--safe` = Gold (#C8B89A)、`--danger` = Bronze (#8A7A62)。赤緑は排除済み
+- UI 状態: `success`/`destructive`（shadcn/ui 標準、ui/ コンポーネント内のみ許可）
 - チャート: `CHART_COLORS`（`lib/utils.ts`）
-- **混在禁止**: スコア表示に `success` を使わない。emerald/amber/red 等の生 Tailwind カラーを使わない
+- **禁止色**: red-*/emerald-*/amber-*/green-* 等の生 Tailwind カラー。#CC3333, #4A7C59 等のハードコード
+- 削除ボタン: `hover:text-brand-stone`（赤の destructive は ui/ コンポーネント内のみ）
 
 ### タイポグラフィ
 - 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与

@@ -13,7 +13,7 @@ export const CHART_COLORS = {
   gold: '#C8B89A',
   bronze: '#8A7A62',
   stone: '#5A5550',
-  safe: '#4A7C59',
+  safe: '#C8B89A',  // green removed — use gold for positive
   danger: '#8A7A62',  // red removed — use bronze for zero line
   canvas: '#FAF9F7',
 } as const;

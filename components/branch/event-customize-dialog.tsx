@@ -181,7 +181,7 @@ export function EventCustomizeDialog({
                 className={cn(
                   'flex-1 px-3 py-2 rounded-lg text-sm font-normal transition-colors min-h-[44px]',
                   certainty === 'planned'
-                    ? 'bg-safe text-white'
+                    ? 'bg-brand-gold text-white'
                     : 'bg-accent/50 text-muted-foreground hover:bg-accent'
                 )}
               >

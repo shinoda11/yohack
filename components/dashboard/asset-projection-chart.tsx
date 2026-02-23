@@ -215,7 +215,7 @@ export function AssetProjectionChart({
             {showOptimistic ? (
               <span className="flex items-center gap-1"><Eye className="h-3.5 w-3.5" /> 楽観シナリオを表示</span>
             ) : (
-              <span className="flex items-center gap-1"><EyeOff className="h-3.5 w-3.5" /> 楽観シナリオを非表示（推奨）</span>
+              <span className="flex items-center gap-1"><EyeOff className="h-3.5 w-3.5" /> 楽観シナリオを非表示</span>
             )}
           </Label>
         </div>

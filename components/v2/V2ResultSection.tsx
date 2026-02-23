@@ -15,7 +15,6 @@ import {
   Shield,
   ArrowRight,
   Sparkles,
-  CheckCircle2,
   Info,
   GitBranch,
 } from 'lucide-react';
@@ -265,7 +264,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-brand-bronze" />
-                推奨戦略: {primaryStrategy.name}
+                戦略分析: {primaryStrategy.name}
               </CardTitle>
               <CardDescription className="mt-1">
                 {primaryStrategy.description}
@@ -302,11 +301,11 @@ export function V2ResultSection(props: V2ResultSectionProps) {
 
           {/* Required Actions */}
           <div>
-            <h4 className="font-normal mb-4">必要なアクション</h4>
+            <h4 className="font-normal mb-4">スコアに影響する変数</h4>
             <div className="space-y-2">
               {primaryStrategy.requiredActions.map((action: string, index: number) => (
                 <div key={index} className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
-                  <CheckCircle2 className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-brand-bronze text-sm">•</span>
                   <span>{action}</span>
                 </div>
               ))}
