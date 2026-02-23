@@ -16,7 +16,7 @@ import { V2ResultSection } from '@/components/v2/V2ResultSection';
 import { V2ComparisonView } from '@/components/v2/V2ComparisonView';
 
 export default function WorldlinePage() {
-  const { profile, simResult, isLoading, scenarios, loadScenario, updateProfile, saveScenario } = useProfileStore();
+  const { profile, simResult, isLoading, scenarios, loadScenario, deleteScenario, updateProfile, saveScenario } = useProfileStore();
   const [applyingTemplate, setApplyingTemplate] = useState<string | null>(null);
 
   const {
@@ -127,6 +127,7 @@ export default function WorldlinePage() {
     toggleComparisonId,
     clearComparisonIds,
     loadScenario,
+    deleteScenario,
     setActiveTab,
     onApplyTemplate: handleApplyTemplate,
     applyingTemplate,

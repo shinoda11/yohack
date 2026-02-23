@@ -19,6 +19,7 @@ import {
   Loader2,
   TrendingUp,
   TrendingDown,
+  X,
 } from 'lucide-react';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
@@ -31,9 +32,14 @@ interface V2ComparisonViewProps {
   toggleComparisonId: (id: string) => void;
   clearComparisonIds: () => void;
   loadScenario: (id: string) => void;
+  deleteScenario: (id: string) => void;
   setActiveTab: (tab: 'worldlines' | 'margins' | 'strategy') => void;
   onApplyTemplate?: (templateId: string) => void;
   applyingTemplate?: string | null;
+}
+
+function getSourceLabel(id: string): string {
+  return id.startsWith('branch-') ? '分岐' : '保存';
 }
 
 /** Y-branch symbol for the empty state */
@@ -84,10 +90,28 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     toggleComparisonId,
     clearComparisonIds,
     loadScenario,
+    deleteScenario,
     setActiveTab,
     onApplyTemplate,
     applyingTemplate,
   } = props;
+
+  // Sort: branch-* first, then by createdAt desc
+  const sortedScenarios = [...scenarios].sort((a, b) => {
+    const aIsBranch = a.id.startsWith('branch-');
+    const bIsBranch = b.id.startsWith('branch-');
+    if (aIsBranch && !bIsBranch) return -1;
+    if (!aIsBranch && bIsBranch) return 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  const displayScenarios = sortedScenarios.slice(0, 3);
+
+  const handleDelete = (scenario: SavedScenario) => {
+    if (window.confirm(`「${scenario.name}」を削除しますか？`)) {
+      deleteScenario(scenario.id);
+    }
+  };
 
   // --- Empty state ---
   if (scenarios.length === 0) {
@@ -171,7 +195,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     })(),
   };
 
-  const scenarioRawMap = new Map(scenarios.slice(0, 3).map((scenario) => [scenario.id, {
+  const scenarioRawMap = new Map(displayScenarios.map((scenario) => [scenario.id, {
     fireAge: (() => {
       if (!scenario.result) return null;
       const age = scenario.result.metrics.fireAge;
@@ -199,7 +223,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
 
   type MetricKey = 'fireAge' | 'assets60' | 'monthlyCF' | 'drawdownAge';
   const rowHasDiff = (metric: MetricKey) =>
-    scenarios.slice(0, 3).some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
+    displayScenarios.some((s) => scenarioRawMap.get(s.id)?.[metric] !== currentRaw[metric]);
 
   // Unused worldline templates (for add-worldline prompt)
   const usedNames = new Set(scenarios.map(s => s.name));
@@ -236,23 +260,33 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     <span className="text-sm">あなたの状態</span>
                   </div>
                 </th>
-                {scenarios.slice(0, 3).map((scenario) => (
+                {displayScenarios.map((scenario) => (
                   <th key={scenario.id} className="text-center py-3 px-2 font-normal min-w-32">
                     <div className="flex flex-col items-center gap-1">
-                      <button
-                        type="button"
-                        onClick={() => toggleComparisonId(scenario.id)}
-                        className={cn(
-                          "px-3 py-2 min-h-[44px] rounded-lg text-xs font-normal transition-colors",
-                          selectedComparisonIds.includes(scenario.id)
-                            ? "bg-accent text-accent-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                        )}
-                      >
-                        {scenario.name}
-                      </button>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(scenario.createdAt).toLocaleDateString('ja-JP')}
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleComparisonId(scenario.id)}
+                          className={cn(
+                            "px-3 py-2 min-h-[44px] rounded-lg text-xs font-normal transition-colors",
+                            selectedComparisonIds.includes(scenario.id)
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                          )}
+                        >
+                          {scenario.name}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(scenario)}
+                          className="shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                          title="このシナリオを削除"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">
+                        {getSourceLabel(scenario.id)} · {new Date(scenario.createdAt).toLocaleDateString('ja-JP')}
                       </span>
                     </div>
                   </th>
@@ -271,7 +305,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${age}歳`;
                   })()}
                 </td>
-                {scenarios.slice(0, 3).map((scenario) => {
+                {displayScenarios.map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.fireAge != null && currentRaw.fireAge != null)
                     ? sRaw.fireAge - currentRaw.fireAge : null;
@@ -310,7 +344,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${(assets / 10000).toFixed(1)}億`;
                   })()}
                 </td>
-                {scenarios.slice(0, 3).map((scenario) => {
+                {displayScenarios.map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.assets60 != null && currentRaw.assets60 != null)
                     ? sRaw.assets60 - currentRaw.assets60 : null;
@@ -377,7 +411,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                     return `${monthlyCF.toFixed(0)}万/月`;
                   })()}
                 </td>
-                {scenarios.slice(0, 3).map((scenario) => {
+                {displayScenarios.map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.monthlyCF != null && currentRaw.monthlyCF != null)
                     ? sRaw.monthlyCF - currentRaw.monthlyCF : null;
@@ -423,7 +457,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                       : <span className="text-muted-foreground text-xs">なし</span>;
                   })()}
                 </td>
-                {scenarios.slice(0, 3).map((scenario) => {
+                {displayScenarios.map((scenario) => {
                   const sRaw = scenarioRawMap.get(scenario.id);
                   const delta = (sRaw?.drawdownAge != null && currentRaw.drawdownAge != null)
                     ? sRaw.drawdownAge - currentRaw.drawdownAge : null;
@@ -481,7 +515,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
             return ddIdx > 0 ? profile.currentAge + ddIdx : null;
           })();
 
-          const allSame = scenarios.slice(0, 3).every((scenario) => {
+          const allSame = displayScenarios.every((scenario) => {
             const sFireAge = scenario.result?.metrics.fireAge ?? null;
             const sAssets60 = (() => {
               const data = scenario.result?.paths.yearlyData;
@@ -569,7 +603,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
                 選択解除
               </Button>
             )}
-            {scenarios.slice(0, 3).map((scenario) => (
+            {displayScenarios.map((scenario) => (
               <Link
                 key={scenario.id}
                 href="/app"

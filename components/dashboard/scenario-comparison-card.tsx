@@ -75,6 +75,21 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
     setIsSaving(false);
   };
   
+  // Sort: branch-* first, then by createdAt desc
+  const sortedScenarios = [...scenarios].sort((a, b) => {
+    const aIsBranch = a.id.startsWith('branch-');
+    const bIsBranch = b.id.startsWith('branch-');
+    if (aIsBranch && !bIsBranch) return -1;
+    if (!aIsBranch && bIsBranch) return 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  const handleDelete = (scenario: SavedScenario) => {
+    if (window.confirm(`「${scenario.name}」を削除しますか？`)) {
+      deleteScenario(scenario.id);
+    }
+  };
+
   // Get comparison scenarios
   const comparisonScenarios = scenarios.filter(s => comparisonIds.includes(s.id));
   
@@ -191,12 +206,12 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
         </div>
         
         {/* Saved scenarios list */}
-        {scenarios.length > 0 && (
+        {sortedScenarios.length > 0 && (
           <div className="pt-3 border-t border-brand-linen dark:border-brand-stone">
-            <p className="text-xs text-brand-bronze mb-2">保存済み ({scenarios.length}件) - 比較に追加</p>
+            <p className="text-xs text-brand-bronze mb-2">保存済み ({sortedScenarios.length}件) - 比較に追加</p>
             <div className="space-y-1">
-              {scenarios.map((scenario) => (
-                <div 
+              {sortedScenarios.map((scenario) => (
+                <div
                   key={scenario.id}
                   className="flex items-center justify-between min-h-[44px] py-2 group"
                 >
@@ -208,14 +223,14 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                       disabled={!comparisonIds.includes(scenario.id) && comparisonIds.length >= 2}
                       className="h-4 w-4"
                     />
-                    <label 
+                    <label
                       htmlFor={`compare-${scenario.id}`}
                       className="text-sm text-brand-stone dark:text-brand-linen cursor-pointer"
                     >
                       {scenario.name}
                     </label>
                     <span className="text-[10px] text-brand-bronze/60">
-                      {formatRelativeTime(scenario.createdAt)}
+                      {scenario.id.startsWith('branch-') ? '分岐' : '保存'} · {formatRelativeTime(scenario.createdAt)}
                     </span>
                   </div>
                   <div className="flex items-center gap-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -223,7 +238,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
                       variant="ghost"
                       size="icon"
                       className="h-11 w-11 text-brand-bronze/60 hover:text-brand-stone"
-                      onClick={() => deleteScenario(scenario.id)}
+                      onClick={() => handleDelete(scenario)}
                       title="削除"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -248,7 +263,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
         )}
         
         {/* Empty state */}
-        {scenarios.length === 0 && (
+        {sortedScenarios.length === 0 && (
           <p className="text-xs text-brand-bronze/60 text-center py-2">
             世界線を保存すると、ここで比較できます
           </p>

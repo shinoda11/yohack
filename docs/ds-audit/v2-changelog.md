@@ -230,6 +230,19 @@
   - InlineVariable: click-to-edit で useEffect select() 済み
 - テスト: 252/252 pass
 
+### シナリオ管理 Phase 1: 削除 + 出所ラベル
+- コミット: （本コミット）
+- 日付: 2026-02-23
+- 変更ファイル数: 4
+- 概要:
+  - V2ComparisonView に × 削除ボタン + 確認ダイアログ追加
+  - 出所ラベル: branch-* →「分岐」、scenario-* →「保存」
+  - 表示順: branch-* 優先、同カテゴリ内は新しい順
+  - ScenarioComparisonCard にも同等の変更（ソート + 出所ラベル + 確認ダイアログ）
+  - 「★ あなたの状態」列は削除不可（アンカー）
+  - deleteScenario は store に既存（localStorage 永続化済み）
+- テスト: 252/252 pass
+
 ---
 
 ## 全コミット一覧（時系列）

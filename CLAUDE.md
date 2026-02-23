@@ -180,10 +180,16 @@ lib/
 - lib/v2/store.ts で UI 状態管理
 
 ### 比較テーブル設計
-- 「★ あなたの状態」列 = `store.simResult`（固定アンカー）
+- 「★ あなたの状態」列 = `store.simResult`（固定アンカー、削除不可）
 - 差分は常にアンカー基準
 - テーブルは read-only（「で試す」なし）
 - 条件変更はダッシュボードで行う（世界線からはリンク遷移）
+
+### シナリオ管理
+- `deleteScenario(id)`: シナリオ削除（localStorage 永続化済み）
+- 出所ラベル: `branch-*` →「分岐」、`scenario-*` →「保存」
+- 表示順: `branch-*` 優先（分岐ビルダー結果を最優先）、同カテゴリ内は新しい順
+- 世界線生成の2経路問題: 詳細は `docs/ds-audit/worldline-architecture-investigation.md`
 
 ## コーディング規約
 - UI: shadcn/ui + Tailwind CSS
