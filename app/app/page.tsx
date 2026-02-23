@@ -395,7 +395,7 @@ export default function DashboardPage() {
           )}
 
           {/* Conclusion Summary - HERO */}
-          <div className="mb-12">
+          <div className="mb-12 animate-card-in">
             <ConclusionSummaryCard
               score={simResult?.score ?? null}
               metrics={simResult?.metrics ?? null}
@@ -563,7 +563,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Capture target for share */}
-                  <div ref={captureRef} className="space-y-6">
+                  <div ref={captureRef} className="space-y-6 animate-card-in" style={{ animationDelay: '50ms' }}>
                     {/* Variable Bar */}
                     <VariableBar profile={profile} onUpdate={updateProfile} />
 
@@ -577,36 +577,44 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Cash flow + withdrawal simulation */}
-                  <CashFlowCard
-                    cashFlow={simResult?.cashFlow ?? null}
-                    paths={simResult?.paths ?? null}
-                    metrics={simResult?.metrics ?? null}
-                    targetRetireAge={profile.targetRetireAge}
-                    isLoading={isLoading}
-                  />
+                  <div className="animate-card-in" style={{ animationDelay: '100ms' }}>
+                    <CashFlowCard
+                      cashFlow={simResult?.cashFlow ?? null}
+                      paths={simResult?.paths ?? null}
+                      metrics={simResult?.metrics ?? null}
+                      targetRetireAge={profile.targetRetireAge}
+                      isLoading={isLoading}
+                    />
+                  </div>
                 </TabsContent>
 
                 {/* Simulator Tab - Detailed Monte Carlo */}
                 <TabsContent value="simulator" className="mt-6">
-                  <MonteCarloSimulatorTab
-                    profile={profile}
-                    paths={simResult?.paths ?? null}
-                    isLoading={isLoading}
-                    onVolatilityChange={(volatility) => updateProfile({ volatility })}
-                  />
+                  <div className="animate-card-in">
+                    <MonteCarloSimulatorTab
+                      profile={profile}
+                      paths={simResult?.paths ?? null}
+                      isLoading={isLoading}
+                      onVolatilityChange={(volatility) => updateProfile({ volatility })}
+                    />
+                  </div>
                 </TabsContent>
 
                 {/* Scenarios Tab */}
                 <TabsContent value="scenarios" className="mt-6 space-y-6">
-                  <ScenarioComparisonCard
-                    currentResult={simResult}
-                  />
+                  <div className="animate-card-in">
+                    <ScenarioComparisonCard
+                      currentResult={simResult}
+                    />
+                  </div>
 
                   {/* Score detail: sub-scores + breakdown + benchmark */}
-                  <ExitReadinessCard
-                    score={simResult?.score ?? null}
-                    isLoading={isLoading && !simResult}
-                  />
+                  <div className="animate-card-in" style={{ animationDelay: '50ms' }}>
+                    <ExitReadinessCard
+                      score={simResult?.score ?? null}
+                      isLoading={isLoading && !simResult}
+                    />
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>

@@ -147,7 +147,7 @@ export function ConclusionSummaryCard({
 
   // Track score direction: up resets after 600ms, down (flash) after 300ms
   const scoreDirection = useScoreAnimation(score?.overall ?? null);
-  const animatedScore = useAnimatedValue(score?.overall ?? 0, 600);
+  const animatedScore = useAnimatedValue(score?.overall ?? 0, 800);
 
   const conclusion = useMemo(
     () => generateConclusion(metrics, targetRetireAge),
@@ -175,7 +175,7 @@ export function ConclusionSummaryCard({
 
   return (
     <Card className={cn(
-      'relative transition-all duration-[600ms] ease-out shadow-md rounded-2xl border-0',
+      'relative transition-all duration-[800ms] ease-out shadow-md rounded-2xl border-0',
       config.bgColor,
       config.borderColor,
       scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
@@ -219,7 +219,7 @@ export function ConclusionSummaryCard({
                     stroke="hsl(var(--brand-gold))"
                     strokeWidth={strokeWidth} strokeLinecap="round"
                     strokeDasharray={circumference} strokeDashoffset={offset}
-                    className="transition-all duration-[600ms] ease-out"
+                    className="transition-[stroke-dashoffset] duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
                     style={{ transform: 'rotate(-90deg)', transformOrigin: `${center}px ${center}px` }}
                   />
                   <text x={center} y={center - 6} textAnchor="middle" dominantBaseline="central" fill="hsl(var(--brand-gold))" fontSize="48" fontWeight="300">

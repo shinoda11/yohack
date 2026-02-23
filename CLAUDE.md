@@ -243,7 +243,9 @@ lib/
 - カードホバー: `transition-colors duration-150 hover:border-brand-gold/30`（Card コンポーネントに組込み済み）
 - `<details>` 開閉: CSS `details-show` アニメーション（globals.css）
 - タブ切替: `.animate-fade-in`（150ms ease-out）
-- スコアリング: ring + animatedScore は `useAnimatedValue` で 600ms ease-out
+- スコアリング: ring + animatedScore は `useAnimatedValue` で 800ms expo-out
+- カードフェードイン: `.animate-card-in`（300ms ease-out, translateY 8px）、結果カード群に 50ms 刻みのスタガー
+- `prefers-reduced-motion: reduce` で全アニメーション無効化
 
 ## デザイン原則
 

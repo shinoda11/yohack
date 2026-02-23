@@ -325,4 +325,34 @@
   .animate-fade-in {
     animation: fade-in 150ms ease-out;
   }
+
+  /* Card stagger fade-in */
+  @keyframes card-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-card-in {
+    animation: card-fade-in 0.3s ease-out both;
+  }
+
+  /* prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-card-in {
+      animation: none;
+      opacity: 1;
+    }
+    .animate-fade-in {
+      animation: none;
+      opacity: 1;
+    }
+    details[open] > *:not(summary) {
+      animation: none;
+    }
+  }
 }

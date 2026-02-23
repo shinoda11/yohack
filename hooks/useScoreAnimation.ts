@@ -46,14 +46,22 @@ export function useScoreAnimation(
 /**
  * Smoothly animate a numeric value change over a given duration.
  * Returns the interpolated value that transitions from old to new.
+ * Respects prefers-reduced-motion.
  */
-export function useAnimatedValue(target: number, durationMs: number = 600): number {
+export function useAnimatedValue(target: number, durationMs: number = 800): number {
   const [display, setDisplay] = useState(target);
   const rafRef = useRef<number | null>(null);
   const startRef = useRef<number | null>(null);
   const fromRef = useRef(target);
 
   useEffect(() => {
+    // Respect prefers-reduced-motion
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(target);
+      fromRef.current = target;
+      return;
+    }
+
     const from = fromRef.current;
     if (from === target) return;
 
@@ -66,7 +74,7 @@ export function useAnimatedValue(target: number, durationMs: number = 600): numb
       if (startRef.current === null) startRef.current = timestamp;
       const elapsed = timestamp - startRef.current;
       const progress = Math.min(elapsed / durationMs, 1);
-      // ease-out cubic
+      // expo-out: fast start, gentle deceleration
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(from + (target - from) * eased);
       setDisplay(current);

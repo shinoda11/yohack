@@ -146,7 +146,9 @@ export default function WorldlinePage() {
           </div>
 
           {/* Overall Assessment Hero + Current World Line */}
-          <V2ResultSection {...resultProps} renderMode="hero" />
+          <div className="animate-card-in">
+            <V2ResultSection {...resultProps} renderMode="hero" />
+          </div>
 
           {/* Main Content Tabs: 3タブ */}
           <Tabs
@@ -161,13 +163,19 @@ export default function WorldlinePage() {
             </TabsList>
 
             <TabsContent value="worldlines" className="space-y-6">
-              <V2ComparisonView {...comparisonProps} />
+              <div className="animate-card-in">
+                <V2ComparisonView {...comparisonProps} />
+              </div>
             </TabsContent>
             <TabsContent value="margins" className="space-y-6">
-              <V2ResultSection {...resultProps} renderMode="margins" />
+              <div className="animate-card-in">
+                <V2ResultSection {...resultProps} renderMode="margins" />
+              </div>
             </TabsContent>
             <TabsContent value="strategy" className="space-y-6">
-              <V2ResultSection {...resultProps} renderMode="strategy" />
+              <div className="animate-card-in">
+                <V2ResultSection {...resultProps} renderMode="strategy" />
+              </div>
             </TabsContent>
           </Tabs>
       </div>
