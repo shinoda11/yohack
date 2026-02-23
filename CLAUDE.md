@@ -168,8 +168,9 @@ lib/
    - 確率分布: MonteCarloSimulatorTab
    - 世界線: ScenarioComparisonCard + ExitReadinessCard（スコア詳細: sub-scores + breakdown + benchmark）
 
-### ConclusionSummaryCard
-- 120px スコアリング（brand-gold 統一色、`useAnimatedValue` 600ms）
+### ConclusionSummaryCard（Tier 1 ヒーロー）
+- スコアリング: 160px/120px (desktop/mobile)、fontSize 48 font-light Gold、strokeWidth 5
+- Linen 背景 (#F0ECE4) + shadow-md + rounded-2xl + border-0
 - 数字ベース headline（4 分岐パターン: 余白あり / ギリギリ / 超過 / 未到達）
 - subMetrics: 生存率、安心ライン到達年齢、100歳時点中央値
 - 世界線テンプレート導線（3本未満のとき表示）
@@ -202,15 +203,18 @@ lib/
 
 ### タイポグラフィ
 - 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与
-- フォント階層: ヒーロー数値 `text-2xl sm:text-3xl font-bold` / カード内指標 `text-lg font-bold` / 本文 `text-sm` / 注釈 `text-xs`
+- フォント階層: ヒーロースコア `fontSize 48 font-light`（SVG内）/ カード内指標 `text-lg font-bold` / 本文 `text-sm` / 注釈 `text-xs`
 - SVG 内テキスト: `font-variant-numeric` は効かないため、ブラウザ default で許容
+
+### カード3段階（Tier）
+- **Tier 1（結論）**: ConclusionSummaryCard のみ。`bg-[#F0ECE4] shadow-md rounded-2xl border-0 p-6 md:p-8`
+- **Tier 2（根拠）**: SectionCard 経由の結果カード。`bg-card shadow-sm rounded-xl border`（Card コンポーネント標準）
+- **Tier 3（詳細）**: MonteCarloSimulatorTab 内カード。`rounded-lg shadow-none border`
 
 ### スペーシング
 - カード間: `space-y-4` or `gap-4`
 - カード内フォーム要素間: `space-y-6`
 - カード内情報表示要素間: `space-y-4`
-- カード角丸: `rounded-xl`（Card コンポーネントに統一済み）
-- カードシャドウ: `shadow-sm`（Card コンポーネントに統一済み）
 
 ### マイクロインタラクション
 - カードホバー: `transition-colors duration-150 hover:border-brand-gold/30`（Card コンポーネントに組込み済み）

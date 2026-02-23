@@ -262,7 +262,7 @@ export function MonteCarloSimulatorTab({
   return (
     <div className="space-y-6">
       {/* Volatility Control */}
-      <Card>
+      <Card className="rounded-lg shadow-none">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -319,7 +319,7 @@ export function MonteCarloSimulatorTab({
       </Card>
 
       {/* Monte Carlo Chart */}
-      <Card>
+      <Card className="rounded-lg shadow-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -433,7 +433,7 @@ export function MonteCarloSimulatorTab({
       {/* Summary Cards */}
       {spreadAtRetirement && (
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
+          <Card className="rounded-lg shadow-none">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（楽観）</p>
@@ -447,7 +447,7 @@ export function MonteCarloSimulatorTab({
             </CardContent>
           </Card>
 
-          <Card className="border-brand-linen">
+          <Card className="rounded-lg shadow-none border-brand-linen">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（中央値）</p>
@@ -461,7 +461,7 @@ export function MonteCarloSimulatorTab({
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-lg shadow-none">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">退職時資産（悲観）</p>
@@ -479,7 +479,7 @@ export function MonteCarloSimulatorTab({
 
       {/* Risk Warning */}
       {spreadAtRetirement && spreadAtRetirement.spread > 1 && (
-        <Card className="border-brand-linen bg-brand-canvas/50 dark:border-brand-bronze dark:bg-brand-night/20">
+        <Card className="rounded-lg shadow-none border-brand-linen bg-brand-canvas/50 dark:border-brand-bronze dark:bg-brand-night/20">
           <CardContent className="flex items-start gap-4 pt-6">
             <AlertTriangle className="h-5 w-5 shrink-0 text-brand-bronze" />
             <div>

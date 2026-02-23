@@ -35,30 +35,12 @@ function getStatus(score: ExitScoreDetail | null): Status {
   return 'RED';
 }
 
-function getStatusConfig(status: Status) {
-  switch (status) {
-    case 'GREEN':
-      return {
-        bgColor: 'bg-brand-gold/10 dark:bg-brand-gold/5',
-        borderColor: 'border-brand-gold/30 dark:border-brand-gold/20',
-      };
-    case 'YELLOW':
-      return {
-        bgColor: 'bg-brand-stone/10 dark:bg-brand-stone/10',
-        borderColor: 'border-brand-stone/30 dark:border-brand-stone/20',
-      };
-    case 'RED':
-      return {
-        bgColor: 'bg-brand-bronze/10',
-        borderColor: 'border-brand-bronze/30',
-      };
-    case 'CALCULATING':
-    default:
-      return {
-        bgColor: 'bg-secondary',
-        borderColor: 'border-border',
-      };
-  }
+function getStatusConfig(_status: Status) {
+  // Tier 1: fixed Linen background for all states
+  return {
+    bgColor: 'bg-[#F0ECE4] dark:bg-brand-stone/10',
+    borderColor: 'border-transparent',
+  };
 }
 
 function generateConclusion(
@@ -192,15 +174,15 @@ export function ConclusionSummaryCard({
 
   return (
     <Card className={cn(
-      'border relative transition-all duration-[600ms] ease-out',
+      'relative transition-all duration-[600ms] ease-out shadow-md rounded-2xl border-0',
       config.bgColor,
       config.borderColor,
       scoreDirection === 'up' && 'shadow-[var(--shadow-gold)]',
-      scoreDirection === 'down' && 'border-brand-bronze !duration-150',
+      scoreDirection === 'down' && 'border-brand-bronze border !duration-150',
     )}>
       {/* 計算中オーバーレイ（初回ロード時） */}
       {isLoading && !score && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/60">
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-background/60">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
@@ -212,25 +194,25 @@ export function ConclusionSummaryCard({
           <Loader2 className="h-3 w-3 animate-spin text-brand-bronze/40" />
         </div>
       )}
-      <CardContent className="p-8">
-        <p className="text-xs text-brand-bronze/60 mb-4">
+      <CardContent className="p-6 md:p-8">
+        <p className="text-xs text-brand-bronze/60 mb-4 text-center">
           {targetRetireAge}歳を目標に試算
         </p>
 
-        <div className="flex items-start gap-6">
-          {/* Score Ring */}
+        {/* Score Ring — hero treatment */}
+        <div className="flex flex-col items-center">
           {score && (() => {
-            const radius = 48;
-            const strokeWidth = 6;
-            const size = 120;
-            const center = size / 2;
+            const vb = 160;
+            const center = vb / 2;
+            const radius = 64;
+            const strokeWidth = 5;
             const circumference = 2 * Math.PI * radius;
             const progress = Math.min(Math.max(animatedScore, 0), 100);
             const offset = circumference - (progress / 100) * circumference;
             return (
-              <div className="flex-shrink-0">
-                <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-                  <circle cx={center} cy={center} r={radius} fill="none" stroke="currentColor" strokeWidth={strokeWidth} className="text-muted/60" />
+              <div className="flex-shrink-0 w-[120px] h-[120px] sm:w-[160px] sm:h-[160px]">
+                <svg viewBox={`0 0 ${vb} ${vb}`} width="100%" height="100%">
+                  <circle cx={center} cy={center} r={radius} fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth={strokeWidth} />
                   <circle
                     cx={center} cy={center} r={radius} fill="none"
                     stroke="hsl(var(--brand-gold))"
@@ -239,10 +221,10 @@ export function ConclusionSummaryCard({
                     className="transition-all duration-[600ms] ease-out"
                     style={{ transform: 'rotate(-90deg)', transformOrigin: `${center}px ${center}px` }}
                   />
-                  <text x={center} y={center - 4} textAnchor="middle" dominantBaseline="central" className="fill-foreground" fontSize="36" fontWeight="bold">
+                  <text x={center} y={center - 6} textAnchor="middle" dominantBaseline="central" fill="hsl(var(--brand-gold))" fontSize="48" fontWeight="300">
                     {animatedScore}
                   </text>
-                  <text x={center} y={center + 20} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="12">
+                  <text x={center} y={center + 24} textAnchor="middle" dominantBaseline="central" className="fill-muted-foreground" fontSize="14">
                     /100
                   </text>
                 </svg>
@@ -250,30 +232,31 @@ export function ConclusionSummaryCard({
             );
           })()}
 
-          <div className="flex-1 min-w-0">
-            <p className="text-base font-bold text-foreground leading-snug">
-              {conclusion.headline}
-            </p>
+          {/* Headline */}
+          <p className="text-sm sm:text-base font-bold text-foreground leading-snug text-center mt-4">
+            {conclusion.headline}
+          </p>
 
-            {conclusion.subMetrics.length > 0 && (
-              <div className="flex gap-6 mt-2">
-                {conclusion.subMetrics.map((m, i) => (
-                  <div key={i} className="text-center">
-                    <div className="text-lg font-semibold tabular-nums">{m.value}</div>
-                    <div className="text-xs text-muted-foreground">{m.label}</div>
-                  </div>
-                ))}
-              </div>
-            )}
+          {/* Change badges */}
+          {changes && (
+            <div className="flex items-center justify-center gap-1 mt-2">
+              <ChangeBadge value={changes.score} unit="pt" />
+              <ChangeBadge value={changes.fireAge} unit="年" invertColor />
+              <ChangeBadge value={changes.survival} unit="%" />
+            </div>
+          )}
 
-            {changes && (
-              <div className="flex items-center gap-1 mt-2">
-                <ChangeBadge value={changes.score} unit="pt" />
-                <ChangeBadge value={changes.fireAge} unit="年" invertColor />
-                <ChangeBadge value={changes.survival} unit="%" />
-              </div>
-            )}
-          </div>
+          {/* subMetrics */}
+          {conclusion.subMetrics.length > 0 && (
+            <div className="flex justify-center gap-6 mt-4 pt-4 border-t border-brand-gold/20 w-full">
+              {conclusion.subMetrics.map((m, i) => (
+                <div key={i} className="text-center">
+                  <div className="text-lg font-medium tabular-nums">{m.value}</div>
+                  <div className="text-xs text-muted-foreground">{m.label}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 世界線比較への導線 */}
