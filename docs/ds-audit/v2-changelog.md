@@ -304,3 +304,21 @@
 | `c46200e` | D10 | feat: D10 — simplify asset projection chart + zero line |
 | `3133d04` | D12-pre | fix: D12-pre — anchor "★ あなたの状態" + remove "で試す" buttons |
 | `1d17aa0` | D12 | feat: D12 — ダッシュボード3層構造再編 |
+
+---
+
+## シナリオ管理 Phase 2: 表示選択
+
+### 概要
+- 日付: 2026-02-24
+- 変更ファイル数: 5（store.ts, V2ComparisonView.tsx, scenario-comparison-card.tsx, worldline/page.tsx, scenario-selector.tsx[new]）
+- 概要:
+  - `visibleScenarioIds` を store に追加（localStorage 永続化）
+  - `toggleScenarioVisibility(id, maxVisible?)` アクション追加
+  - `saveScenario` / `addScenarioBatch` / `deleteScenario` が visibleScenarioIds を自動管理
+  - 既存ユーザー向けマイグレーション: `onRehydrateStorage` で全シナリオを visible に設定（最大3）
+  - ScenarioSelector コンポーネント新規作成（チェックボックスで表示切替）
+  - V2ComparisonView: `slice(0, 3)` → `visibleScenarioIds` フィルタに変更
+  - ScenarioComparisonCard: `comparisonIds` → `visibleScenarioIds` に移行
+  - モバイル制限: `matchMedia('(min-width: 640px)')` で 2列（モバイル）/ 3列（デスクトップ）
+- テスト: vitest 252/252 pass

@@ -23,11 +23,14 @@ import {
 } from 'lucide-react';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { cn } from '@/lib/utils';
+import { ScenarioSelector } from '@/components/dashboard/scenario-selector';
 
 interface V2ComparisonViewProps {
   simResult: SimulationResult | null;
   profile: Profile;
   scenarios: SavedScenario[];
+  visibleScenarioIds: string[];
+  toggleScenarioVisibility: (id: string, maxVisible?: number) => void;
   selectedComparisonIds: string[];
   toggleComparisonId: (id: string) => void;
   clearComparisonIds: () => void;
@@ -86,6 +89,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     simResult,
     profile,
     scenarios,
+    visibleScenarioIds,
+    toggleScenarioVisibility,
     selectedComparisonIds,
     toggleComparisonId,
     clearComparisonIds,
@@ -105,7 +110,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
-  const displayScenarios = sortedScenarios.slice(0, 3);
+  const displayScenarios = sortedScenarios.filter(s => visibleScenarioIds.includes(s.id));
 
   const handleDelete = (scenario: SavedScenario) => {
     if (window.confirm(`「${scenario.name}」を削除しますか？`)) {
@@ -247,6 +252,16 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* シナリオ表示選択 */}
+        {scenarios.length > 0 && (
+          <div className="mb-4">
+            <ScenarioSelector
+              scenarios={scenarios}
+              visibleScenarioIds={visibleScenarioIds}
+              toggleScenarioVisibility={toggleScenarioVisibility}
+            />
+          </div>
+        )}
         {/* 比較表 */}
         <p className="text-xs text-muted-foreground mb-2 sm:hidden">← 横スクロールできます</p>
         <div className="overflow-x-auto">
@@ -648,8 +663,8 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
       </CardContent>
     </Card>
 
-    {/* 世界線追加プレースホルダー（1-2本のとき表示） */}
-    {scenarios.length >= 1 && scenarios.length < 3 && (
+    {/* 世界線追加プレースホルダー（表示枠に余裕があるとき表示） */}
+    {scenarios.length >= 1 && displayScenarios.length < 3 && (
       <div className="rounded-lg border-2 border-dashed border-brand-gold/40 hover:border-brand-gold p-6 transition-colors">
         <div className="flex flex-col items-center text-center gap-4">
           <Plus className="h-6 w-6 text-brand-bronze" />

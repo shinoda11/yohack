@@ -51,11 +51,10 @@ function formatMetric(value: number | null | undefined, type: 'age' | 'percent' 
 export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCardProps) {
   const {
     scenarios,
-    comparisonIds,
+    visibleScenarioIds,
+    toggleScenarioVisibility,
     saveScenario,
     deleteScenario,
-    toggleComparison,
-    clearComparison,
     initializeFromStorage,
   } = useProfileStore();
   
@@ -90,10 +89,10 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
     }
   };
 
-  // Get comparison scenarios
-  const comparisonScenarios = scenarios.filter(s => comparisonIds.includes(s.id));
-  
-  // Build comparison data: current + selected scenarios (max 3)
+  // Get visible scenarios for the comparison table
+  const visibleScenarios = sortedScenarios.filter(s => visibleScenarioIds.includes(s.id));
+
+  // Build comparison data: current + visible scenarios
   const comparisonData: Array<{
     id: string;
     name: string;
@@ -102,7 +101,7 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
     createdAt?: string;
   }> = [
     { id: 'current', name: 'あなたの状態', isCurrent: true, result: currentResult },
-    ...comparisonScenarios.map(s => ({
+    ...visibleScenarios.map(s => ({
       id: s.id,
       name: s.name,
       isCurrent: false,
@@ -205,61 +204,56 @@ export function ScenarioComparisonCard({ currentResult }: ScenarioComparisonCard
           </table>
         </div>
         
-        {/* Saved scenarios list */}
+        {/* Saved scenarios list — visibility toggle */}
         {sortedScenarios.length > 0 && (
           <div className="pt-3 border-t border-brand-linen dark:border-brand-stone">
-            <p className="text-xs text-brand-bronze mb-2">保存済み ({sortedScenarios.length}件) - 比較に追加</p>
+            <p className="text-xs text-brand-bronze mb-2">保存済み ({sortedScenarios.length}件) — 表示 ({visibleScenarioIds.length}/3)</p>
             <div className="space-y-1">
-              {sortedScenarios.map((scenario) => (
-                <div
-                  key={scenario.id}
-                  className="flex items-center justify-between min-h-[44px] py-2 group"
-                >
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id={`compare-${scenario.id}`}
-                      checked={comparisonIds.includes(scenario.id)}
-                      onCheckedChange={() => toggleComparison(scenario.id)}
-                      disabled={!comparisonIds.includes(scenario.id) && comparisonIds.length >= 2}
-                      className="h-4 w-4"
-                    />
-                    <label
-                      htmlFor={`compare-${scenario.id}`}
-                      className="text-sm text-brand-stone dark:text-brand-linen cursor-pointer"
-                    >
-                      {scenario.name}
-                    </label>
-                    <span className="text-[10px] text-brand-bronze/60">
-                      {scenario.id.startsWith('branch-') ? '分岐' : '保存'} · {formatRelativeTime(scenario.createdAt)}
-                    </span>
+              {sortedScenarios.map((scenario) => {
+                const isVisible = visibleScenarioIds.includes(scenario.id);
+                const atLimit = !isVisible && visibleScenarioIds.length >= 3;
+                return (
+                  <div
+                    key={scenario.id}
+                    className="flex items-center justify-between min-h-[44px] py-2 group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id={`visible-${scenario.id}`}
+                        checked={isVisible}
+                        onCheckedChange={() => toggleScenarioVisibility(scenario.id)}
+                        disabled={atLimit}
+                        className="h-4 w-4"
+                      />
+                      <label
+                        htmlFor={`visible-${scenario.id}`}
+                        className={cn(
+                          "text-sm cursor-pointer",
+                          isVisible ? "text-brand-stone dark:text-brand-linen" : "text-muted-foreground"
+                        )}
+                      >
+                        {scenario.name}
+                      </label>
+                      <span className="text-[10px] text-brand-bronze/60">
+                        {scenario.id.startsWith('branch-') ? '分岐' : '保存'} · {formatRelativeTime(scenario.createdAt)}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-11 w-11 text-brand-bronze/60 hover:text-brand-stone"
+                        onClick={() => handleDelete(scenario)}
+                        title="削除"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-11 w-11 text-brand-bronze/60 hover:text-brand-stone"
-                      onClick={() => handleDelete(scenario)}
-                      title="削除"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
-        )}
-        
-        {/* Clear comparison */}
-        {comparisonIds.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearComparison}
-            className="min-h-[44px] text-xs text-brand-bronze/60 hover:text-brand-bronze"
-          >
-            比較をクリア
-          </Button>
         )}
         
         {/* Empty state */}

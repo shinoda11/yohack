@@ -69,6 +69,7 @@ interface ProfileStore {
   scenarios: SavedScenario[];
   activeScenarioId: string | null;
   comparisonIds: string[]; // IDs of scenarios to compare (max 2)
+  visibleScenarioIds: string[]; // IDs of scenarios visible in comparison tables
   
   // Onboarding
   hasOnboarded: boolean;
@@ -108,6 +109,7 @@ interface ProfileStore {
   deleteScenario: (id: string) => void;
   toggleComparison: (id: string) => void;
   clearComparison: () => void;
+  toggleScenarioVisibility: (id: string, maxVisible?: number) => void;
 }
 
 // Debounce timeout reference (module level for cleanup)
@@ -153,6 +155,7 @@ export const useProfileStore = create<ProfileStore>()(
         scenarios: [],
         activeScenarioId: null,
         comparisonIds: [],
+        visibleScenarioIds: [],
         hasOnboarded: false,
         selectedBranchIds: [],
         customBranches: [],
@@ -245,12 +248,16 @@ export const useProfileStore = create<ProfileStore>()(
             hiddenDefaultBranchIds: s.hiddenDefaultBranchIds.filter((bid) => bid !== id),
           })),
         addScenarioBatch: (newScenarios) => {
-          const { scenarios } = get();
+          const { scenarios, visibleScenarioIds } = get();
           const nonBranch = scenarios.filter((s) => !s.id.startsWith('branch-'));
           const updated = [...nonBranch, ...newScenarios];
+          // Keep non-branch visible IDs + add new branch IDs (limit 3)
+          const nonBranchVisibleIds = visibleScenarioIds.filter((id) => !id.startsWith('branch-'));
+          const newVisibleIds = [...nonBranchVisibleIds, ...newScenarios.map((s) => s.id)].slice(0, 3);
           set({
             scenarios: updated,
             comparisonIds: newScenarios.slice(0, 2).map((s) => s.id),
+            visibleScenarioIds: newVisibleIds,
           });
           saveScenariosToStorage(updated);
         },
@@ -285,9 +292,14 @@ export const useProfileStore = create<ProfileStore>()(
           };
           
           const updatedScenarios = [...scenarios, newScenario];
+          const { visibleScenarioIds } = get();
+          const newVisibleIds = visibleScenarioIds.length < 3
+            ? [...visibleScenarioIds, id]
+            : visibleScenarioIds;
           set({
             scenarios: updatedScenarios,
-            activeScenarioId: id
+            activeScenarioId: id,
+            visibleScenarioIds: newVisibleIds,
           });
           
           try {
@@ -322,13 +334,14 @@ export const useProfileStore = create<ProfileStore>()(
         
         // Delete a scenario
         deleteScenario: (id) => {
-          const { scenarios, activeScenarioId, comparisonIds } = get();
-          
+          const { scenarios, activeScenarioId, comparisonIds, visibleScenarioIds } = get();
+
           const updatedScenarios = scenarios.filter(s => s.id !== id);
           set({
             scenarios: updatedScenarios,
             activeScenarioId: activeScenarioId === id ? null : activeScenarioId,
             comparisonIds: comparisonIds.filter(cid => cid !== id),
+            visibleScenarioIds: visibleScenarioIds.filter(vid => vid !== id),
           });
           saveScenariosToStorage(updatedScenarios);
         },
@@ -347,6 +360,16 @@ export const useProfileStore = create<ProfileStore>()(
           // If already at max, do nothing
         },
         
+        // Toggle scenario visibility in comparison tables
+        toggleScenarioVisibility: (id, maxVisible = 3) => {
+          const { visibleScenarioIds } = get();
+          if (visibleScenarioIds.includes(id)) {
+            set({ visibleScenarioIds: visibleScenarioIds.filter(vid => vid !== id) });
+          } else if (visibleScenarioIds.length < maxVisible) {
+            set({ visibleScenarioIds: [...visibleScenarioIds, id] });
+          }
+        },
+
         // Clear all comparisons
         clearComparison: () => {
           set({ comparisonIds: [] });
@@ -362,6 +385,7 @@ export const useProfileStore = create<ProfileStore>()(
         scenarios: state.scenarios,
         activeScenarioId: state.activeScenarioId,
         comparisonIds: state.comparisonIds,
+        visibleScenarioIds: state.visibleScenarioIds,
         hasOnboarded: state.hasOnboarded,
         selectedBranchIds: state.selectedBranchIds,
         customBranches: state.customBranches,
@@ -385,6 +409,10 @@ export const useProfileStore = create<ProfileStore>()(
           // Migrate: hiddenDefaultBranchIds が undefined の場合は空配列に
           if (!state.hiddenDefaultBranchIds) {
             state.hiddenDefaultBranchIds = [];
+          }
+          // Migrate: visibleScenarioIds が未定義の既存ユーザーは全シナリオを表示（最大3）
+          if (!state.visibleScenarioIds) {
+            state.visibleScenarioIds = (state.scenarios || []).map(s => s.id).slice(0, 3);
           }
           // 復元後にシミュレーションを再実行
           state._storageInitialized = true;
