@@ -76,11 +76,15 @@ export default function WorldlinePage() {
   if (scenarios.length === 0) {
     return (
       <div className="overflow-x-hidden">
-        <div className="container mx-auto max-w-7xl px-4 py-4 md:p-6 space-y-6">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
-            <p className="text-sm text-brand-bronze mt-1">余白で比較し、次の一手を決める</p>
+        <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
+          <div className="flex h-14 items-center px-4 sm:px-6">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
+              <p className="text-sm text-brand-bronze">余白で比較し、次の一手を決める</p>
+            </div>
           </div>
+        </header>
+        <div className="container mx-auto max-w-7xl px-4 py-4 md:p-6 space-y-6">
           <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-brand-gold/30 bg-brand-canvas p-16 text-center space-y-6">
             <div className="rounded-full bg-brand-gold/10 p-6">
               <GitBranch className="h-10 w-10 text-brand-gold/30" />
@@ -137,22 +141,21 @@ export default function WorldlinePage() {
 
   return (
     <div className="overflow-x-hidden">
-      <div className="container mx-auto max-w-7xl px-4 py-4 md:p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
-              <p className="text-sm text-brand-bronze mt-1">
-                余白で比較し、次の一手を決める
-              </p>
-            </div>
-            <Button variant="outline" size="sm" asChild className="gap-2">
-              <Link href="/app/branch">
-                <GitBranch className="h-4 w-4" />
-                <span className="hidden sm:inline">分岐を変更する</span>
-              </Link>
-            </Button>
+      <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
+        <div className="flex h-14 items-center justify-between px-4 sm:px-6">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">世界線比較</h1>
+            <p className="text-sm text-brand-bronze">余白で比較し、次の一手を決める</p>
           </div>
+          <Button variant="outline" size="sm" asChild className="gap-2">
+            <Link href="/app/branch">
+              <GitBranch className="h-4 w-4" />
+              <span className="hidden sm:inline">分岐を変更する</span>
+            </Link>
+          </Button>
+        </div>
+      </header>
+      <div className="container mx-auto max-w-7xl px-4 py-4 md:p-6 space-y-6">
 
           {/* Overall Assessment Hero + Current World Line */}
           <div className="animate-card-in">

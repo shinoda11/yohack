@@ -62,6 +62,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
       icon: PiggyBank,
       label: '月々の純貯蓄額',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.monthlyNetSavings)}万円` : '—',
+      sub: '手取りから支出を引いた余剰',
       description: '手取り収入から支出を引いた月々の余剰額',
       highlight: hasValidData && (moneyMargin?.monthlyNetSavings ?? 0) > 0,
     },
@@ -69,6 +70,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
       icon: Shield,
       label: '緊急資金カバー月数',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.emergencyFundCoverage, 1)}ヶ月分` : '—',
+      sub: '収入停止時に生活できる月数',
       description: '収入が途絶えた場合に現在の貯蓄で生活できる月数。6ヶ月以上が目安',
       highlight: hasValidData && (moneyMargin?.emergencyFundCoverage ?? 0) >= 6,
     },
@@ -76,6 +78,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
       icon: TrendingUp,
       label: '年間可処分所得',
       value: hasValidData ? `${safeDisplayNumber(moneyMargin?.annualDisposableIncome)}万円` : '—',
+      sub: '税・社保控除後の年間手取り',
       description: '税・社会保険料控除後の年間手取り総額',
       highlight: hasValidData,
     },
@@ -130,6 +133,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
                 <p className={`text-xl font-bold font-[family-name:var(--font-dm-sans)] tabular-nums ${metric.highlight ? 'text-foreground' : 'text-muted-foreground'}`}>
                   {metric.value}
                 </p>
+                <p className="text-xs text-muted-foreground mt-0.5">{metric.sub}</p>
               </div>
             </div>
           ))}

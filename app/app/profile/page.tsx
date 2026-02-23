@@ -157,7 +157,7 @@ export default function ProfilePage() {
               ダッシュボードに戻る
             </Link>
             <h1 className="text-xl font-bold tracking-tight text-foreground">プロファイル</h1>
-            <p className="text-sm text-brand-bronze">シミュレーションの前提条件</p>
+            <p className="text-sm text-muted-foreground">シミュレーションの前提条件を設定</p>
           </div>
           <div className="flex items-center gap-3">
             <ScoreWidget />

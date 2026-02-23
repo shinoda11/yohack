@@ -400,14 +400,16 @@ export default function BranchPage() {
   const customizeOpen = !!customizePreset;
 
   return (
-    <div className="max-w-2xl mx-auto md:max-w-5xl px-4 py-6 overflow-x-hidden">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold tracking-tight text-foreground">分岐ビルダー</h1>
-        <p className="mt-1 text-sm text-brand-bronze">
-          分岐を選び、世界線を生成します
-        </p>
+    <>
+    <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
+      <div className="flex h-14 items-center px-4 sm:px-6">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">分岐ビルダー</h1>
+          <p className="text-sm text-brand-bronze">分岐を選び、世界線を生成します</p>
+        </div>
       </div>
+    </header>
+    <div className="max-w-2xl mx-auto md:max-w-5xl px-4 py-6 overflow-x-hidden">
 
       {/* First-visit guidance */}
       {nonAutoSelectedCount === 0 && step === 'select' && (
@@ -585,5 +587,6 @@ export default function BranchPage() {
         本サービスは金融アドバイスではありません。投資判断はご自身の責任で行ってください。
       </p>
     </div>
+    </>
   );
 }

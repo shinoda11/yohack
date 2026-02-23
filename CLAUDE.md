@@ -451,7 +451,7 @@ YOHACK は ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop 水�
 | DS-2 | 「次の一手」をYOHACK固有に（iDeCo/リバランス→分岐ビルダー誘導） | ✅ |
 | DS-3 | 入力カード折りたたみ優先（サマリー1行、展開オンデマンド） | ✅ |
 | DS-4 | 分岐ツリー全幅化（白ボックスから解放、画面幅60%+） | ✅ |
-| DS-5 | 余白タブ空白感解消（数値に1行コンテキスト追加） | ⬜ |
+| DS-5 | 余白タブ空白感解消（数値に1行コンテキスト追加） | ✅ |
 | DS-6 | 戦略タブ汎用アドバイス削除（シナリオ導出のみ） | ✅ |
 | DS-7 | プロファイル入力実感（年収スライダー連動リアルタイム表示） | ✅ |
 
@@ -459,10 +459,10 @@ YOHACK は ¥29,800 のプレミアムプロダクト。Apple/Porsche/Aesop 水�
 
 | # | タイトル | 状態 |
 |---|---------|------|
-| MQ-1 | Prep判定時の `/fit/prep` 導線追加 | ⬜ |
-| MQ-2 | sticky ヘッダー統一（Settings・Worldline・Branch） | ⬜ |
-| MQ-3 | /app/profile サブタイトル追加 | ⬜ |
-| MQ-4 | 折りたたみボタン aria-label（income-card, housing-plan-card） | ⬜ |
+| MQ-1 | Prep判定時の `/fit/prep` 導線追加 | ✅ |
+| MQ-2 | sticky ヘッダー統一（Settings・Worldline・Branch） | ✅ |
+| MQ-3 | /app/profile サブタイトル追加 | ✅ |
+| MQ-4 | 折りたたみボタン aria-label（income-card, housing-plan-card） | ✅ |
 
 ### P2 — 来月（インフラ + コンテンツ）
 

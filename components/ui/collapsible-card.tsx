@@ -47,6 +47,7 @@ export function CollapsibleCard({
         <CollapsibleTrigger asChild>
           <button
             type="button"
+            aria-label={`${title}の詳細を開閉`}
             className={cn(
               "flex w-full items-center justify-between text-left transition-colors hover:bg-muted/50",
               isCompact ? "px-4 py-2.5" : "px-6 py-4",

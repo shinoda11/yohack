@@ -178,6 +178,16 @@ function PrepResult({ prepBucket }: { prepBucket: 'near' | 'notyet' | null }) {
           <p className="text-sm leading-relaxed text-brand-bronze">
             YOHACK を使いこなすための準備ガイドです。年収・資産・支出の整理方法、数字の扱い方、よくある質問への回答などを、メールレターでお届けします。
           </p>
+          <Button
+            variant="outline"
+            className="w-full mt-4 min-h-[44px] gap-2"
+            asChild
+          >
+            <Link href="/fit/prep">
+              <ArrowRight className="w-4 h-4" />
+              Prep Mode で準備を始める
+            </Link>
+          </Button>
         </div>
 
         {!isNotYet && (

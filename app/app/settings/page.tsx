@@ -131,14 +131,15 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className="container mx-auto max-w-3xl px-4 py-4 md:p-6 space-y-6 overflow-x-hidden">
-          {/* Header */}
+      <header className="sticky top-0 z-30 border-b bg-card/80 backdrop-blur-sm">
+        <div className="flex h-14 items-center px-4 sm:px-6">
           <div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">設定</h1>
-            <p className="text-sm text-brand-bronze mt-1">
-              データ管理とアプリケーション情報
-            </p>
+            <p className="text-sm text-brand-bronze">データ管理とアプリケーション情報</p>
           </div>
+        </div>
+      </header>
+      <div className="container mx-auto max-w-3xl px-4 py-4 md:p-6 space-y-6 overflow-x-hidden">
 
           {/* 1. データ管理 */}
           <Card>
