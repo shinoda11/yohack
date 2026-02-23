@@ -19,9 +19,10 @@ interface BranchNodeProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onHide?: () => void;
+  onToggleCertainty?: () => void;
 }
 
-export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDelete, onHide }: BranchNodeProps) {
+export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDelete, onHide, onToggleCertainty }: BranchNodeProps) {
   const borderColor = CERTAINTY_BORDER[branch.certainty] ?? 'border-l-border';
 
   return (
@@ -57,7 +58,27 @@ export function BranchNode({ branch, selected, onToggle, disabled, onEdit, onDel
             </button>
           )}
         </div>
-        <p className="text-xs text-muted-foreground truncate">{branch.detail}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-muted-foreground truncate">{branch.detail}</p>
+          {onToggleCertainty && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleCertainty();
+              }}
+              className={cn(
+                'shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors',
+                branch.certainty === 'planned'
+                  ? 'text-brand-gold hover:bg-brand-gold/10'
+                  : 'text-brand-stone hover:bg-brand-stone/10'
+              )}
+            >
+              {branch.certainty === 'planned' ? '計画' : '不確定'}
+            </button>
+          )}
+        </div>
         {branch.eventType === 'child' && (
           <p className="text-[10px] text-muted-foreground/70 mt-0.5">教育費自動加算: 保育50万→学費100万→大学200万/年</p>
         )}

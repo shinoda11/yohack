@@ -34,6 +34,7 @@ interface BranchCategoryProps {
   deletableBranchIds?: Set<string>;
   onHideBranch?: (branch: Branch) => void;
   hidableBranchIds?: Set<string>;
+  onToggleCertainty?: (branch: Branch) => void;
 }
 
 export function BranchCategory({
@@ -47,6 +48,7 @@ export function BranchCategory({
   deletableBranchIds,
   onHideBranch,
   hidableBranchIds,
+  onToggleCertainty,
 }: BranchCategoryProps) {
   const meta = CATEGORY_META[certainty];
   const showAddButton = certainty !== 'confirmed' && onAddEvent;
@@ -73,6 +75,7 @@ export function BranchCategory({
               onEdit={!branch.auto && onEditBranch ? () => onEditBranch(branch) : undefined}
               onDelete={deletableBranchIds?.has(branch.id) && onDeleteBranch ? () => onDeleteBranch(branch) : undefined}
               onHide={hidableBranchIds?.has(branch.id) && onHideBranch ? () => onHideBranch(branch) : undefined}
+              onToggleCertainty={!branch.auto && onToggleCertainty ? () => onToggleCertainty(branch) : undefined}
             />
           ))}
         </div>

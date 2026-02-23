@@ -333,6 +333,31 @@ export default function BranchPage() {
     setCustomizePreset(null);
   }, [editingBranch, hideDefaultBranch, selectedBranchIds, setSelectedBranchIds]);
 
+  const handleToggleCertainty = useCallback((branch: Branch) => {
+    if (branch.auto || branch.certainty === 'confirmed') return;
+    const newCertainty = branch.certainty === 'planned' ? 'uncertain' : 'planned';
+
+    const isDefault = defaultBranchIds.has(branch.id);
+    if (isDefault) {
+      // Default branch → create custom override with toggled certainty
+      const ts = Date.now();
+      const overrideBranch: Branch = {
+        ...branch,
+        id: `toggled-${branch.id}-${ts}`,
+        certainty: newCertainty,
+        overridesDefaultId: branch.id,
+      };
+      addCustomBranch(overrideBranch);
+      setSelectedBranchIds([
+        ...selectedBranchIds.filter((id) => id !== branch.id),
+        overrideBranch.id,
+      ]);
+    } else {
+      // Custom branch → direct update
+      updateCustomBranch(branch.id, { certainty: newCertainty });
+    }
+  }, [defaultBranchIds, addCustomBranch, updateCustomBranch, selectedBranchIds, setSelectedBranchIds]);
+
   const handleHideBranch = useCallback((branch: Branch) => {
     hideDefaultBranch(branch.id);
     setSelectedBranchIds(selectedBranchIds.filter((id) => id !== branch.id));
@@ -431,6 +456,7 @@ export default function BranchPage() {
               deletableBranchIds={deletableBranchIds}
               onHideBranch={handleHideBranch}
               hidableBranchIds={hidableBranchIds}
+              onToggleCertainty={handleToggleCertainty}
             />
             <BranchCategory
               certainty="uncertain"
@@ -443,6 +469,7 @@ export default function BranchPage() {
               deletableBranchIds={deletableBranchIds}
               onHideBranch={handleHideBranch}
               hidableBranchIds={hidableBranchIds}
+              onToggleCertainty={handleToggleCertainty}
             />
 
             {!hasUncertain && nonAutoSelectedCount > 0 && (
