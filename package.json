@@ -10,7 +10,11 @@
     "start": "next start",
     "case-sim": "tsx scripts/case-catalog-sim.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "npx playwright test",
+    "test:e2e:mobile": "npx playwright test --project='iPhone SE' --project='iPhone 14'",
+    "test:screenshots": "npx playwright test e2e/screenshots.spec.ts",
+    "test:mobile-quality": "npx playwright test e2e/mobile-quality.spec.ts --project='iPhone SE' --project='iPhone 14'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

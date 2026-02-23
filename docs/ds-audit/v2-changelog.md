@@ -254,6 +254,19 @@
   - P3: globals.css の未使用 .no-scrollbar 削除
 - テスト: 252/252 pass
 
+### モバイル体験監査 + Playwright テスト導入
+- コミット: （本コミット）
+- 日付: 2026-02-24
+- 新規ファイル数: 4（playwright.config.ts, e2e/helpers.ts, e2e/screenshots.spec.ts, e2e/mobile-quality.spec.ts）
+- 概要:
+  - Playwright 1.58.2 で自動スクリーンショット（3デバイス × 4ページ = 12枚）
+  - モバイル品質チェック: フォント10px未満・タッチ44px未満・水平オーバーフロー
+  - 検出: Recharts ラベル 9px（4要素）、チェックボックス 16px（6要素）、テンプレートボタン 38px
+  - 水平オーバーフロー: 全ページ 0件
+  - vitest 除外設定追加（e2e ディレクトリ）
+- 詳細: `docs/ds-audit/mobile-audit.md`
+- テスト: vitest 252/252 pass、Playwright 36/36 pass
+
 ---
 
 ## 全コミット一覧（時系列）
