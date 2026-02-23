@@ -214,7 +214,7 @@ export function V2ComparisonView(props: V2ComparisonViewProps) {
     <>
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <Target className="h-4 w-4" />
           世界線比較
         </CardTitle>

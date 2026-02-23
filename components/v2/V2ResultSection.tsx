@@ -177,7 +177,7 @@ export function V2ResultSection(props: V2ResultSectionProps) {
         {hasComparison && (
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                 <GitBranch className="h-5 w-5 text-brand-bronze" />
                 世界線間の余白比較
               </CardTitle>

@@ -63,8 +63,8 @@ export function CollapsibleCard({
               </div>
               <div className="min-w-0">
                 <CardTitle className={cn(
-                  "font-bold",
-                  isCompact ? "text-sm text-muted-foreground" : "text-base",
+                  "font-semibold",
+                  isCompact ? "text-sm text-muted-foreground" : "text-sm",
                 )}>{title}</CardTitle>
                 {!open && summary && (
                   <div className={cn(

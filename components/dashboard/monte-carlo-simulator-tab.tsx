@@ -267,7 +267,7 @@ export function MonteCarloSimulatorTab({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-muted-foreground" />
-              <CardTitle className="text-base"><TermTooltip term="ボラティリティ" description={glossary['ボラティリティ']} />（標準偏差）</CardTitle>
+              <CardTitle className="text-sm font-semibold"><TermTooltip term="ボラティリティ" description={glossary['ボラティリティ']} />（標準偏差）</CardTitle>
             </div>
             <HoverCard>
               <HoverCardTrigger asChild>

@@ -85,7 +85,7 @@ export function MoneyMarginCard({ moneyMargin, health, isLoading }: MoneyMarginC
     <Card className="overflow-hidden">
       <CardHeader className={`pb-2 ${hasValidData ? getHealthBgColor(health) : 'bg-brand-canvas'}`}>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
             <Wallet className="h-5 w-5" />
             お金の余白
           </CardTitle>

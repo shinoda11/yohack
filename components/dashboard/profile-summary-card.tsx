@@ -56,7 +56,7 @@ export function ProfileSummaryCard({ profile, onUpdate }: ProfileSummaryCardProp
             <div className="flex h-8 w-8 items-center justify-center text-muted-foreground">
               <User className="h-5 w-5" />
             </div>
-            <CardTitle className="text-base font-bold">プロフィール</CardTitle>
+            <CardTitle className="text-sm font-semibold">プロフィール</CardTitle>
           </div>
           <Link
             href="/app/profile"

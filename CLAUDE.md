@@ -201,9 +201,18 @@ lib/
 - **禁止色**: red-*/emerald-*/amber-*/green-* 等の生 Tailwind カラー。#CC3333, #4A7C59 等のハードコード
 - 削除ボタン: `hover:text-brand-stone`（赤の destructive は ui/ コンポーネント内のみ）
 
-### タイポグラフィ
+### タイポグラフィスケール（厳守）
+| レベル | クラス | 用途 |
+|--------|--------|------|
+| ヒーロースコア | `fontSize 48 font-light`（SVG内） | ConclusionSummaryCard 中央数字 |
+| MetricCard 値 | `text-xl font-medium tabular-nums` | MetricCard 内数値 |
+| Page Title | `text-xl font-bold tracking-tight` | 各ページ h1 |
+| Card Title | `text-sm font-semibold` | CardTitle / SectionCard タイトル |
+| Body | `text-sm text-muted-foreground leading-relaxed` | 本文・説明文 |
+| Caption | `text-xs text-muted-foreground` | 注釈・補足 |
+
 - 数値表示（金額・スコア・パーセント）は `tabular-nums` を必ず付与
-- フォント階層: ヒーロースコア `fontSize 48 font-light`（SVG内）/ MetricCard 値 `text-xl font-medium tabular-nums` / 本文 `text-sm` / 注釈 `text-xs`
+- CardTitle に `text-base` や `font-bold` を使わない（`text-sm font-semibold` に統一済み）
 - SVG 内テキスト: `font-variant-numeric` は効かないため、ブラウザ default で許容
 
 ### カード3段階（Tier）

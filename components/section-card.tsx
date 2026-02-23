@@ -34,7 +34,7 @@ export function SectionCard({
               {icon}
             </div>
             <div>
-              <CardTitle className="text-base font-bold">{title}</CardTitle>
+              <CardTitle className="text-sm font-semibold">{title}</CardTitle>
             </div>
           </div>
           {action && <div>{action}</div>}
