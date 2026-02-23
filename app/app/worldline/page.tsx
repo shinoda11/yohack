@@ -9,7 +9,7 @@ import { useStrategy } from '@/hooks/useStrategy';
 import { readinessConfig } from '@/lib/v2/readinessConfig';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { Button } from '@/components/ui/button';
-import { GitBranch } from 'lucide-react';
+import { GitBranch, ArrowRight } from 'lucide-react';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { V2ResultSection } from '@/components/v2/V2ResultSection';
@@ -184,6 +184,23 @@ export default function WorldlinePage() {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* 循環導線 */}
+          <div className="mt-12 border-t border-border pt-8">
+            <p className="text-xs font-semibold tracking-widest text-muted-foreground mb-2">
+              条件を変えて試す
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              ダッシュボードで前提条件を変更すると、スコアが再計算されます。
+            </p>
+            <Link
+              href="/app"
+              className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+            >
+              ダッシュボードへ
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
       </div>
     </div>
   );

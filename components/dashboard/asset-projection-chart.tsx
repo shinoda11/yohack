@@ -488,11 +488,6 @@ export function AssetProjectionChart({
             label={`悲観シナリオ (${finalData?.age}歳)`}
             value={finalData ? formatValue(finalData.lower) : '-'}
           />
-          {finalData && finalData.lower < 0 && (
-            <p className="text-xs text-brand-bronze mt-1 text-center">
-              枯渇リスクあり
-            </p>
-          )}
         </div>
       </div>
       
@@ -516,7 +511,7 @@ export function AssetProjectionChart({
       
       {/* Reading guide */}
       <p className="mt-4 text-xs text-muted-foreground text-center">
-        実線 = 中央値、点線 = 悲観10%。点線が0を下回ると枯渇リスク。
+        実線 = 中央値（50%ile）、点線 = 悲観（10%ile）。
       </p>
     </SectionCard>
   );

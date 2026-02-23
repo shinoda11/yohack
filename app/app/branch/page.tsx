@@ -3,7 +3,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, Eye } from 'lucide-react';
+import Link from 'next/link';
+import { Loader2, Sparkles, Eye, ArrowRight } from 'lucide-react';
 import { useProfileStore, type SavedScenario } from '@/lib/store';
 import {
   createDefaultBranches,
@@ -39,6 +40,7 @@ export default function BranchPage() {
     hideDefaultBranch,
     unhideDefaultBranch,
     addScenarioBatch,
+    scenarios,
   } = useProfileStore();
 
   const [step, setStep] = useState<'select' | 'preview'>('select');
@@ -532,6 +534,25 @@ export default function BranchPage() {
         onDelete={editingBranch && !defaultBranchIds.has(editingBranch.id) ? handleCustomizeDelete : undefined}
         onHide={editingBranch && defaultBranchIds.has(editingBranch.id) && !editingBranch.auto ? handleCustomizeHide : undefined}
       />
+
+      {/* 次のステップ — 世界線が生成済みの場合のみ */}
+      {scenarios.length > 0 && (
+        <div className="mt-12 border-t border-border pt-8">
+          <p className="text-xs font-semibold tracking-widest text-muted-foreground mb-2">
+            次のステップ
+          </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            生成した世界線を並べて、余白とスコアを比較できます。
+          </p>
+          <Link
+            href="/app/worldline"
+            className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+          >
+            世界線比較へ
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         本サービスは金融アドバイスではありません。投資判断はご自身の責任で行ってください。

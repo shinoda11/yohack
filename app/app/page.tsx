@@ -8,7 +8,7 @@ import { useMainSimulation } from '@/hooks/useSimulation';
 import { worldlineTemplates } from '@/lib/worldline-templates';
 import { getBranchDerivedLifeEvents } from '@/lib/branch';
 import { Button } from '@/components/ui/button';
-import { X, Share2, Loader2, GitBranch, UserPen, ChevronDown } from 'lucide-react';
+import { X, Share2, Loader2, GitBranch, UserPen, ChevronDown, ArrowRight } from 'lucide-react';
 import { CHART_COLORS } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -535,6 +535,25 @@ export default function DashboardPage() {
                 />
               </div>
             </details>
+
+            {/* 次のステップ — simResult が存在する場合のみ */}
+            {simResult && (
+              <div className="mt-12 border-t border-border pt-8">
+                <p className="text-xs font-semibold tracking-widest text-muted-foreground mb-2">
+                  次のステップ
+                </p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  分岐を設計して、異なる選択肢を世界線として比較できます。
+                </p>
+                <Link
+                  href="/app/branch"
+                  className="inline-flex items-center gap-1 text-sm text-brand-bronze hover:underline underline-offset-4"
+                >
+                  分岐ビルダーへ
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       {/* Welcome Dialog for first-time visitors */}

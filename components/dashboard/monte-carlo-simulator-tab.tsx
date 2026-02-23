@@ -331,7 +331,7 @@ export function MonteCarloSimulatorTab({
         </CardHeader>
         {/* Graph interpretation guide - テキストのみ、背景なし */}
         <p className="mx-6 mb-4 text-xs text-brand-bronze/60">
-          実線が最もありそうな推移。帯が広いほど不確実性が高い。下限が0を下回らなければ資産枯渇リスクは低い。
+          実線が中央値（50%ile）の推移。帯が広いほど不確実性が高い。
         </p>
         <CardContent>
           <div className="relative h-[300px] w-full sm:h-[400px] overflow-x-hidden">

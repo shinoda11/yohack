@@ -114,7 +114,7 @@ export function LifeEventsSummaryCard({ profile, open, onOpenChange }: LifeEvent
       {totalBranches === 0 ? (
         <Link href="/app/branch" className="block">
           <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            分岐ビルダーで将来の計画を追加しましょう
+            分岐ビルダーで将来の計画を追加する
             <ArrowRight className="inline h-3.5 w-3.5 ml-1" />
           </p>
         </Link>
