@@ -53,6 +53,9 @@ export default function WorldlinePage() {
 
     setApplyingTemplate(templateId);
 
+    // Snapshot current profile so we can restore after saving variant
+    const originalProfile = { ...profile };
+
     // Apply variant changes to current profile
     const variantChanges = template.createVariant(profile);
     updateProfile(variantChanges);
@@ -62,6 +65,9 @@ export default function WorldlinePage() {
 
     // Save variant as new scenario
     saveScenario(template.variantName);
+
+    // Restore original profile so "現在" baseline remains stable
+    updateProfile(originalProfile);
 
     setApplyingTemplate(null);
   };

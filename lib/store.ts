@@ -300,20 +300,23 @@ export const useProfileStore = create<ProfileStore>()(
           }
         },
         
-        // Load a saved scenario
+        // Load a saved scenario (uses saved snapshot — no re-simulation needed)
         loadScenario: (id) => {
           const { scenarios } = get();
           const scenario = scenarios.find(s => s.id === id);
 
           if (scenario) {
-            set((state) => ({
-              profile: { ...scenario.profile },
-              simResult: scenario.result,
-              activeScenarioId: id,
-              profileVersion: state.profileVersion + 1,
-            }));
-            // Trigger simulation to ensure fresh results
-            triggerSimulation();
+            set((state) => {
+              const newVersion = state.profileVersion + 1;
+              return {
+                profile: { ...scenario.profile },
+                simResult: scenario.result,
+                activeScenarioId: id,
+                isLoading: false,
+                profileVersion: newVersion,
+                lastSimVersion: newVersion,
+              };
+            });
           }
         },
         

@@ -113,23 +113,49 @@ export function validateProfile(profile: Profile): ValidationError[] {
 // Re-exported above for backward compatibility
 
 // ============================================================
-// Simulation Helpers
+// Seeded PRNG for deterministic Monte Carlo
 // ============================================================
 
-// Generate random return using normal distribution (Box-Muller transform)
-function randomNormal(mean: number, stdDev: number): number {
-  const u1 = Math.random();
-  const u2 = Math.random();
-  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-  return mean + z * stdDev;
+class SeededRandom {
+  private seed: number;
+
+  constructor(seed: number) {
+    this.seed = seed;
+  }
+
+  next(): number {
+    this.seed = (this.seed * 1103515245 + 12345) & 0x7fffffff;
+    return this.seed / 0x7fffffff;
+  }
+
+  nextGaussian(mean: number, stdDev: number): number {
+    const u1 = this.next() || 0.0001;
+    const u2 = this.next();
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    return mean + z * stdDev;
+  }
 }
+
+/** Deterministic hash from profile → base seed for MC runs */
+function profileToSeed(profile: Profile): number {
+  const key = JSON.stringify(profile);
+  let hash = 5381;
+  for (let i = 0; i < key.length; i++) {
+    hash = ((hash << 5) + hash + key.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+// ============================================================
+// Simulation Helpers
+// ============================================================
 
 // Income calculation functions moved to calc-core.ts (calculateNetIncomeForAge)
 
 // Expense calculation function moved to calc-core.ts (calculateExpensesForAge)
 
 // Run a single simulation path
-function runSingleSimulation(profile: Profile): AssetPoint[] {
+function runSingleSimulation(profile: Profile, rng: SeededRandom): AssetPoint[] {
   const path: AssetPoint[] = [];
 
   // Initial assets
@@ -217,7 +243,7 @@ function runSingleSimulation(profile: Profile): AssetPoint[] {
     const dcContrib = age < profile.targetRetireAge ? profile.dcContributionAnnual : 0;
 
     // Apply investment return with volatility (nominal)
-    const yearReturn = randomNormal(nominalReturn, profile.volatility);
+    const yearReturn = rng.nextGaussian(nominalReturn, profile.volatility);
     const investmentGain = totalAssets * yearReturn;
 
     // One-time asset events (inheritance, gifts, severance, etc.)
@@ -377,7 +403,7 @@ export function computeExitScore(metrics: KeyMetrics, profile: Profile, paths: S
 }
 
 // Main simulation function
-export async function runSimulation(profile: Profile): Promise<SimulationResult> {
+export async function runSimulation(profile: Profile, options?: { seed?: number }): Promise<SimulationResult> {
   // Input validation
   const validationErrors = validateProfile(profile);
   if (validationErrors.length > 0) {
@@ -386,11 +412,15 @@ export async function runSimulation(profile: Profile): Promise<SimulationResult>
   }
 
   try {
+    // Deterministic seed: same profile → same results
+    const baseSeed = options?.seed ?? profileToSeed(profile);
+
     // Run Monte Carlo simulations
     const allPaths: AssetPoint[][] = [];
 
     for (let i = 0; i < SIMULATION_RUNS; i++) {
-      allPaths.push(runSingleSimulation(profile));
+      const rng = new SeededRandom(baseSeed + i);
+      allPaths.push(runSingleSimulation(profile, rng));
     }
 
     // Calculate percentile paths
